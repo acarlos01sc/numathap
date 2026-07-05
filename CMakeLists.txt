@@ -29,7 +29,7 @@ target_include_directories(numathap
 #    tests/parser/lexer_test.cpp
 #)
 
-target_link_libraries(lexer_test
-    PRIVATE
-        numathap
-)
+#target_link_libraries(lexer_test
+#    PRIVATE
+#        numathap
+#)
