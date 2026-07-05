@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -17,13 +19,13 @@ class Lexer {
     char get();
     void skip_white_space();
 
-    Token read_numer();
+    Token read_number();
     Token read_identifier();
 
     const std::string &input_;
-    size_t pos_;
-    size_t line_;
-    size_t column_;
+    std::size_t pos_;
+    std::size_t line_;
+    std::size_t column_;
 };
 
 }  // namespace numathap::parser
