@@ -11,9 +11,9 @@ namespace numathap::parser {
 Lexer::Lexer(const std::string &input)
     : input_(input), pos_(0), line_(1), column_(1) {}
 
-char Lexer::peek() const {
-    if (pos_ >= input_.size()) return '\0';
-    return input_[pos_];
+char Lexer::peek(std::size_t offset) const {
+    if (pos_ + offset >= input_.size()) return '\0';
+    return input_[pos_ + offset];
 }
 
 char Lexer::get() {
@@ -31,22 +31,48 @@ char Lexer::get() {
 }
 
 void Lexer::skip_white_space() {
-    while (std::isspace(peek())) get();
+    while (std::isspace(static_cast<unsigned char>(peek()))) get();
 }
 
 Token Lexer::read_number() {
-    size_t start = pos_;
-    size_t start_line = line_;
-    size_t start_column = column_;
+    std::size_t start = pos_;
+    std::size_t start_line = line_;
+    std::size_t start_column = column_;
 
-    bool has_dot = false;
-
-    while (std::isdigit(peek()) || peek() == '.') {
-        if (peek() == '.') {
-            if (has_dot) break;
-            has_dot = true;
-        }
+    // Integer part
+    while (std::isdigit(static_cast<unsigned char>(peek()))) {
         get();
+    }
+
+    // Fractional part (optional)
+    if (peek() == '.') {
+        get();
+
+        while (std::isdigit(static_cast<unsigned char>(peek()))) {
+            get();
+        }
+    }
+
+    // Exponent part (optional)
+    if (peek() == 'e' || peek() == 'E') {
+
+        bool has_exponent =
+            std::isdigit(static_cast<unsigned char>(peek(1))) ||
+
+            ((peek(1) == '+' || peek(1) == '-') &&
+             std::isdigit(static_cast<unsigned char>(peek(2))));
+
+        if (has_exponent) {
+            get(); // consume 'e' or 'E'
+
+            if (peek() == '+' || peek() == '-') {
+                get();
+            }
+
+            while (std::isdigit(static_cast<unsigned char>(peek()))) {
+                get();
+            }
+        }
     }
 
     return Token{TokenType::Number, input_.substr(start, pos_ - start),
@@ -54,13 +80,13 @@ Token Lexer::read_number() {
 }
 
 Token Lexer::read_identifier() {
-    size_t start = pos_;
-    size_t start_line = line_;
-    size_t start_column = column_;
+    std::size_t start = pos_;
+    std::size_t start_line = line_;
+    std::size_t start_column = column_;
 
     get();
 
-    while (std::isalnum(peek()) || peek() == '_') get();
+    while (std::isalnum(static_cast<unsigned char>(peek())) || peek() == '_') get();
 
     return Token{TokenType::Identifier, input_.substr(start, pos_ - start),
                  start_line, start_column};
@@ -69,8 +95,8 @@ Token Lexer::read_identifier() {
 Token Lexer::next() {
     skip_white_space();
 
-    size_t start_line = line_;
-    size_t start_column = column_;
+    std::size_t start_line = line_;
+    std::size_t start_column = column_;
 
     char c = peek();
 
@@ -78,13 +104,35 @@ Token Lexer::next() {
         return Token{TokenType::EndOfInput, "", start_line, start_column};
     }
 
-    if (std::isdigit(c) || c == '.') return read_number();
+    if (std::isdigit(static_cast<unsigned char>(c)) || c == '.') return read_number();
 
-    if (std::isalpha(c)) return read_identifier();
+    if (std::isalpha(static_cast<unsigned char>(c))) return read_identifier();
 
     get();
 
     switch (c) {
+        case '!':
+            if (peek() == '=') {
+                get();
+                return Token{TokenType::NotEqual, "!=", start_line, start_column};
+            }
+            return Token{TokenType::Factorial, "!", start_line, start_column};
+        case '>':
+            if (peek() == '=') {
+                get();
+                return Token{TokenType::GreaterEqual, ">=", start_line, start_column};
+            }
+            return Token{TokenType::Greater, ">", start_line, start_column};
+        case '<':
+            if (peek() == '=') {
+                get();
+                return Token{TokenType::LessEqual, "<=", start_line, start_column};
+            }
+            return Token{TokenType::Less, "<", start_line, start_column};
+        case '=':
+            return Token{TokenType::Equal, "=", start_line, start_column};
+        case ';':
+            return Token{TokenType::Semicolon, ";", start_line, start_column};
         case '+':
             return Token{TokenType::Plus, "+", start_line, start_column};
         case '-':

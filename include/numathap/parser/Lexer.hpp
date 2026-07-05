@@ -11,11 +11,13 @@ namespace numathap::parser {
 class Lexer {
    public:
     explicit Lexer(const std::string &input);
+    [[nodiscard]]
     Token next();
+    [[nodiscard]]
     std::vector<Token> tokenize();
 
    private:
-    char peek() const;
+    char peek(std::size_t offset = 0) const;
     char get();
     void skip_white_space();
 

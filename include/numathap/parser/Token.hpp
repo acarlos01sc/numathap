@@ -27,6 +27,7 @@ enum class TokenType {
     Greater,       ///< '>' greater-than operator
     LessEqual,     ///< '<=' less-than-or-equal operator
     GreaterEqual,  ///< '>=' greater-than-or-equal operator
+    Factorial,     ///< '!' factorial operator
     NotEqual,      ///< '!=' not-equal operator
     Semicolon,     ///< ';' expression separator
     EndOfInput,    ///< End of input stream/string
@@ -45,6 +46,7 @@ struct Token {
     TokenType type;
 
     /// Original substring matched from input
+    /// Exact substring extracted from the input.
     std::string lexeme;
 
     /// Line number where the token starts (1-based indexing)
