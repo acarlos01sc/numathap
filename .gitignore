@@ -70,3 +70,6 @@ Testing/
 
 # Python venv
 .venv/
+
+# Execute
+build/

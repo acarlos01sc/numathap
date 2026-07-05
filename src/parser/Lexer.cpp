@@ -4,7 +4,7 @@
 #include <cstddef>
 #include <string>
 
-#include "Token.hpp"
+#include "numathap/parser/Token.hpp"
 
 namespace numathap::parser {
 
