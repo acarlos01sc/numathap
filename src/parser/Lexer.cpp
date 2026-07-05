@@ -1,4 +1,4 @@
-#include "Lexer.hpp"
+#include "numathap/parser/Lexer.hpp"
 
 #include <cctype>
 #include <cstddef>
@@ -107,7 +107,6 @@ Token Lexer::next() {
             return Token{TokenType::Invalid, std::string(1, c), start_line,
                          start_column};
     }
-
 }
 
 std::vector<Token> Lexer::tokenize() {
