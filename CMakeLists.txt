@@ -25,11 +25,11 @@ target_include_directories(numathap
 #
 # Primeiro teste
 #
-#add_executable(lexer_test
-#    tests/parser/lexer_test.cpp
-#)
+add_executable(lexer_test
+    tests/parser/lexer_test.cpp
+)
 
-#target_link_libraries(lexer_test
-#    PRIVATE
-#        numathap
-#)
+target_link_libraries(lexer_test
+    PRIVATE
+        numathap
+)
