@@ -2,7 +2,6 @@
 
 #include <cctype>
 #include <cstddef>
-#include <stdexcept>
 #include <string>
 
 #include "Token.hpp"
@@ -13,13 +12,11 @@ Lexer::Lexer(const std::string &input)
     : input_(input), pos_(0), line_(1), column_(1) {}
 
 char Lexer::peek() const {
-    // TODO: Return character at current position without advancing
     if (pos_ >= input_.size()) return '\0';
     return input_[pos_];
 }
 
 char Lexer::get() {
-    // TODO: Return character at current position and advance
     if (pos_ >= input_.size()) return '\0';
     char c = input_[pos_++];
 
@@ -34,19 +31,16 @@ char Lexer::get() {
 }
 
 void Lexer::skip_white_space() {
-    // TODO: Skip whitespace characters and update line/column tracking
     while (std::isspace(peek())) get();
 }
 
 Token Lexer::read_number() {
-    // TODO: Parse and return a number token
     size_t start = pos_;
     size_t start_line = line_;
     size_t start_column = column_;
 
     bool has_dot = false;
 
-    // TODO: Add regional configuration
     while (std::isdigit(peek()) || peek() == '.') {
         if (peek() == '.') {
             if (has_dot) break;
@@ -60,7 +54,6 @@ Token Lexer::read_number() {
 }
 
 Token Lexer::read_identifier() {
-    // TODO: Parse and return an identifier token
     size_t start = pos_;
     size_t start_line = line_;
     size_t start_column = column_;
@@ -115,9 +108,6 @@ Token Lexer::next() {
                          start_column};
     }
 
-    throw std::runtime_error("Undefined caracter '" + std::string(1, c) +
-                             " in line " + std::to_string(start_line) +
-                             ", column " + std::to_string(start_column));
 }
 
 std::vector<Token> Lexer::tokenize() {
