@@ -55,15 +55,13 @@ Token Lexer::read_number() {
 
     // Exponent part (optional)
     if (peek() == 'e' || peek() == 'E') {
+        bool has_exponent = std::isdigit(static_cast<unsigned char>(peek(1))) ||
 
-        bool has_exponent =
-            std::isdigit(static_cast<unsigned char>(peek(1))) ||
-
-            ((peek(1) == '+' || peek(1) == '-') &&
-             std::isdigit(static_cast<unsigned char>(peek(2))));
+                            ((peek(1) == '+' || peek(1) == '-') &&
+                             std::isdigit(static_cast<unsigned char>(peek(2))));
 
         if (has_exponent) {
-            get(); // consume 'e' or 'E'
+            get();  // consume 'e' or 'E'
 
             if (peek() == '+' || peek() == '-') {
                 get();
@@ -86,7 +84,8 @@ Token Lexer::read_identifier() {
 
     get();
 
-    while (std::isalnum(static_cast<unsigned char>(peek())) || peek() == '_') get();
+    while (std::isalnum(static_cast<unsigned char>(peek())) || peek() == '_')
+        get();
 
     return Token{TokenType::Identifier, input_.substr(start, pos_ - start),
                  start_line, start_column};
@@ -104,7 +103,8 @@ Token Lexer::next() {
         return Token{TokenType::EndOfInput, "", start_line, start_column};
     }
 
-    if (std::isdigit(static_cast<unsigned char>(c)) || c == '.') return read_number();
+    if (std::isdigit(static_cast<unsigned char>(c)) || c == '.')
+        return read_number();
 
     if (std::isalpha(static_cast<unsigned char>(c))) return read_identifier();
 
@@ -114,19 +114,22 @@ Token Lexer::next() {
         case '!':
             if (peek() == '=') {
                 get();
-                return Token{TokenType::NotEqual, "!=", start_line, start_column};
+                return Token{TokenType::NotEqual, "!=", start_line,
+                             start_column};
             }
             return Token{TokenType::Factorial, "!", start_line, start_column};
         case '>':
             if (peek() == '=') {
                 get();
-                return Token{TokenType::GreaterEqual, ">=", start_line, start_column};
+                return Token{TokenType::GreaterEqual, ">=", start_line,
+                             start_column};
             }
             return Token{TokenType::Greater, ">", start_line, start_column};
         case '<':
             if (peek() == '=') {
                 get();
-                return Token{TokenType::LessEqual, "<=", start_line, start_column};
+                return Token{TokenType::LessEqual, "<=", start_line,
+                             start_column};
             }
             return Token{TokenType::Less, "<", start_line, start_column};
         case '=':

@@ -35,7 +35,7 @@ class Lexer {
      */
     [[nodiscard]]
     Token next();
-    
+
     /**
      * @brief Tokenizes the entire input string.
      *
@@ -57,14 +57,14 @@ class Lexer {
      *         bounds.
      */
     char peek(std::size_t offset = 0) const;
-    
+
     /**
      * @brief Returns the current character and advances the input position.
      *
      * @return The consumed character.
      */
     char get();
-    
+
     /**
      * @brief Skips consecutive whitespace characters.
      */
@@ -101,4 +101,4 @@ class Lexer {
     std::size_t column_;
 };
 
-}  // namespace numathap::parser'
+}  // namespace numathap::parser

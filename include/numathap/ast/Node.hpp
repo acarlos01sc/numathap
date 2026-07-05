@@ -24,8 +24,7 @@ using NodePtr = std::unique_ptr<Node>;
  */
 class NumberNode : public Node {
    public:
-    explicit NumberNode(std::string value)
-        : value(std::move(value)) {}
+    explicit NumberNode(std::string value) : value(std::move(value)) {}
 
     /// Original textual representation of the number.
     std::string value;
@@ -38,8 +37,7 @@ class NumberNode : public Node {
  */
 class IdentifierNode : public Node {
    public:
-    explicit IdentifierNode(std::string name)
-        : name(std::move(name)) {}
+    explicit IdentifierNode(std::string name) : name(std::move(name)) {}
 
     /// Identifier name.
     std::string name;
@@ -48,10 +46,7 @@ class IdentifierNode : public Node {
 /**
  * @brief Unary operators.
  */
-enum class UnaryOp {
-    Plus,
-    Minus
-};
+enum class UnaryOp { Plus, Minus };
 
 /**
  * @brief Represents a unary expression.
@@ -72,13 +67,7 @@ class UnaryNode : public Node {
 /**
  * @brief Binary operators.
  */
-enum class BinaryOp {
-    Add,
-    Subtract,
-    Multiply,
-    Divide,
-    Power
-};
+enum class BinaryOp { Add, Subtract, Multiply, Divide, Power };
 
 /**
  * @brief Represents a binary expression.
@@ -91,9 +80,7 @@ enum class BinaryOp {
 class BinaryNode : public Node {
    public:
     BinaryNode(BinaryOp op, NodePtr left, NodePtr right)
-        : op(op),
-          left(std::move(left)),
-          right(std::move(right)) {}
+        : op(op), left(std::move(left)), right(std::move(right)) {}
 
     BinaryOp op;
     NodePtr left;
@@ -109,10 +96,8 @@ class BinaryNode : public Node {
  */
 class FunctionCallNode : public Node {
    public:
-    FunctionCallNode(std::string name,
-                     std::vector<NodePtr> arguments)
-        : name(std::move(name)),
-          arguments(std::move(arguments)) {}
+    FunctionCallNode(std::string name, std::vector<NodePtr> arguments)
+        : name(std::move(name)), arguments(std::move(arguments)) {}
 
     /// Function name.
     std::string name;
