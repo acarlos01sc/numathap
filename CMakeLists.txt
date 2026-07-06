@@ -15,6 +15,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 #
 add_library(numathap
     src/parser/Lexer.cpp
+    src/parser/Parser.cpp
 )
 
 target_include_directories(numathap
