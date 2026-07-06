@@ -21,6 +21,9 @@ using NodePtr = std::unique_ptr<Node>;
 
 /**
  * @brief Represents a numeric literal.
+ *
+ * The original textual representation is preserved exactly as it
+ * appears in the input.
  */
 class NumberNode : public Node {
    public:
@@ -51,6 +54,9 @@ enum class UnaryOp { Plus, Minus };
 /**
  * @brief Represents a unary expression.
  *
+ * A unary expression consists of a unary operator applied to a single
+ * operand.
+ *
  * Examples:
  *   -x
  *   +y
@@ -72,10 +78,13 @@ enum class BinaryOp { Add, Subtract, Multiply, Divide, Power };
 /**
  * @brief Represents a binary expression.
  *
+ * A binary expression consists of a binary operator applied to two
+ * operands.
+ *
  * Examples:
  *   a + b
  *   x^2
- *   3*y
+ *   3 * y
  */
 class BinaryNode : public Node {
    public:
@@ -88,7 +97,33 @@ class BinaryNode : public Node {
 };
 
 /**
+ * @brief Postfix operators.
+ */
+enum class PostfixOp { Factorial };
+
+/**
+ * @brief Represents a postfix unary expression.
+ *
+ * A postfix unary expression consists of a postfix operator applied to
+ * a single operand.
+ *
+ * Examples:
+ *   x!
+ */
+class PostfixNode : public Node {
+   public:
+    PostfixNode(PostfixOp op, NodePtr operand)
+        : op(op), operand(std::move(operand)) {}
+
+    PostfixOp op;
+    NodePtr operand;
+};
+
+/**
  * @brief Represents a function call.
+ *
+ * A function call consists of a function name followed by zero or more
+ * arguments.
  *
  * Examples:
  *   sin(x)
