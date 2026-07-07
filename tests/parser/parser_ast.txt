@@ -11,3 +11,4 @@ sin(x)^2
 log(x,10)
 |x-1|
 ((a+b)*c)^2
+sqrt(a^2+2*b+sin(x))-30*tan(x/2)
