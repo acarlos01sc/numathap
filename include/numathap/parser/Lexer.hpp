@@ -15,6 +15,14 @@ namespace numathap::parser {
  * that can be consumed by the parser. It recognizes numeric literals,
  * identifiers, operators, delimiters, and other supported symbols while
  * tracking the position of each token in the input.
+ *
+ * The lexer performs lexical analysis only. It does not validate the
+ * syntactic correctness of the expression.
+ */
+/**
+ * @invariant
+ * The lexer maintains a valid source position corresponding to the
+ * next character to be processed.
  */
 class Lexer {
    public:
@@ -39,7 +47,7 @@ class Lexer {
     /**
      * @brief Tokenizes the entire input string.
      *
-     * Repeatedly calls next() until the end of the input is reached.
+     * Repeatedly invokes next() until an EndOfInput token is produced.
      *
      * @return A vector containing all tokens, including the
      *         EndOfInput token.
@@ -49,8 +57,8 @@ class Lexer {
 
    private:
     /**
-     * @brief Returns the character at the specified offset without
-     * advancing the current position.
+     * @brief Returns the character located at the specified offset from the
+     * current input position without consuming it.
      *
      * @param offset Offset relative to the current position.
      * @return The requested character, or '\0' if the offset is out of
@@ -60,20 +68,25 @@ class Lexer {
 
     /**
      * @brief Returns the current character and advances the input position.
+     * This function also updates the current line and column counters.
      *
      * @return The consumed character.
      */
     char get();
 
     /**
-     * @brief Skips consecutive whitespace characters.
+     * @brief Consumes consecutive whitespace characters.
+     *
+     * Updates the current source position while skipping spaces,
+     * tabs, and newline characters.
      */
     void skip_white_space();
 
     /**
      * @brief Reads a numeric literal from the input.
      *
-     * Supports integer, floating-point, and scientific notation.
+     * Supports integer, floating-point, and scientific notation. The lexical
+     * validity of the number is checked during tokenization.
      *
      * @return A Number token.
      */
@@ -82,22 +95,23 @@ class Lexer {
     /**
      * @brief Reads an identifier from the input.
      *
-     * Identifiers may represent variables or function names.
+     * Identifiers may represent variables, constants or function names.
+     * Their semantic meaning is determined later by the Parser or Evaluator.
      *
      * @return An Identifier token.
      */
     Token read_identifier();
 
-    /// Reference to the input expression.
+    /// Reference to the source expression being tokenized.
     const std::string &input_;
 
-    /// Current position in the input string.
+    /// Current character index within the input string.
     std::size_t pos_;
 
-    /// Current line number (1-based).
+    /// Current source line (1-based).
     std::size_t line_;
 
-    /// Current column number (1-based).
+    /// Current column line (1-based).
     std::size_t column_;
 };
 

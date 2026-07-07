@@ -4,48 +4,54 @@
 #include <string>
 
 namespace numathap::parser {
+
 /**
- * @brief Types of lexical tokens recognized by the lexer.
+ * @brief Categories of lexical tokens recognized by the lexer.
  *
- * This enum represents all possible token categories that can be
- * produced from an input mathematical expression string.
+ * Tokens are produced by the Lexer and consumed by the Parser
+ * during syntactic analysis.
+ */
+/**
+ * @note
+ * This enumeration describes only lexical categories.
+ * The semantic meaning of each token is determined later by the Parser.
  */
 enum class TokenType {
-    Number,        ///< Numeric literal (e.g., 3, 3.14, 2e-5)
-    Identifier,    ///< Variable or function name (e.g., x, sin, log)
-    Plus,          ///< '+' addition operator
-    Minus,         ///< '-' subtraction operator
-    Star,          ///< '*' multiplication operator
-    Slash,         ///< '/' division operator
-    Caret,         ///< '^' exponentiation operator
-    VerticalBar,   ///< '|' absolute value or delimiter operator
-    LParen,        ///< '(' left parenthesis
-    RParen,        ///< ')' right parenthesis
-    Comma,         ///< ',' function argument separator
-    Equal,         ///< '=' equality operator
-    Less,          ///< '<' less-than operator
-    Greater,       ///< '>' greater-than operator
-    LessEqual,     ///< '<=' less-than-or-equal operator
-    GreaterEqual,  ///< '>=' greater-than-or-equal operator
-    Factorial,     ///< '!' factorial operator
-    NotEqual,      ///< '!=' not-equal operator
-    Semicolon,     ///< ';' expression separator
-    EndOfInput,    ///< End of input stream/string
-    Invalid        ///< Invalid or unrecognized token
+    Number,        ///< Numeric literal (e.g., 3, 3.14, 2e-5).
+    Identifier,    ///< Variable or function name (e.g., x, sin, log).
+    Plus,          ///< Addition operator.
+    Minus,         ///< Subtraction operator.
+    Star,          ///< Multiplication operator.
+    Slash,         ///< Division operator.
+    Caret,         ///< Exponentiation operator.
+    VerticalBar,   ///< Vertical bar token.
+    LParen,        ///< '(' left parenthesis.
+    RParen,        ///< ')' right parenthesis.
+    Comma,         ///< ',' function argument separator.
+    Equal,         ///< '=' equality operator.
+    Less,          ///< '<' less-than operator.
+    Greater,       ///< '>' greater-than operator.
+    LessEqual,     ///< '<=' less-than-or-equal operator.
+    GreaterEqual,  ///< '>=' greater-than-or-equal operator.
+    Factorial,     ///< '!' factorial operator.
+    NotEqual,      ///< '!=' not-equal operator.
+    Semicolon,     ///< ';' expression separator.
+    EndOfInput,    ///< End of input stream/string.
+    Invalid        ///< Unrecognized or malformed token.
 };
 
 /**
  * @brief Represents a lexical token produced by the lexer.
  *
- * A token is the smallest meaningful unit extracted from the input string.
- * It contains its type, the original text (lexeme), and its position in the
- * input.
+ * A token stores:
+ * - its lexical category;
+ * - the exact lexeme extracted from the input;
+ * - the source position (line and column).
  */
 struct Token {
     /// Token category
     TokenType type;
 
-    /// Original substring matched from input
     /// Exact substring extracted from the input.
     std::string lexeme;
 
