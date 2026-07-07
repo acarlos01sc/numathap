@@ -40,6 +40,7 @@ class Parser {
     ast::NodePtr parseMultiplicative();
     ast::NodePtr parsePower();
     ast::NodePtr parseUnary();
+    ast::NodePtr parseExponent();
     ast::NodePtr parsePostfix();
     ast::NodePtr parsePrimary();
 

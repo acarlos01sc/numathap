@@ -141,4 +141,22 @@ class FunctionCallNode : public Node {
     std::vector<NodePtr> arguments;
 };
 
+/**
+ * @brief Represents an absolute value expression.
+ *
+ * An absolute value expression consists of an expression enclosed
+ * by vertical bars.
+ *
+ * Examples:
+ *   |x|
+ *   |a-b|
+ */
+class AbsoluteNode : public Node {
+   public:
+    explicit AbsoluteNode(NodePtr operand)
+        : operand(std::move(operand)) {}
+
+    NodePtr operand;
+};
+
 }  // namespace numathap::ast
