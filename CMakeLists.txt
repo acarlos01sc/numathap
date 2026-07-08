@@ -12,6 +12,9 @@ add_library(numathap
     src/parser/Lexer.cpp
     src/parser/Parser.cpp
     src/ast/AstPrinter.cpp
+    src/numeric/Real.cpp
+    src/core/Value.cpp
+    src/core/Context.cpp
 )
 
 target_compile_features(numathap PUBLIC cxx_std_20)
@@ -48,3 +51,11 @@ add_executable(parser_ast_test
 target_link_libraries(parser_ast_test PRIVATE numathap)
 
 add_test(NAME parser_ast_test COMMAND parser_ast_test)
+
+add_executable(value_test_1
+    tests/core/value_test_1.cpp
+)
+
+target_link_libraries(value_test_1 PRIVATE numathap)
+
+add_test(NAME value_test_1 COMMAND value_test_1)
