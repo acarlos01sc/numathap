@@ -15,6 +15,7 @@ add_library(numathap
     src/numeric/Real.cpp
     src/core/Value.cpp
     src/core/Context.cpp
+    src/core/Evaluator.cpp
 )
 
 target_compile_features(numathap PUBLIC cxx_std_20)
@@ -59,3 +60,11 @@ add_executable(value_test_1
 target_link_libraries(value_test_1 PRIVATE numathap)
 
 add_test(NAME value_test_1 COMMAND value_test_1)
+
+add_executable(evaluator_test
+    tests/core/evaluator_test.cpp
+)
+
+target_link_libraries(evaluator_test PRIVATE numathap)
+
+add_test(NAME evaluator_test COMMAND evaluator_test)
