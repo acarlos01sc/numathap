@@ -15,6 +15,7 @@ add_library(numathap
     src/numeric/Real.cpp
     src/core/Value.cpp
     src/core/Context.cpp
+    src/orchestration/Orchestrator.cpp
 )
 
 target_compile_features(numathap PUBLIC cxx_std_20)
