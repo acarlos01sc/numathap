@@ -28,6 +28,8 @@ class Real {
     [[nodiscard]]
     Real operator/(const Real&) const noexcept;
     [[nodiscard]]
+    Real operator-() const noexcept;
+    [[nodiscard]]
     bool operator==(const Real&) const noexcept;
     [[nodiscard]]
     bool operator!=(const Real&) const noexcept;

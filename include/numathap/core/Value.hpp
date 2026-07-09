@@ -34,6 +34,12 @@ class Value {
     Value operator/(const Value&) const noexcept;
 
     [[nodiscard]]
+    Value operator+() const noexcept;
+
+    [[nodiscard]]
+    Value operator-() const noexcept;
+
+    [[nodiscard]]
     bool operator==(const Value&) const noexcept;
 
     [[nodiscard]]
