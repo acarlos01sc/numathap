@@ -7,7 +7,11 @@
 #include "numathap/parser/Lexer.hpp"
 #include "numathap/parser/Parser.hpp"
 
+#include "numathap/math/MathAstBuilder.hpp"
+#include "numathap/math/MathAstPrinter.hpp"
+
 namespace parser = numathap::parser;
+namespace math   = numathap::math;
 
 namespace {
 
@@ -24,7 +28,8 @@ bool isBlank(const std::string& line)
  */
 void processExpression(const std::string& expression,
                        std::ostream& out,
-                       parser::AstPrinter& printer)
+                       parser::AstPrinter& parserPrinter,
+                       math::MathAstPrinter& mathPrinter)
 {
     out << expression << "\n\n";
 
@@ -49,15 +54,32 @@ void processExpression(const std::string& expression,
     out << "Parser AST\n";
     out << "----------\n";
 
-    printer.print(out, parserAst);
+    parserPrinter.print(out, parserAst);
+
+    out << "\n";
+
+    //--------------------------------------------------------------
+    // Math AST Builder
+    //--------------------------------------------------------------
+
+    math::MathAstBuilder builder;
+
+    auto mathAst = builder.build(parserAst);
+
+    //--------------------------------------------------------------
+    // Math AST
+    //--------------------------------------------------------------
+
+    out << "Math AST\n";
+    out << "--------\n";
+
+    mathPrinter.print(out, mathAst);
 
     //--------------------------------------------------------------
     // Future pipeline
     //
-    // MathAstBuilder
-    //     ↓
     // Math AST
-    //
+    //     ↓
     // Orchestrator
     //     ↓
     // Prepared AST
@@ -92,7 +114,8 @@ int main(int argc, char* argv[])
 
     std::ostream& out = std::cout;
 
-    parser::AstPrinter printer;
+    parser::AstPrinter parserPrinter;
+    math::MathAstPrinter mathPrinter;
 
     std::string expression;
     std::size_t lineNumber = 0;
@@ -112,7 +135,10 @@ int main(int argc, char* argv[])
 
         try
         {
-            processExpression(expression, out, printer);
+            processExpression(expression,
+                              out,
+                              parserPrinter,
+                              mathPrinter);
         }
         catch (const std::exception& ex)
         {
