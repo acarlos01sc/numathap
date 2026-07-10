@@ -216,7 +216,6 @@ becomes
 
 # Processing Pipeline
 
-``` text
 Input String
      |
    Lexer
@@ -225,23 +224,28 @@ Input String
      |
    Parser
      |
- Parser-AST
++----------------+
+|   Parser-AST   |
++----------------+
      |
-Math-AST-Builder
+MathAstBuilder
      |
-  Math-AST
++----------------+
+|    Math-AST    |
++----------------+
      |
  Orchestrator
      |
-Prepared-AST
++----------------+
+|  Prepared-AST  |
++----------------+
      |
-  Backend
+ Dispatcher -------------> Context
+     |                       ^
+     |                       |
+     +---------------------> Function Registry
      |
- Dispatcher
-     |
-Context / Value / Function Registry
-```
-
+     +---------------------> Backend -----------> Value
 ------------------------------------------------------------------------
 
 # Architecture Summary

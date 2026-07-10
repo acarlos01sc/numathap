@@ -13,6 +13,8 @@ add_library(numathap
     src/parser/Lexer.cpp
     src/parser/Parser.cpp
     src/parser/AstPrinter.cpp
+    src/math/MathAstBuilder.cpp
+    src/math/MathAstPrinter.cpp
     src/numeric/Real.cpp
     src/core/Value.cpp
     src/core/Context.cpp
