@@ -1,6 +1,6 @@
 #pragma once
 
-#include "numathap/ast/Node.hpp"
+#include "numathap/parser/ast/Node.hpp"
 
 namespace numathap::orchestration {
 

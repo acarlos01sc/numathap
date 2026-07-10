@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "numathap/ast/Node.hpp"
+#include "numathap/parser/ast/Node.hpp"
 #include "numathap/parser/Token.hpp"
 
 namespace numathap::parser {
