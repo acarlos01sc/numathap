@@ -12,6 +12,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_library(numathap
     src/parser/Lexer.cpp
     src/parser/Parser.cpp
+    src/parser/AstPrinter.cpp
     src/numeric/Real.cpp
     src/core/Value.cpp
     src/core/Context.cpp
@@ -44,3 +45,12 @@ add_executable(lexer_test
 target_link_libraries(lexer_test PRIVATE numathap)
 
 add_test(NAME lexer_test COMMAND lexer_test)
+
+
+add_executable(pipeline_test
+    tests/parser/pipeline_test.cpp
+)
+
+target_link_libraries(pipeline_test PRIVATE numathap)
+
+add_test(NAME pipeline_test COMMAND pipeline_test)
