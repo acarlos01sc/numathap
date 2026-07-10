@@ -10,14 +10,31 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 add_library(numathap
+
+    # Public API
+    src/Session.cpp
+
+    # Configuration
+    src/config/Configurator.cpp
+    src/config/MathEnvironment.cpp
+
+    # Parser
     src/parser/Lexer.cpp
     src/parser/Parser.cpp
     src/parser/AstPrinter.cpp
+
+    # Mathematical Representation
     src/math/MathAstBuilder.cpp
     src/math/MathAstPrinter.cpp
+
+    # Numeric
     src/numeric/Real.cpp
-    src/core/Value.cpp
+
+    # Core
     src/core/Context.cpp
+    src/core/Value.cpp
+
+    # Orchestration
     src/orchestration/Orchestrator.cpp
 )
 
@@ -40,13 +57,22 @@ endif()
 
 enable_testing()
 
+#
+# Tests
+#
+
+
+
 add_executable(lexer_test
     tests/parser/lexer_test.cpp
 )
 
 target_link_libraries(lexer_test PRIVATE numathap)
 
-add_test(NAME lexer_test COMMAND lexer_test)
+add_test(
+    NAME lexer_test
+    COMMAND lexer_test
+    )
 
 
 add_executable(pipeline_test

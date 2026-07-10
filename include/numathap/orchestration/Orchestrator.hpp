@@ -1,5 +1,6 @@
 #pragma once
 
+#include "numathap/config/MathEnvironment.hpp"
 #include "numathap/math/MathNode.hpp"
 
 namespace numathap::orchestration {
@@ -7,9 +8,8 @@ namespace numathap::orchestration {
 /**
  * @brief Prepares a Math-AST for further processing.
  *
- * The Orchestrator is the coordination point between the semantic
- * representation of an expression (Math-AST) and the capabilities
- * that will operate on it.
+ * The Orchestrator coordinates the preparation of a Math-AST using
+ * the capabilities enabled in a MathEnvironment.
  *
  * The input is a Math-AST produced by MathAstBuilder.
  * The output is a Prepared AST, represented currently by the same
@@ -37,11 +37,14 @@ class Orchestrator {
      * be introduced.
      *
      * @param ast Math-AST to be prepared.
+     * @param environment Resolved execution environment.
      *
      * @return Prepared AST.
      */
     [[nodiscard]]
-    math::MathNodePtr prepare(math::MathNodePtr ast) const;
+    math::MathNodePtr prepare(
+        math::MathNodePtr ast,
+        const config::MathEnvironment& environment) const;
 };
 
 }  // namespace numathap::orchestration

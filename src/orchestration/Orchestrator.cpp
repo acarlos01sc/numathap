@@ -2,7 +2,9 @@
 
 namespace numathap::orchestration {
 
-math::MathNodePtr Orchestrator::prepare(math::MathNodePtr ast) const {
+math::MathNodePtr Orchestrator::prepare(
+    math::MathNodePtr ast,
+    const config::MathEnvironment& environment) const {
     //----------------------------------------------------------
     // Future preparation stages:
     //
@@ -11,8 +13,11 @@ math::MathNodePtr Orchestrator::prepare(math::MathNodePtr ast) const {
     // - normalization
     // - capability-specific transformations
     //
-    // For now, the Math-AST is already a valid Prepared AST.
+    // The enabled capabilities are obtained from the execution
+    // environment.
     //----------------------------------------------------------
+
+    (void)environment;
 
     return ast;
 }
