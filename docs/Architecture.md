@@ -12,22 +12,28 @@ algebraic simplification, optimization, and future mathematical
 capabilities.
 
 The architecture is inspired by classical compiler design while
-introducing a clear distinction between **syntactic representation** and
-**mathematical representation**. This separation allows different
-algorithms to share the same mathematical model without coupling
-expression representation to any specific computation.
+introducing a clear distinction between:
 
-------------------------------------------------------------------------
+* syntactic representation;
+* mathematical representation;
+* execution strategy.
+
+This separation allows multiple algorithms and services to operate on
+the same mathematical model without coupling expression representation
+to any specific computation.
+
+---
+
 # Public API
 
 The main user entry point is the **Session**.
 
 A Session represents an isolated execution environment containing:
 
-- mathematical library configuration;
-- available capabilities;
-- registered functions;
-- execution services.
+* mathematical library configuration;
+* available capabilities;
+* registered functions;
+* execution services.
 
 The user normally does not create internal components such as
 Orchestrator, Dispatcher or FunctionRegistry directly.
@@ -39,19 +45,23 @@ numathap::Session session;
 
 auto result =
     session.evaluate("sin(x)+sqrt(x)");
+```
 
 Advanced users may customize the Session environment:
 
+```cpp
 session.setMathLibrary("custom_library");
 
 session.enableCapability(
     Capability::Simplifier
 );
+```
 
-The default configuration uses the standard mathematical library
-based on cmath.
+The default configuration uses the standard mathematical library based
+on `cmath`.
 
--------------------------------------------------------------------------
+---
+
 # Expression Analysis
 
 ## Token
@@ -60,7 +70,7 @@ A **Token** represents a lexical element of the mathematical language,
 including numbers, identifiers, operators, delimiters and special
 symbols.
 
-------------------------------------------------------------------------
+---
 
 ## Lexer
 
@@ -69,13 +79,13 @@ sequence of tokens.
 
 Example:
 
-``` text
+```text
 sin(x) + 2*x
 ```
 
-becomes
+becomes:
 
-``` text
+```text
 FUNCTION(sin)
 LPAREN
 IDENTIFIER(x)
@@ -86,36 +96,30 @@ MULTIPLY
 IDENTIFIER(x)
 ```
 
-------------------------------------------------------------------------
-
-## Parser-AST Nodes
-
-Parser nodes represent the syntactic structure produced by the parser.
-
-Each node models only grammar constructs such as:
-
--   numeric literals;
--   identifiers;
--   unary operators;
--   binary operators;
--   function calls;
--   other syntactic elements.
-
-Parser nodes contain no evaluation logic.
-
-------------------------------------------------------------------------
+---
 
 ## Parser
 
 The **Parser** validates the grammar and builds the **Parser-AST**.
 
+Parser nodes represent only syntactic structures:
+
+* numeric literals;
+* identifiers;
+* unary operators;
+* binary operators;
+* function calls;
+* other grammar elements.
+
+Parser nodes contain no evaluation or mathematical behavior.
+
 Example:
 
-``` text
+```text
 sin(x) + x^2
 ```
 
-``` text
+```text
         +
        / \
     sin   ^
@@ -123,32 +127,38 @@ sin(x) + x^2
      x  x   2
 ```
 
-------------------------------------------------------------------------
+---
 
 # Parser-AST
 
 The Parser-AST represents only the grammatical organization of the
 expression.
 
-It knows nothing about numerical evaluation, symbolic manipulation or
-optimization.
+It knows nothing about:
 
-Its only purpose is to preserve the parsed structure.
+* numerical evaluation;
+* symbolic manipulation;
+* optimization;
+* mathematical semantics.
 
-------------------------------------------------------------------------
+Its purpose is to preserve the structure produced by parsing.
+
+---
 
 # Math-AST Builder
 
-The **Math-AST-Builder** converts the Parser-AST into a **Math-AST**.
+The **Math-AST Builder** converts the Parser-AST into a **Math-AST**.
 
 While the Parser-AST models syntax, the Math-AST models mathematical
-meaning. Equivalent syntactic constructions may therefore produce the
-same mathematical representation.
+meaning.
+
+Equivalent syntactic constructions may therefore produce the same
+mathematical representation.
 
 The Math-AST is independent of the parser implementation and may
 eventually be produced by other frontends.
 
-------------------------------------------------------------------------
+---
 
 # Configuration System
 
@@ -158,19 +168,21 @@ It separates user configuration from internal execution components.
 
 ## Configurator
 
-The **Configurator** is responsible for creating and modifying the
-mathematical execution environment.
+The **Configurator** creates and modifies the mathematical execution
+environment.
 
 It controls:
 
-- selected mathematical library;
-- available capabilities;
-- precision options;
-- backend configuration.
+* selected mathematical library;
+* available capabilities;
+* precision options;
+* backend configuration.
 
 The Configurator does not execute mathematical operations.
 
-Its role is to produce a configured environment.
+Its responsibility is to produce a configured environment.
+
+---
 
 ## Math Environment
 
@@ -179,14 +191,18 @@ during execution.
 
 It contains:
 
-- Math Backend;
-- Function Registry;
-- Capability set;
-- execution options.
+* Function Registry;
+* capability set;
+* execution options;
+* backend configuration.
 
 Runtime components receive the environment instead of directly
 consulting the Configurator.
--------------------------------------------------------------------
+
+The Math Environment does not implement mathematical functions.
+It provides the services required by execution components.
+
+---
 
 # Orchestrator
 
@@ -195,130 +211,180 @@ by the current Math Environment.
 
 It does not manage configuration.
 
-The environment is created before execution by the configuration system
-and provided to the Orchestrator.
-
 Possible preparation steps include:
 
-- simplification;
-- normalization;
-- algebraic rewriting;
-- removal of redundant expressions;
-- structural optimizations.
+* simplification;
+* normalization;
+* algebraic rewriting;
+* removal of redundant expressions;
+* structural optimizations.
 
 The result is the Prepared-AST.
 
-------------------------------------------------------------------------
+---
 
 # Shared Infrastructure
 
 ## Dispatcher
 
-The **Dispatcher** routes operations to the correct node-specific
-implementation without embedding behavior into the node classes.
+The **Dispatcher** routes operations to the correct backend
+implementation without embedding behavior into node classes.
 
-It allows multiple algorithms to operate on the same Math-AST while
-keeping node classes purely structural.
+It allows different algorithms to operate on the same Prepared-AST.
+
+---
 
 ## Context
 
 The **Context** stores external information required during execution,
-including variable values, constants and user-defined symbols.
+including:
+
+* variable values;
+* constants;
+* user-defined symbols.
+
+---
 
 ## Value
 
-The **Value** type abstracts the numeric objects manipulated by
-numerical backends.
+The **Value** type abstracts numeric objects manipulated by execution
+backends.
 
-Future versions may support arbitrary precision, complex numbers and
-additional numeric representations.
+Future versions may support:
+
+* arbitrary precision;
+* complex numbers;
+* additional numeric representations.
+
+---
 
 ## Function Registry
 
 The **Function Registry** maps textual function names to mathematical
-implementations provided by the selected Math Library.
+implementations provided by the selected mathematical library.
 
 The Math-AST identifies function calls but does not define their
-meaning.
+implementation.
 
 Example:
 
 ```text
-tb(x)
+sin(x)
+```
 
 is represented as a FunctionCallNode.
 
 The Function Registry determines whether the configured mathematical
-library provides a function named tb.
+library provides a function named `sin` and executes the associated
+implementation.
 
-If the function is not available, execution fails with an unsupported
+If the function is unavailable, execution fails with an unsupported
 function error.
 
 Users are responsible for knowing the syntax and available functions
 of the selected mathematical library.
 
-The default mathematical library is based on cmath and its supported
-functions are documented by the library.
-------------------------------------------------------------------------
+The default mathematical library is based on `cmath`.
 
-# Mathematical Libraries and Backends
+---
+
+# Mathematical Libraries
 
 Mathematical libraries provide concrete implementations of mathematical
 functions.
 
 Examples:
 
-- standard C++ `cmath`;
-- Boost mathematical functions;
-- arbitrary precision libraries;
-- user-defined libraries.
+* standard C++ `cmath`;
+* Boost mathematical functions;
+* arbitrary precision libraries;
+* user-defined libraries.
 
 Each library may expose its own function vocabulary.
 
 The Function Registry adapts the selected library to the numathap
 execution model.
 
-## ExpressionEvaluator
+No prior function-name translation is required.
 
-Evaluates expressions numerically using:
+The expression syntax follows the selected mathematical library.
 
--   Dispatcher;
--   Context;
--   Value;
--   Function Registry.
+---
+
+# Execution Backends
+
+Backends operate on the Prepared-AST through the Dispatcher.
+
+They define execution strategies while sharing the same mathematical
+representation.
+
+## Evaluator Backend
+
+The Evaluator Backend performs numerical evaluation.
+
+It uses:
+
+* Dispatcher;
+* Context;
+* Value;
+* Function Registry.
+
+It is responsible for evaluating mathematical expressions but does not
+provide mathematical functions itself.
+
+---
+
+## Symbolic Backends
+
+Symbolic Backends operate on the Prepared-AST to produce symbolic
+results.
+
+Possible services include:
+
+* symbolic differentiation;
+* algebraic simplification;
+* symbolic transformations.
+
+---
+
+# Mathematical Services
 
 ## Integrator
 
-Performs numerical integration by repeatedly evaluating the expression
-throughout the integration domain using the library evaluation
-infrastructure.
+Performs numerical integration by repeatedly evaluating expressions
+through the Evaluator Backend.
 
-## LimitCalculator
+---
 
-Determines limits through successive evaluations and numerical
-techniques while relying on the shared evaluation infrastructure.
+## Limit Calculator
+
+Computes limits through successive evaluations and numerical techniques
+using the shared evaluation infrastructure.
+
+---
 
 ## Differentiator
 
-Transforms one Prepared-AST into another representing the symbolic
-derivative.
+Transforms a Prepared-AST into another representation containing the
+symbolic derivative.
 
 Example:
 
-``` text
+```text
 x^2 + sin(x)
 ```
 
-becomes
+becomes:
 
-``` text
+```text
 2*x + cos(x)
 ```
 
-------------------------------------------------------------------------
+---
 
 # Processing Pipeline
 
+```text
                      User
                        |
                        v
@@ -337,7 +403,7 @@ Input String             |
    Lexer                 |
      |                   |
      v                   |
- Parser                  |
+  Parser                 |
      |                   |
      v                   |
  Parser-AST              |
@@ -364,59 +430,67 @@ Input String             |
  Symbolic          Evaluator
  Backends          Backend
                        |
-                       |
               +--------+--------+
               |                 |
               v                 v
        FunctionRegistry       Context
               |
               v
-       Math Backend
-------------------------------------------------------------------------
+       Selected Math Library
+```
+
+---
 
 # Architecture Summary
 
 ## User Interface
 
-- Session
+* Session
 
 ## Configuration
 
-- Configurator
-- Math Environment
-- Math Backend
-- Capabilities
+* Configurator
+* Math Environment
+* Capabilities
 
 ## Representation
 
--   Token
--   Lexer
--   Parser
--   Parser-AST
+* Token
+* Lexer
+* Parser
+* Parser-AST
+* Math-AST
 
 ## Preparation
 
--   Math-AST-Builder
--   Math-AST
--   Orchestrator
--   Prepared-AST
+* Math-AST Builder
+* Orchestrator
+* Prepared-AST
 
 ## Shared Infrastructure
 
--   Dispatcher
--   Context
--   Value
--   Function Registry
+* Dispatcher
+* Context
+* Value
+* Function Registry
 
-## Backends
+## Execution
 
--   ExpressionEvaluator
--   Integrator
--   LimitCalculator
--   Differentiator
--   Future mathematical services
+* Evaluator Backend
+* Symbolic Backends
+* Integrator
+* Limit Calculator
+* Differentiator
+* Future mathematical services
 
-This organization separates syntax, mathematical representation and
-execution, allowing the library to evolve into an extensible
-mathematical processing platform while keeping responsibilities clearly
-isolated.
+This organization separates:
+
+* syntax;
+* mathematical representation;
+* preparation;
+* execution strategy;
+* mathematical library integration.
+
+The result is an extensible mathematical processing architecture where
+new capabilities and mathematical libraries can be added without
+changing the core expression model.
