@@ -218,34 +218,73 @@ becomes
 
 Input String
      |
-   Lexer
+     v
+Lexer
      |
-   Tokens
+     v
+Tokens
      |
-   Parser
+     v
+Parser
      |
 +----------------+
-|   Parser-AST   |
+|  Parser-AST    |
 +----------------+
      |
+     v
 MathAstBuilder
      |
 +----------------+
-|    Math-AST    |
+|   Math-AST     |
 +----------------+
      |
- Orchestrator
-     |
+     v
 +----------------+
-|  Prepared-AST  |
+| Orchestrator   |
 +----------------+
      |
- Dispatcher -------------> Context
-     |                       ^
-     |                       |
-     +---------------------> Function Registry
+     +--> Simplifier Capability
      |
-     +---------------------> Backend -----------> Value
+     +--> ConstantFolder Capability
+     |
+     +--> Normalizer Capability
+     |
+     v
++----------------+
+| Prepared-AST   |
++----------------+
+     |
+     v
++-------------------+
+|  NodeDispatcher   |
++-------------------+
+     |
+     +---------------------------+
+     |                           |
+     v                           v
+
+Symbolic Backends             Evaluator
+                              Backend
+     |                           |
+     |                           +--> Context
+     |                           |
+     |                           +--> FunctionRegistry
+     |                           |
+     |                           +--> Value
+     |
+     +--> AstPrinter
+     +--> Differentiator
+     +--> Analyzer
+
+
+                 Evaluator
+                    ^
+                    |
+        +-----------+-----------+
+        |                       |
+        v                       v
+   Integrator            LimitCalculator
+   Backend               Backend
 ------------------------------------------------------------------------
 
 # Architecture Summary

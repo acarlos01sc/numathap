@@ -2,9 +2,19 @@
 
 namespace numathap::orchestration {
 
-ast::NodePtr Orchestrator::prepare(ast::NodePtr root)
-{
-    return root;
+math::MathNodePtr Orchestrator::prepare(math::MathNodePtr ast) const {
+    //----------------------------------------------------------
+    // Future preparation stages:
+    //
+    // - symbolic simplification
+    // - constant folding
+    // - normalization
+    // - capability-specific transformations
+    //
+    // For now, the Math-AST is already a valid Prepared AST.
+    //----------------------------------------------------------
+
+    return ast;
 }
 
 }  // namespace numathap::orchestration
