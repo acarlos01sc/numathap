@@ -1,25 +1,29 @@
 #pragma once
 
 #include <string>
-#include <unordered_set>
 
 #include "numathap/config/Capability.hpp"
-#include "numathap/config/MathEnvironment.hpp"
 
 namespace numathap::config {
 
+class MathEnvironment;
+
 /**
- * @brief Stores the mathematical execution configuration.
+ * @brief Configuration interface for a mathematical execution environment.
  *
- * The Configurator records the execution options selected by the user.
- * It does not execute mathematical operations.
+ * A Configurator provides the public API used to configure the
+ * MathEnvironment associated with a Session.
  *
- * Future versions will use this configuration to build the corresponding
- * MathEnvironment consumed by the execution pipeline.
+ * It modifies the Session's MathEnvironment but never performs
+ * mathematical computations itself.
  */
 class Configurator {
    public:
-    Configurator() = default;
+    /**
+     * @brief Constructs a configurator associated with a mathematical
+     * execution environment.
+     */
+    explicit Configurator(MathEnvironment& environment);
 
     /**
      * @brief Selects the mathematical library.
@@ -37,6 +41,21 @@ class Configurator {
     const std::string& mathLibrary() const noexcept;
 
     /**
+     * @brief Selects the numeric type.
+     *
+     * The default numeric type is "double".
+     *
+     * @param type Numeric type identifier.
+     */
+    void setNumericType(const std::string& type);
+
+    /**
+     * @brief Returns the selected numeric type.
+     */
+    [[nodiscard]]
+    const std::string& numericType() const noexcept;
+
+    /**
      * @brief Enables a capability.
      */
     void enableCapability(Capability capability);
@@ -52,12 +71,8 @@ class Configurator {
     [[nodiscard]]
     bool hasCapability(Capability capability) const noexcept;
 
-    [[nodiscard]]
-    MathEnvironment build() const;
-
    private:
-    std::string math_library_{"cmath"};
-    std::unordered_set<Capability> capabilities_;
+    MathEnvironment& environment_;
 };
 
 }  // namespace numathap::config

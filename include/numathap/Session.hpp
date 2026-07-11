@@ -3,6 +3,7 @@
 #include <string>
 
 #include "numathap/config/Configurator.hpp"
+#include "numathap/config/MathEnvironment.hpp"
 #include "numathap/core/Context.hpp"
 #include "numathap/core/Value.hpp"
 
@@ -13,8 +14,8 @@ namespace numathap {
  *
  * A Session represents an isolated mathematical execution environment.
  *
- * It owns the execution configuration and provides access to the public
- * numerical and symbolic services offered by the library.
+ * It owns the MathEnvironment associated with the current execution and
+ * exposes a Configurator used to modify that environment.
  *
  * Users typically interact only with Session rather than constructing
  * internal components directly.
@@ -32,10 +33,8 @@ class Session {
      * @return Computed value.
      */
     [[nodiscard]]
-    core::Value evaluate(
-        const std::string& expression,
-        const core::Context& context = {}
-    ) const;
+    core::Value evaluate(const std::string& expression,
+                         const core::Context& context = {}) const;
 
     /**
      * @brief Returns the configuration interface.
@@ -48,8 +47,12 @@ class Session {
     [[nodiscard]]
     const config::Configurator& configurator() const noexcept;
 
+    [[nodiscard]]
+    const config::MathEnvironment& environment() const noexcept;
+
    private:
+    config::MathEnvironment environment_;
     config::Configurator configurator_;
 };
 
-} // namespace numathap
+}  // namespace numathap

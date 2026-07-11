@@ -7,23 +7,34 @@
 
 namespace numathap::config {
 
+class Configurator;
+
 /**
- * @brief Represents the resolved mathematical execution environment.
+ * @brief Represents the mathematical execution environment of a Session.
  *
- * A MathEnvironment is an immutable snapshot of the execution
- * configuration produced by a Configurator.
+ * A MathEnvironment stores the execution configuration used by the
+ * evaluation pipeline, including the selected mathematical library,
+ * numeric type and enabled capabilities.
  *
- * Runtime components receive a MathEnvironment instead of consulting
- * the Configurator directly.
+ * Every Session owns exactly one MathEnvironment.
  *
- * Future versions will also contain the resolved Math Backend,
- * Function Registry and additional execution resources.
+ * The environment is configured exclusively through Configurator and
+ * is consulted by runtime components such as the Evaluator,
+ * FunctionRegistry and symbolic backends.
  */
 class MathEnvironment {
+    friend class Configurator;
+
    public:
-    MathEnvironment(
-        std::string math_library,
-        std::unordered_set<Capability> capabilities);
+    /**
+     * @brief Constructs a mathematical environment using the default
+     * configuration.
+     *
+     * Defaults:
+     *   - Math library : "cmath"
+     *   - Numeric type : "double"
+     */
+    MathEnvironment() = default;
 
     /**
      * @brief Returns the selected mathematical library.
@@ -32,13 +43,42 @@ class MathEnvironment {
     const std::string& mathLibrary() const noexcept;
 
     /**
+     * @brief Returns the selected numeric type.
+     */
+    [[nodiscard]]
+    const std::string& numericType() const noexcept;
+
+    /**
      * @brief Checks whether a capability is enabled.
      */
     [[nodiscard]]
     bool hasCapability(Capability capability) const noexcept;
 
    private:
-    std::string math_library_;
+    /**
+     * @brief Selects the mathematical library.
+     */
+    void setMathLibrary(const std::string& library);
+
+    /**
+     * @brief Selects the numeric type.
+     */
+    void setNumericType(const std::string& type);
+
+    /**
+     * @brief Enables a capability.
+     */
+    void enableCapability(Capability capability);
+
+    /**
+     * @brief Disables a capability.
+     */
+    void disableCapability(Capability capability);
+
+   private:
+    std::string math_library_{"cmath"};
+    std::string numeric_type_{"double"};
+
     std::unordered_set<Capability> capabilities_;
 };
 

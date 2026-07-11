@@ -1,32 +1,38 @@
 #include "numathap/config/Configurator.hpp"
 
+#include "numathap/config/MathEnvironment.hpp"
+
 namespace numathap::config {
 
+Configurator::Configurator(MathEnvironment& environment)
+    : environment_(environment) {}
+
 void Configurator::setMathLibrary(const std::string& library) {
-    math_library_ = library;
+    environment_.setMathLibrary(library);
 }
 
 const std::string& Configurator::mathLibrary() const noexcept {
-    return math_library_;
+    return environment_.mathLibrary();
+}
+
+void Configurator::setNumericType(const std::string& type) {
+    environment_.setNumericType(type);
+}
+
+const std::string& Configurator::numericType() const noexcept {
+    return environment_.numericType();
 }
 
 void Configurator::enableCapability(Capability capability) {
-    capabilities_.insert(capability);
+    environment_.enableCapability(capability);
 }
 
 void Configurator::disableCapability(Capability capability) {
-    capabilities_.erase(capability);
+    environment_.disableCapability(capability);
 }
 
 bool Configurator::hasCapability(Capability capability) const noexcept {
-    return capabilities_.contains(capability);
-}
-
-MathEnvironment Configurator::build() const {
-    return MathEnvironment{
-        math_library_,
-        capabilities_
-    };
+    return environment_.hasCapability(capability);
 }
 
 }  // namespace numathap::config
