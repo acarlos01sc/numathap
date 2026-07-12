@@ -2,11 +2,11 @@
 
 namespace numathap::config {
 
-const std::string& MathEnvironment::mathLibrary() const noexcept {
+MathLibrary MathEnvironment::mathLibrary() const noexcept {
     return math_library_;
 }
 
-const std::string& MathEnvironment::numericType() const noexcept {
+NumericType MathEnvironment::numericType() const noexcept {
     return numeric_type_;
 }
 
@@ -16,12 +16,12 @@ bool MathEnvironment::hasCapability(
 }
 
 void MathEnvironment::setMathLibrary(
-    const std::string& library) {
+    MathLibrary library) {
     math_library_ = library;
 }
 
 void MathEnvironment::setNumericType(
-    const std::string& type) {
+    NumericType type) {
     numeric_type_ = type;
 }
 

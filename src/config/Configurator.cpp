@@ -7,19 +7,19 @@ namespace numathap::config {
 Configurator::Configurator(MathEnvironment& environment)
     : environment_(environment) {}
 
-void Configurator::setMathLibrary(const std::string& library) {
+void Configurator::setMathLibrary(MathLibrary library) {
     environment_.setMathLibrary(library);
 }
 
-const std::string& Configurator::mathLibrary() const noexcept {
+MathLibrary Configurator::mathLibrary() const noexcept {
     return environment_.mathLibrary();
 }
 
-void Configurator::setNumericType(const std::string& type) {
+void Configurator::setNumericType(NumericType type) {
     environment_.setNumericType(type);
 }
 
-const std::string& Configurator::numericType() const noexcept {
+NumericType Configurator::numericType() const noexcept {
     return environment_.numericType();
 }
 
@@ -31,7 +31,8 @@ void Configurator::disableCapability(Capability capability) {
     environment_.disableCapability(capability);
 }
 
-bool Configurator::hasCapability(Capability capability) const noexcept {
+bool Configurator::hasCapability(
+    Capability capability) const noexcept {
     return environment_.hasCapability(capability);
 }
 

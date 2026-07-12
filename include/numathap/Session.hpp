@@ -2,8 +2,8 @@
 
 #include <string>
 
-#include "numathap/config/Configurator.hpp"
 #include "numathap/config/MathEnvironment.hpp"
+#include "numathap/config/Configurator.hpp"
 #include "numathap/core/Context.hpp"
 #include "numathap/core/Value.hpp"
 
@@ -19,6 +19,8 @@ namespace numathap {
  *
  * Users typically interact only with Session rather than constructing
  * internal components directly.
+ *
+ * Configuration changes should be performed through Configurator.
  */
 class Session {
    public:

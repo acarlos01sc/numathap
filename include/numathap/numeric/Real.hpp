@@ -11,7 +11,14 @@ namespace numathap::numeric {
  */
 class Real {
    public:
-    using Storage = double;
+    /**
+     * Underlying floating-point representation.
+     *
+     * Future versions may replace Storage with other floating-point
+     * types (e.g. long double or Boost.Multiprecision) without
+     * affecting the public API.
+     */
+    using Storage = double;  // default
 
     Real() noexcept = default;
     explicit Real(Storage value) noexcept;

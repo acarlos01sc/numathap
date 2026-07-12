@@ -1,8 +1,8 @@
 #pragma once
 
-#include <string>
-
 #include "numathap/config/Capability.hpp"
+#include "numathap/config/MathLibrary.hpp"
+#include "numathap/config/NumericType.hpp"
 
 namespace numathap::config {
 
@@ -28,32 +28,28 @@ class Configurator {
     /**
      * @brief Selects the mathematical library.
      *
-     * The default library is "cmath".
-     *
-     * @param library Library identifier.
+     * @param library Mathematical library identifier.
      */
-    void setMathLibrary(const std::string& library);
+    void setMathLibrary(MathLibrary library);
 
     /**
      * @brief Returns the selected mathematical library.
      */
     [[nodiscard]]
-    const std::string& mathLibrary() const noexcept;
+    MathLibrary mathLibrary() const noexcept;
 
     /**
      * @brief Selects the numeric type.
      *
-     * The default numeric type is "double".
-     *
      * @param type Numeric type identifier.
      */
-    void setNumericType(const std::string& type);
+    void setNumericType(NumericType type);
 
     /**
      * @brief Returns the selected numeric type.
      */
     [[nodiscard]]
-    const std::string& numericType() const noexcept;
+    NumericType numericType() const noexcept;
 
     /**
      * @brief Enables a capability.

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <string>
 #include <unordered_set>
 
 #include "numathap/config/Capability.hpp"
+#include "numathap/config/MathLibrary.hpp"
+#include "numathap/config/NumericType.hpp"
 
 namespace numathap::config {
 
@@ -16,23 +17,18 @@ class Configurator;
  * evaluation pipeline, including the selected mathematical library,
  * numeric type and enabled capabilities.
  *
- * Every Session owns exactly one MathEnvironment.
- *
- * The environment is configured exclusively through Configurator and
- * is consulted by runtime components such as the Evaluator,
- * FunctionRegistry and symbolic backends.
+ * The environment is configured exclusively through Configurator.
  */
 class MathEnvironment {
     friend class Configurator;
 
    public:
     /**
-     * @brief Constructs a mathematical environment using the default
-     * configuration.
+     * @brief Constructs a mathematical environment using default values.
      *
      * Defaults:
-     *   - Math library : "cmath"
-     *   - Numeric type : "double"
+     *   - Math library : MathLibrary::CMath
+     *   - Numeric type : NumericType::Double
      */
     MathEnvironment() = default;
 
@@ -40,13 +36,13 @@ class MathEnvironment {
      * @brief Returns the selected mathematical library.
      */
     [[nodiscard]]
-    const std::string& mathLibrary() const noexcept;
+    MathLibrary mathLibrary() const noexcept;
 
     /**
      * @brief Returns the selected numeric type.
      */
     [[nodiscard]]
-    const std::string& numericType() const noexcept;
+    NumericType numericType() const noexcept;
 
     /**
      * @brief Checks whether a capability is enabled.
@@ -55,29 +51,18 @@ class MathEnvironment {
     bool hasCapability(Capability capability) const noexcept;
 
    private:
-    /**
-     * @brief Selects the mathematical library.
-     */
-    void setMathLibrary(const std::string& library);
+    void setMathLibrary(MathLibrary library);
 
-    /**
-     * @brief Selects the numeric type.
-     */
-    void setNumericType(const std::string& type);
+    void setNumericType(NumericType type);
 
-    /**
-     * @brief Enables a capability.
-     */
     void enableCapability(Capability capability);
 
-    /**
-     * @brief Disables a capability.
-     */
     void disableCapability(Capability capability);
 
    private:
-    std::string math_library_{"cmath"};
-    std::string numeric_type_{"double"};
+    MathLibrary math_library_{MathLibrary::CMath};
+
+    NumericType numeric_type_{NumericType::Double};
 
     std::unordered_set<Capability> capabilities_;
 };

@@ -14,6 +14,10 @@ Real Real::operator-(const Real& other) const noexcept {
     return Real(value_ - other.value_);
 }
 
+Real Real::operator-() const noexcept {
+    return Real(-value_);
+}
+
 Real Real::operator*(const Real& other) const noexcept {
     return Real(value_ * other.value_);
 }

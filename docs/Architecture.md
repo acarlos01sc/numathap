@@ -2,41 +2,36 @@
 
 ## Overview
 
-The **numathap** library provides a high-level API for mathematical and
-numerical computation in **C++** and **Python**.
+The **numathap** library provides a high-level API for mathematical and numerical computation in **C++** and **Python**.
 
-Its primary goal is to allow mathematical expressions to be represented
-as strings and processed by multiple services such as numerical
-evaluation, integration, limit computation, symbolic differentiation,
-algebraic simplification, optimization, and future mathematical
-capabilities.
+Its primary goal is to allow mathematical expressions to be represented as strings and processed by multiple services such as numerical evaluation, integration, limit computation, symbolic differentiation, algebraic simplification, optimization, and future mathematical capabilities.
 
-The architecture is inspired by classical compiler design while
-introducing a clear distinction between:
+The architecture is inspired by classical compiler design while introducing a clear separation between:
 
-* syntactic representation;
-* mathematical representation;
-* execution strategy.
+- syntactic representation;
+- mathematical representation;
+- execution environment;
+- execution strategy.
 
-This separation allows multiple algorithms and services to operate on
-the same mathematical model without coupling expression representation
-to any specific computation.
+This separation allows multiple algorithms and services to operate on the same mathematical model without coupling expression representation to any particular mathematical library.
 
 ---
 
 # Public API
 
-The main user entry point is the **Session**.
+The primary user entry point is the **Session**.
 
-A Session represents an isolated execution environment containing:
+A Session represents an isolated mathematical execution environment.
 
-* mathematical library configuration;
-* available capabilities;
-* registered functions;
-* execution services.
+It owns:
 
-The user normally does not create internal components such as
-Orchestrator, Dispatcher or FunctionRegistry directly.
+- the Configurator;
+- the Math Environment;
+- execution services.
+
+The default configuration uses the C++ Standard Library (`cmath`).
+
+Advanced users may customize the Session by selecting another supported mathematical library or enabling additional capabilities.
 
 Example:
 
@@ -44,21 +39,18 @@ Example:
 numathap::Session session;
 
 auto result =
-    session.evaluate("sin(x)+sqrt(x)");
+    session.evaluate("sin(x) + sqrt(x)");
 ```
 
-Advanced users may customize the Session environment:
+Selecting another mathematical library:
 
 ```cpp
-session.setMathLibrary("custom_library");
+session.setMathLibrary("boost");
 
 session.enableCapability(
     Capability::Simplifier
 );
 ```
-
-The default configuration uses the standard mathematical library based
-on `cmath`.
 
 ---
 
@@ -66,16 +58,13 @@ on `cmath`.
 
 ## Token
 
-A **Token** represents a lexical element of the mathematical language,
-including numbers, identifiers, operators, delimiters and special
-symbols.
+A **Token** represents a lexical element of the mathematical language, including numbers, identifiers, operators, delimiters and reserved symbols.
 
 ---
 
 ## Lexer
 
-The **Lexer** converts the input character stream into an ordered
-sequence of tokens.
+The **Lexer** transforms the input character stream into an ordered sequence of tokens.
 
 Example:
 
@@ -83,7 +72,7 @@ Example:
 sin(x) + 2*x
 ```
 
-becomes:
+becomes
 
 ```text
 FUNCTION(sin)
@@ -102,21 +91,23 @@ IDENTIFIER(x)
 
 The **Parser** validates the grammar and builds the **Parser-AST**.
 
-Parser nodes represent only syntactic structures:
+Parser nodes represent only syntactic structures.
 
-* numeric literals;
-* identifiers;
-* unary operators;
-* binary operators;
-* function calls;
-* other grammar elements.
+Examples include:
 
-Parser nodes contain no evaluation or mathematical behavior.
+- numeric literals;
+- identifiers;
+- unary operators;
+- binary operators;
+- function calls;
+- grammar constructs.
+
+Parser nodes contain no mathematical behavior.
 
 Example:
 
 ```text
-sin(x) + x^2
+sin(x) + x²
 ```
 
 ```text
@@ -131,17 +122,11 @@ sin(x) + x^2
 
 # Parser-AST
 
-The Parser-AST represents only the grammatical organization of the
-expression.
+The Parser-AST represents only the grammatical organization of an expression.
 
-It knows nothing about:
+It contains no mathematical semantics.
 
-* numerical evaluation;
-* symbolic manipulation;
-* optimization;
-* mathematical semantics.
-
-Its purpose is to preserve the structure produced by parsing.
+Its sole purpose is to preserve the structure produced by parsing.
 
 ---
 
@@ -149,77 +134,95 @@ Its purpose is to preserve the structure produced by parsing.
 
 The **Math-AST Builder** converts the Parser-AST into a **Math-AST**.
 
-While the Parser-AST models syntax, the Math-AST models mathematical
-meaning.
+While the Parser-AST models syntax, the Math-AST models mathematical meaning.
 
-Equivalent syntactic constructions may therefore produce the same
-mathematical representation.
+Equivalent syntactic constructions may therefore produce the same mathematical representation.
 
-The Math-AST is independent of the parser implementation and may
-eventually be produced by other frontends.
+The Math-AST is independent of the parser implementation and may eventually be generated by different frontends.
 
 ---
 
 # Configuration System
 
-The configuration system defines how a Session is assembled.
-
-It separates user configuration from internal execution components.
-
 ## Configurator
 
-The **Configurator** creates and modifies the mathematical execution
-environment.
+The **Configurator** creates and modifies the mathematical execution environment.
 
-It controls:
+It defines:
 
-* selected mathematical library;
-* available capabilities;
-* precision options;
-* backend configuration.
+- selected mathematical library;
+- numeric type;
+- available capabilities;
+- execution options.
 
-The Configurator does not execute mathematical operations.
+The Configurator does not perform mathematical computations.
 
-Its responsibility is to produce a configured environment.
+Its responsibility is to assemble a valid execution environment.
 
 ---
 
+# Execution Environment
+
 ## Math Environment
 
-The **Math Environment** represents the resolved configuration used
-during execution.
+The **Math Environment** represents the complete execution state of a Session.
 
 It contains:
 
-* Function Registry;
-* capability set;
-* execution options;
-* backend configuration.
+- Math Adapter;
+- numeric type;
+- capability set;
+- execution options.
 
-Runtime components receive the environment instead of directly
-consulting the Configurator.
+Execution components receive the Math Environment instead of consulting the Configurator directly.
 
-The Math Environment does not implement mathematical functions.
-It provides the services required by execution components.
+The Math Environment itself performs no mathematical computation.
+
+Its role is to provide all information required by runtime components.
+
+---
+
+## Math Adapter
+
+The **Math Adapter** provides a uniform interface between numathap and an external mathematical library.
+
+Its responsibilities include:
+
+- resolving mathematical functions;
+- resolving mathematical constants;
+- adapting library-specific behavior;
+- exposing a consistent interface to the execution engine.
+
+The Evaluator communicates only with the Math Adapter, remaining completely independent of the selected mathematical library.
+
+---
+
+## Supported Mathematical Libraries
+
+The initial version of numathap supports the following mathematical libraries:
+
+- C++ Standard Library (`cmath`);
+- Boost.Math.
+
+Future versions may support additional mathematical libraries, including arbitrary-precision and user-defined implementations.
+
+Each supported library is encapsulated by its own Math Adapter implementation.
 
 ---
 
 # Orchestrator
 
-The **Orchestrator** prepares a Math-AST using the capabilities enabled
-by the current Math Environment.
-
-It does not manage configuration.
+The **Orchestrator** prepares a Math-AST according to the capabilities enabled in the current Math Environment.
 
 Possible preparation steps include:
 
-* simplification;
-* normalization;
-* algebraic rewriting;
-* removal of redundant expressions;
-* structural optimizations.
+- normalization;
+- simplification;
+- algebraic rewriting;
+- structural optimization;
+- elimination of redundant expressions.
 
-The result is the Prepared-AST.
+The result is the **Prepared-AST**.
 
 ---
 
@@ -227,123 +230,65 @@ The result is the Prepared-AST.
 
 ## Dispatcher
 
-The **Dispatcher** routes operations to the correct backend
-implementation without embedding behavior into node classes.
+The **Dispatcher** routes operations to the appropriate implementation without embedding behavior into AST node classes.
 
-It allows different algorithms to operate on the same Prepared-AST.
+This allows different algorithms to operate on the same Prepared-AST.
 
 ---
 
 ## Context
 
-The **Context** stores external information required during execution,
-including:
+The **Context** stores runtime information required during execution.
 
-* variable values;
-* constants;
-* user-defined symbols.
+Examples include:
+
+- variable values;
+- user-defined symbols;
+- execution state.
 
 ---
 
 ## Value
 
-The **Value** type abstracts numeric objects manipulated by execution
-backends.
+The **Value** type represents numerical values manipulated by execution components.
 
 Future versions may support:
 
-* arbitrary precision;
-* complex numbers;
-* additional numeric representations.
-
----
-
-## Function Registry
-
-The **Function Registry** maps textual function names to mathematical
-implementations provided by the selected mathematical library.
-
-The Math-AST identifies function calls but does not define their
-implementation.
-
-Example:
-
-```text
-sin(x)
-```
-
-is represented as a FunctionCallNode.
-
-The Function Registry determines whether the configured mathematical
-library provides a function named `sin` and executes the associated
-implementation.
-
-If the function is unavailable, execution fails with an unsupported
-function error.
-
-Users are responsible for knowing the syntax and available functions
-of the selected mathematical library.
-
-The default mathematical library is based on `cmath`.
-
----
-
-# Mathematical Libraries
-
-Mathematical libraries provide concrete implementations of mathematical
-functions.
-
-Examples:
-
-* standard C++ `cmath`;
-* Boost mathematical functions;
-* arbitrary precision libraries;
-* user-defined libraries.
-
-Each library may expose its own function vocabulary.
-
-The Function Registry adapts the selected library to the numathap
-execution model.
-
-No prior function-name translation is required.
-
-The expression syntax follows the selected mathematical library.
+- arbitrary precision;
+- complex numbers;
+- additional numeric representations.
 
 ---
 
 # Execution Backends
 
-Backends operate on the Prepared-AST through the Dispatcher.
-
-They define execution strategies while sharing the same mathematical
-representation.
-
 ## Evaluator Backend
 
-The Evaluator Backend performs numerical evaluation.
+The **Evaluator Backend** performs numerical evaluation.
 
 It uses:
 
-* Dispatcher;
-* Context;
-* Value;
-* Function Registry.
+- Dispatcher;
+- Context;
+- Value;
+- Math Environment.
 
-It is responsible for evaluating mathematical expressions but does not
-provide mathematical functions itself.
+Whenever a mathematical function or constant must be resolved, the Evaluator delegates the operation to the Math Adapter stored in the Math Environment.
+
+The Evaluator contains no knowledge of any particular mathematical library.
 
 ---
 
 ## Symbolic Backends
 
-Symbolic Backends operate on the Prepared-AST to produce symbolic
-results.
+Symbolic Backends operate exclusively on the Prepared-AST.
 
 Possible services include:
 
-* symbolic differentiation;
-* algebraic simplification;
-* symbolic transformations.
+- symbolic differentiation;
+- algebraic simplification;
+- symbolic transformations;
+- future symbolic algorithms.
 
 ---
 
@@ -351,30 +296,27 @@ Possible services include:
 
 ## Integrator
 
-Performs numerical integration by repeatedly evaluating expressions
-through the Evaluator Backend.
+Performs numerical integration by repeatedly evaluating expressions through the Evaluator Backend.
 
 ---
 
 ## Limit Calculator
 
-Computes limits through successive evaluations and numerical techniques
-using the shared evaluation infrastructure.
+Computes limits through successive evaluations and numerical techniques using the shared evaluation infrastructure.
 
 ---
 
 ## Differentiator
 
-Transforms a Prepared-AST into another representation containing the
-symbolic derivative.
+Transforms a Prepared-AST into another representation containing the symbolic derivative.
 
 Example:
 
 ```text
-x^2 + sin(x)
+x² + sin(x)
 ```
 
-becomes:
+becomes
 
 ```text
 2*x + cos(x)
@@ -385,34 +327,42 @@ becomes:
 # Processing Pipeline
 
 ```text
-                     User
-                       |
-                       v
-                  Session
-                       |
-                       v
-              Configurator
-                       |
-                       v
-              Math Environment
-                       |
-                       |
-Input String             |
-     |                   |
-     v                   |
-   Lexer                 |
-     |                   |
-     v                   |
-  Parser                 |
-     |                   |
-     v                   |
- Parser-AST              |
-     |                   |
-     v                   |
- MathAstBuilder          |
-     |                   |
-     v                   |
-  Math-AST --------------+
+                             User
+                               |
+                               v
+                           Session
+                               |
+                               v
+                        Configurator
+                               |
+                               v
+                      Math Environment
+                               |
+               +---------------+---------------+
+               |                               |
+               |                         Math Adapter
+               |                               |
+               |               +---------------+---------------+
+               |               |                               |
+               |               v                               v
+               |             cmath                       Boost.Math
+               |
+Input String   |
+     |         |
+     v         |
+   Lexer       |
+     |         |
+     v         |
+   Parser      |
+     |         |
+     v         |
+ Parser-AST    |
+     |         |
+     v         |
+Math-AST Builder
+     |
+     v
+  Math-AST
      |
      v
  Orchestrator
@@ -423,20 +373,19 @@ Input String             |
      v
  Dispatcher
      |
-     +----------------+
-     |                |
-     v                v
-
- Symbolic          Evaluator
- Backends          Backend
-                       |
-              +--------+--------+
-              |                 |
-              v                 v
-       FunctionRegistry       Context
-              |
-              v
-       Selected Math Library
+     +---------------------------+
+     |                           |
+     v                           v
+Symbolic                  Evaluator
+Backends                   Backend
+                                |
+                +---------------+---------------+
+                |               |               |
+                v               v               v
+            Context          Value      Math Environment
+                                             |
+                                             v
+                                       Math Adapter
 ```
 
 ---
@@ -445,52 +394,80 @@ Input String             |
 
 ## User Interface
 
-* Session
+- Session
+
+---
 
 ## Configuration
 
-* Configurator
-* Math Environment
-* Capabilities
+- Configurator
+
+---
+
+## Execution Environment
+
+- Math Environment
+- Math Adapter
+- Supported Mathematical Libraries
+
+---
 
 ## Representation
 
-* Token
-* Lexer
-* Parser
-* Parser-AST
-* Math-AST
+- Token
+- Lexer
+- Parser
+- Parser-AST
+- Math-AST
+
+---
 
 ## Preparation
 
-* Math-AST Builder
-* Orchestrator
-* Prepared-AST
+- Math-AST Builder
+- Orchestrator
+- Prepared-AST
+
+---
 
 ## Shared Infrastructure
 
-* Dispatcher
-* Context
-* Value
-* Function Registry
+- Dispatcher
+- Context
+- Value
+
+---
 
 ## Execution
 
-* Evaluator Backend
-* Symbolic Backends
-* Integrator
-* Limit Calculator
-* Differentiator
-* Future mathematical services
+- Evaluator Backend
+- Symbolic Backends
 
-This organization separates:
+---
 
-* syntax;
-* mathematical representation;
-* preparation;
-* execution strategy;
-* mathematical library integration.
+## Mathematical Services
 
-The result is an extensible mathematical processing architecture where
-new capabilities and mathematical libraries can be added without
-changing the core expression model.
+- Integrator
+- Limit Calculator
+- Differentiator
+- Future mathematical services
+
+---
+
+# Design Principles
+
+The architecture separates:
+
+- syntax;
+- mathematical representation;
+- execution environment;
+- execution strategy;
+- mathematical library integration.
+
+The execution engine is completely independent of any particular mathematical library.
+
+Library-specific behavior is encapsulated by the **Math Adapter**, allowing new mathematical libraries to be added without modifying the parser, AST, evaluator, or mathematical services.
+
+The initial release of **numathap** supports the C++ Standard Library (`cmath`) and **Boost.Math**.
+
+Future releases may extend support to additional mathematical libraries while preserving the same execution architecture.
