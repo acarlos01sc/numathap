@@ -18,43 +18,29 @@ namespace numathap::backend {
  */
 class Evaluator {
    public:
-
     /**
      * @brief Creates an evaluator.
      *
-     * @param context Variable resolution context.
      * @param adapter Mathematical library adapter.
      */
-    Evaluator(
-        const core::Context& context,
-        const config::MathAdapter& adapter);
+    explicit Evaluator(const config::MathAdapter& adapter);
 
+    void prepare(math::MathNodePtr preparedAst);
 
-    /**
-     * @brief Evaluates a Math-AST.
-     *
-     * @param node Root node of the AST.
-     *
-     * @return Result value.
-     */
     [[nodiscard]]
-    core::Value evaluate(
-        const math::MathNode& node) const;
-
+    core::Value calc(const core::Context& context) const;
 
    private:
-
     /**
      * @brief Recursively evaluates a MathNode.
      */
     [[nodiscard]]
-    core::Value evaluateNode(
-        const math::MathNode& node) const;
+    core::Value evaluateNode(const math::MathNode& node,
+                             const core::Context& context) const;
 
+    math::MathNodePtr preparedAst_;
 
-    const core::Context& context_;
     const config::MathAdapter& adapter_;
 };
 
-
-} // namespace numathap::backend
+}  // namespace numathap::backend

@@ -4,82 +4,34 @@
 
 #include "numathap/Session.hpp"
 
-
-int main()
-{
+int main() {
     using namespace numathap;
-
-
-    //----------------------------------------------------------
-    // Session
-    //----------------------------------------------------------
 
     Session session;
 
+    auto expression = session.prepare("sin(x)+exp(y)");
 
-    //----------------------------------------------------------
-    // Expressions
-    //----------------------------------------------------------
-
-    const std::string function = "sin(x)";
-
-    const std::string x_values[] = {
-        "0",
-        "pi/2",
-        "pi"
+    struct TestCase {
+        const char* x;
+        const char* y;
     };
 
+    const TestCase tests[] = {{"0", "0"}, {"pi/2", "1"}, {"pi", "2"}};
 
-    std::cout
-        << std::setprecision(15);
+    std::cout << std::setprecision(15);
 
-
-    //----------------------------------------------------------
-    // Evaluate
-    //----------------------------------------------------------
-
-    for (const auto& x_expression : x_values)
-    {
-        //------------------------------------------------------
-        // Evaluate x expression
-        //------------------------------------------------------
-
+    for (const auto& test : tests) {
         core::Context context;
 
+        context.set("x", session.evaluate(test.x));
 
-        auto x =
-            session.evaluate(
-                x_expression,
-                context);
+        context.set("y", session.evaluate(test.y));
 
+        auto result = expression.calc(context);
 
-        //------------------------------------------------------
-        // Set variable
-        //------------------------------------------------------
-
-        context.set(
-            "x",
-            x);
-
-
-        //------------------------------------------------------
-        // Evaluate sin(x)
-        //------------------------------------------------------
-
-        auto result =
-            session.evaluate(
-                function,
-                context);
-
-
-        std::cout
-            << "sin("
-            << x_expression
-            << ") = "
-            << result.real().value()
-            << '\n';
+        std::cout << "sin(" << test.x << ") + exp(" << test.y
+                  << ") = " << result.real().value() << '\n';
     }
-
 
     return 0;
 }

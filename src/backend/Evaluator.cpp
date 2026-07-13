@@ -10,15 +10,22 @@
 
 namespace numathap::backend {
 
-Evaluator::Evaluator(const core::Context& context,
-                     const config::MathAdapter& adapter)
-    : context_(context), adapter_(adapter) {}
+Evaluator::Evaluator(const config::MathAdapter& adapter) : adapter_(adapter) {}
 
-core::Value Evaluator::evaluate(const math::MathNode& node) const {
-    return evaluateNode(node);
+void Evaluator::prepare(math::MathNodePtr preparedAst) {
+    preparedAst_ = std::move(preparedAst);
 }
 
-core::Value Evaluator::evaluateNode(const math::MathNode& node) const {
+core::Value Evaluator::calc(const core::Context& context) const {
+    if (!preparedAst_) {
+        throw std::logic_error("Evaluator has no prepared AST.");
+    }
+
+    return evaluateNode(*preparedAst_, context);
+}
+
+core::Value Evaluator::evaluateNode(const math::MathNode& node,
+                                    const core::Context& context) const {
     return dispatch::Dispatcher::dispatch(
         node, [&](const auto& current) -> core::Value {
             using NodeType = std::decay_t<decltype(current)>;
@@ -45,8 +52,8 @@ core::Value Evaluator::evaluateNode(const math::MathNode& node) const {
                  *
                  */
 
-                if (context_.contains(current.name)) {
-                    return context_.get(current.name);
+                if (context.contains(current.name)) {
+                    return context.get(current.name);
                 }
 
                 return adapter_.resolveConstant(current.name);
@@ -57,7 +64,7 @@ core::Value Evaluator::evaluateNode(const math::MathNode& node) const {
             //--------------------------------------------------
 
             else if constexpr (std::is_same_v<NodeType, math::UnaryNode>) {
-                auto operand = evaluateNode(*current.operand);
+                auto operand = evaluateNode(*current.operand, context);
 
                 switch (current.op) {
                     case math::UnaryOp::Plus:
@@ -75,9 +82,9 @@ core::Value Evaluator::evaluateNode(const math::MathNode& node) const {
             //--------------------------------------------------
 
             else if constexpr (std::is_same_v<NodeType, math::BinaryNode>) {
-                auto left = evaluateNode(*current.left);
+                auto left = evaluateNode(*current.left, context);
 
-                auto right = evaluateNode(*current.right);
+                auto right = evaluateNode(*current.right, context);
 
                 switch (current.op) {
                     case math::BinaryOp::Add:
@@ -113,7 +120,7 @@ core::Value Evaluator::evaluateNode(const math::MathNode& node) const {
                 arguments.reserve(current.arguments.size());
 
                 for (const auto& argument : current.arguments) {
-                    arguments.push_back(evaluateNode(*argument));
+                    arguments.push_back(evaluateNode(*argument, context));
                 }
 
                 return adapter_.callFunction(current.name, arguments);

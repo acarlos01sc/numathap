@@ -3,6 +3,7 @@
 #include <memory>
 #include <utility>
 
+
 #include "numathap/backend/Evaluator.hpp"
 #include "numathap/math/MathAstBuilder.hpp"
 #include "numathap/orchestration/Orchestrator.hpp"
@@ -21,23 +22,35 @@ Session::Session()
 }
 
 
-config::Configurator&
-Session::configurator() noexcept
+//--------------------------------------------------------------
+// PreparedExpression
+//--------------------------------------------------------------
+
+Session::PreparedExpression::PreparedExpression(
+    std::unique_ptr<backend::Evaluator> evaluator)
+    :
+    evaluator_(std::move(evaluator))
 {
-    return configurator_;
 }
 
+Session::PreparedExpression::~PreparedExpression() = default;
 
-const config::Configurator&
-Session::configurator() const noexcept
-{
-    return configurator_;
-}
-
-
-core::Value Session::evaluate(
-    const std::string& expression,
+core::Value
+Session::PreparedExpression::calc(
     const core::Context& context) const
+{
+    return evaluator_->calc(context);
+}
+
+
+
+//--------------------------------------------------------------
+// Prepare
+//--------------------------------------------------------------
+
+Session::PreparedExpression
+Session::prepare(
+    const std::string& expression) const
 {
     //----------------------------------------------------------
     // Lexical analysis
@@ -78,25 +91,59 @@ core::Value Session::evaluate(
             environment_);
 
 
-    //----------------------------------------------------------
-    // Mathematical backend
-    //----------------------------------------------------------
-
-    auto adapter =
-        environment_.createMathAdapter();
-
 
     //----------------------------------------------------------
-    // Evaluation
+    // Evaluator
     //----------------------------------------------------------
 
-    backend::Evaluator evaluator(
-        context,
-        *adapter);
+    auto evaluator =
+        std::make_unique<backend::Evaluator>(
+            environment_.mathAdapter());
 
 
-    return evaluator.evaluate(
-        *preparedAst);
+    evaluator->prepare(
+        std::move(preparedAst));
+
+
+    return PreparedExpression(
+        std::move(evaluator));
+}
+
+
+
+//--------------------------------------------------------------
+// Evaluate
+//--------------------------------------------------------------
+
+core::Value
+Session::evaluate(
+    const std::string& expression,
+    const core::Context& context) const
+{
+    auto prepared =
+        prepare(expression);
+
+
+    return prepared.calc(context);
+}
+
+
+
+//--------------------------------------------------------------
+// Configuration
+//--------------------------------------------------------------
+
+config::Configurator&
+Session::configurator() noexcept
+{
+    return configurator_;
+}
+
+
+const config::Configurator&
+Session::configurator() const noexcept
+{
+    return configurator_;
 }
 
 

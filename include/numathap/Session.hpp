@@ -1,47 +1,87 @@
 #pragma once
 
+#include <memory>
 #include <string>
 
-#include "numathap/config/MathEnvironment.hpp"
 #include "numathap/config/Configurator.hpp"
+#include "numathap/config/MathEnvironment.hpp"
 #include "numathap/core/Context.hpp"
 #include "numathap/core/Value.hpp"
 
 namespace numathap {
 
-/**
- * @brief Main entry point of the numathap library.
- *
- * A Session represents an isolated mathematical execution environment.
- *
- * It owns the MathEnvironment associated with the current execution and
- * exposes a Configurator used to modify that environment.
- *
- * Users typically interact only with Session rather than constructing
- * internal components directly.
- *
- * Configuration changes should be performed through Configurator.
- */
+
+namespace backend {
+class Evaluator;
+}
+
+
+namespace math {
+class MathNode;
+using MathNodePtr = std::unique_ptr<MathNode>;
+}
+
+
 class Session {
    public:
-    Session();
 
     /**
-     * @brief Evaluates a mathematical expression.
+     * @brief Represents a prepared mathematical expression.
      *
-     * @param expression Mathematical expression.
-     * @param context Variable values.
+     * A PreparedExpression contains a prepared AST and can be
+     * evaluated repeatedly with different contexts.
+     */
+    class PreparedExpression {
+       public:
+
+        PreparedExpression(
+            std::unique_ptr<backend::Evaluator> evaluator);
+
+
+        ~PreparedExpression();
+
+        [[nodiscard]]
+        core::Value calc(
+            const core::Context& context = {}) const;
+
+
+       private:
+
+        std::unique_ptr<backend::Evaluator> evaluator_;
+    };
+
+
+   public:
+
+    Session();
+
+
+    /**
+     * @brief Evaluates an expression immediately.
      *
-     * @return Computed value.
+     * This is a convenience method equivalent to:
+     *
+     * prepare(expression).calc(context)
      */
     [[nodiscard]]
-    core::Value evaluate(const std::string& expression,
-                         const core::Context& context = {}) const;
+    core::Value evaluate(
+        const std::string& expression,
+        const core::Context& context = {}) const;
+
+
+    /**
+     * @brief Prepares an expression for repeated evaluation.
+     */
+    [[nodiscard]]
+    PreparedExpression prepare(
+        const std::string& expression) const;
+
 
     /**
      * @brief Returns the configuration interface.
      */
     config::Configurator& configurator() noexcept;
+
 
     /**
      * @brief Returns the configuration interface.
@@ -49,12 +89,18 @@ class Session {
     [[nodiscard]]
     const config::Configurator& configurator() const noexcept;
 
+
     [[nodiscard]]
-    const config::MathEnvironment& environment() const noexcept;
+    const config::MathEnvironment&
+    environment() const noexcept;
+
 
    private:
+
     config::MathEnvironment environment_;
+
     config::Configurator configurator_;
 };
 
-}  // namespace numathap
+
+} // namespace numathap

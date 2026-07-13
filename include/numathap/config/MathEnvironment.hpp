@@ -32,7 +32,7 @@ class MathEnvironment {
      *   - Math library : MathLibrary::CMath
      *   - Numeric type : NumericType::Double
      */
-    MathEnvironment() = default;
+    MathEnvironment();
 
     /**
      * @brief Returns the selected mathematical library.
@@ -40,8 +40,8 @@ class MathEnvironment {
     [[nodiscard]]
     MathLibrary mathLibrary() const noexcept;
 
-    [[nodiscard]]
-    std::unique_ptr<MathAdapter> createMathAdapter() const;
+    //[[nodiscard]]
+    //std::unique_ptr<MathAdapter> createMathAdapter() const;
 
     [[nodiscard]]
     const MathAdapter& mathAdapter() const noexcept;
@@ -66,6 +66,8 @@ class MathEnvironment {
     void enableCapability(Capability capability);
 
     void disableCapability(Capability capability);
+
+    void rebuildAdapter();
 
    private:
     MathLibrary math_library_{MathLibrary::CMath};
