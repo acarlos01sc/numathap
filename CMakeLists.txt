@@ -20,6 +20,9 @@ add_library(numathap
     src/config/MathEnvironment.cpp
     src/config/CMathAdapter.cpp
 
+    # Backend
+    src/backend/Evaluator.cpp
+
     # Parser
     src/parser/Lexer.cpp
     src/parser/Parser.cpp
@@ -84,3 +87,9 @@ add_executable(pipeline_test
 target_link_libraries(pipeline_test PRIVATE numathap)
 
 add_test(NAME pipeline_test COMMAND pipeline_test)
+
+add_executable(evaluator_test
+    tests/backend/evaluator_test.cpp
+)
+
+target_link_libraries(evaluator_test PRIVATE numathap)
