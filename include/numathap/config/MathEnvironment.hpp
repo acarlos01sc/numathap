@@ -1,8 +1,10 @@
 #pragma once
 
+#include <memory>
 #include <unordered_set>
 
 #include "numathap/config/Capability.hpp"
+#include "numathap/config/MathAdapter.hpp"
 #include "numathap/config/MathLibrary.hpp"
 #include "numathap/config/NumericType.hpp"
 
@@ -38,6 +40,12 @@ class MathEnvironment {
     [[nodiscard]]
     MathLibrary mathLibrary() const noexcept;
 
+    [[nodiscard]]
+    std::unique_ptr<MathAdapter> createMathAdapter() const;
+
+    [[nodiscard]]
+    const MathAdapter& mathAdapter() const noexcept;
+
     /**
      * @brief Returns the selected numeric type.
      */
@@ -65,6 +73,8 @@ class MathEnvironment {
     NumericType numeric_type_{NumericType::Double};
 
     std::unordered_set<Capability> capabilities_;
+
+    std::unique_ptr<MathAdapter> adapter_;
 };
 
 }  // namespace numathap::config

@@ -16,7 +16,9 @@ add_library(numathap
 
     # Configuration
     src/config/Configurator.cpp
+    src/config/MathAdapter.cpp
     src/config/MathEnvironment.cpp
+    src/config/CMathAdapter.cpp
 
     # Parser
     src/parser/Lexer.cpp

@@ -1,9 +1,28 @@
 #include "numathap/config/MathEnvironment.hpp"
 
+#include <memory>
+#include <stdexcept>
+
+#include "numathap/config/CMathAdapter.hpp"
+
 namespace numathap::config {
 
 MathLibrary MathEnvironment::mathLibrary() const noexcept {
     return math_library_;
+}
+
+std::unique_ptr<MathAdapter> MathEnvironment::createMathAdapter() const
+{
+    switch (math_library_) {
+        case MathLibrary::CMath:
+            return std::make_unique<CMathAdapter>();
+
+        // Futuras bibliotecas:
+        // case MathLibrary::Boost:
+        //     return std::make_unique<BoostMathAdapter>();
+    }
+
+    throw std::logic_error("Unsupported math library.");
 }
 
 NumericType MathEnvironment::numericType() const noexcept {
