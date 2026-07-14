@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string>
 
-#include "numathap/Session.hpp"
+#include "numathap/numathap.hpp"
 
 int main() {
     using namespace numathap;
@@ -27,7 +27,7 @@ int main() {
 
         context.set("y", session.evaluate(test.y));
 
-        auto result = expression.calc(context);
+        auto result = expression(context);
 
         std::cout << "sin(" << test.x << ") + exp(" << test.y
                   << ") = " << result.real().value() << '\n';

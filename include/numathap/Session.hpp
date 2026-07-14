@@ -10,21 +10,17 @@
 
 namespace numathap {
 
-
 namespace backend {
 class Evaluator;
 }
 
-
 namespace math {
 class MathNode;
 using MathNodePtr = std::unique_ptr<MathNode>;
-}
-
+}  // namespace math
 
 class Session {
    public:
-
     /**
      * @brief Represents a prepared mathematical expression.
      *
@@ -33,28 +29,22 @@ class Session {
      */
     class PreparedExpression {
        public:
-
-        PreparedExpression(
-            std::unique_ptr<backend::Evaluator> evaluator);
-
+        PreparedExpression(std::unique_ptr<backend::Evaluator> evaluator);
 
         ~PreparedExpression();
 
         [[nodiscard]]
-        core::Value calc(
-            const core::Context& context = {}) const;
+        core::Value calc(const core::Context& context = {}) const;
 
+        [[nodiscard]]
+        core::Value operator()(const core::Context& context = {}) const;
 
        private:
-
         std::unique_ptr<backend::Evaluator> evaluator_;
     };
 
-
    public:
-
     Session();
-
 
     /**
      * @brief Evaluates an expression immediately.
@@ -64,24 +54,19 @@ class Session {
      * prepare(expression).calc(context)
      */
     [[nodiscard]]
-    core::Value evaluate(
-        const std::string& expression,
-        const core::Context& context = {}) const;
-
+    core::Value evaluate(const std::string& expression,
+                         const core::Context& context = {}) const;
 
     /**
      * @brief Prepares an expression for repeated evaluation.
      */
     [[nodiscard]]
-    PreparedExpression prepare(
-        const std::string& expression) const;
-
+    PreparedExpression prepare(const std::string& expression) const;
 
     /**
      * @brief Returns the configuration interface.
      */
     config::Configurator& configurator() noexcept;
-
 
     /**
      * @brief Returns the configuration interface.
@@ -89,18 +74,13 @@ class Session {
     [[nodiscard]]
     const config::Configurator& configurator() const noexcept;
 
-
     [[nodiscard]]
-    const config::MathEnvironment&
-    environment() const noexcept;
-
+    const config::MathEnvironment& environment() const noexcept;
 
    private:
-
     config::MathEnvironment environment_;
 
     config::Configurator configurator_;
 };
 
-
-} // namespace numathap
+}  // namespace numathap
