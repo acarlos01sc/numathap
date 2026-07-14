@@ -13,7 +13,6 @@ add_library(numathap
 
     # Public API
     src/Session.cpp
-    src/Context.cpp
 
     # Configuration
     src/config/Configurator.cpp
