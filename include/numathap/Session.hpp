@@ -5,8 +5,7 @@
 
 #include "numathap/config/Configurator.hpp"
 #include "numathap/config/MathEnvironment.hpp"
-//#include "numathap/core/Context.hpp"
-#include "numathap/Context.hpp"
+#include "numathap/core/Context.hpp"
 #include "numathap/core/Value.hpp"
 
 namespace numathap {
