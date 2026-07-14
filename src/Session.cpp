@@ -92,6 +92,8 @@ core::Value Session::evaluate(const std::string& expression,
     return prepared.calc(context);
 }
 
+core::Context Session::context() const { return core::Context{}; }
+
 //--------------------------------------------------------------
 // Configuration
 //--------------------------------------------------------------

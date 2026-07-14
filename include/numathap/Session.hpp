@@ -5,7 +5,8 @@
 
 #include "numathap/config/Configurator.hpp"
 #include "numathap/config/MathEnvironment.hpp"
-#include "numathap/core/Context.hpp"
+//#include "numathap/core/Context.hpp"
+#include "numathap/Context.hpp"
 #include "numathap/core/Value.hpp"
 
 namespace numathap {
@@ -62,6 +63,12 @@ class Session {
      */
     [[nodiscard]]
     PreparedExpression prepare(const std::string& expression) const;
+
+    /**
+     * @brief Creates an empty evaluation context.
+     */
+    [[nodiscard]]
+    core::Context context() const;
 
     /**
      * @brief Returns the configuration interface.

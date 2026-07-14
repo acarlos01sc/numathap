@@ -21,7 +21,7 @@ int main() {
     std::cout << std::setprecision(15);
 
     for (const auto& test : tests) {
-        core::Context context;
+        auto context = session.context();
 
         context.set("x", session.evaluate(test.x));
 
