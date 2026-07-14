@@ -27,7 +27,7 @@ int main() {
 
         context.set("y", session.evaluate(test.y));
 
-        auto result = expression(context);
+        auto result = expression.calc(context);
 
         std::cout << "sin(" << test.x << ") + exp(" << test.y
                   << ") = " << result.real().value() << '\n';
