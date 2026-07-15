@@ -45,20 +45,12 @@ const char* toString(numathap::math::BinaryOp op) {
 
 namespace numathap::math {
 
-void MathAstPrinter::print(std::ostream& os,
-                           const MathNodePtr& node) const {
-    if (!node) {
-        os << "<empty>\n";
-        return;
-    }
-
-    printNode(os, *node, "", true);
+void MathAstPrinter::print(const MathNode& node, std::ostream& os) const {
+    printNode(os, node, "", true);
 }
 
-void MathAstPrinter::printNode(std::ostream& os,
-                               const MathNode& node,
-                               const std::string& prefix,
-                               bool isLast) const {
+void MathAstPrinter::printNode(std::ostream& os, const MathNode& node,
+                               const std::string& prefix, bool isLast) const {
     os << prefix;
 
     if (!prefix.empty()) {
@@ -90,10 +82,7 @@ void MathAstPrinter::printNode(std::ostream& os,
     if (const auto* n = dynamic_cast<const UnaryNode*>(&node)) {
         os << "Unary(" << toString(n->op) << ")\n";
 
-        printNode(os,
-                  *n->operand,
-                  prefix + (isLast ? "    " : "│   "),
-                  true);
+        printNode(os, *n->operand, prefix + (isLast ? "    " : "│   "), true);
 
         return;
     }
@@ -105,18 +94,11 @@ void MathAstPrinter::printNode(std::ostream& os,
     if (const auto* n = dynamic_cast<const BinaryNode*>(&node)) {
         os << "Binary(" << toString(n->op) << ")\n";
 
-        const std::string childPrefix =
-            prefix + (isLast ? "    " : "│   ");
+        const std::string childPrefix = prefix + (isLast ? "    " : "│   ");
 
-        printNode(os,
-                  *n->left,
-                  childPrefix,
-                  false);
+        printNode(os, *n->left, childPrefix, false);
 
-        printNode(os,
-                  *n->right,
-                  childPrefix,
-                  true);
+        printNode(os, *n->right, childPrefix, true);
 
         return;
     }
@@ -128,13 +110,10 @@ void MathAstPrinter::printNode(std::ostream& os,
     if (const auto* n = dynamic_cast<const FunctionNode*>(&node)) {
         os << "Function(" << n->name << ")\n";
 
-        const std::string childPrefix =
-            prefix + (isLast ? "    " : "│   ");
+        const std::string childPrefix = prefix + (isLast ? "    " : "│   ");
 
         for (std::size_t i = 0; i < n->arguments.size(); ++i) {
-            printNode(os,
-                      *n->arguments[i],
-                      childPrefix,
+            printNode(os, *n->arguments[i], childPrefix,
                       i + 1 == n->arguments.size());
         }
 

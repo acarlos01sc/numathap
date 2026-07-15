@@ -1,7 +1,7 @@
 #pragma once
 
 #include "numathap/math/MathNode.hpp"
-#include "numathap/parser/ast/Node.hpp"
+#include "numathap/parser/ParserNode.hpp"
 
 namespace numathap::math {
 
@@ -26,7 +26,7 @@ class MathAstBuilder {
      * @return Root node of the generated Math-AST.
      */
     [[nodiscard]]
-    MathNodePtr build(const ast::NodePtr& root) const;
+    MathNodePtr build(const parser::Node* root) const;
 
    private:
     /**
@@ -37,7 +37,7 @@ class MathAstBuilder {
      * @return Corresponding Math-AST node.
      */
     [[nodiscard]]
-    MathNodePtr buildNode(const ast::Node& node) const;
+    MathNodePtr buildNode(const parser::Node& node) const;
 };
 
 }  // namespace numathap::math

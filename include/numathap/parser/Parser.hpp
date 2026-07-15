@@ -4,7 +4,7 @@
 
 #include "Lexer.hpp"
 #include "Token.hpp"
-#include "numathap/parser/ast/Node.hpp"
+#include "ParserNode.hpp"
 
 namespace numathap::parser {
 /**
@@ -21,7 +21,7 @@ class Parser {
     explicit Parser(Lexer& lexer);
 
     [[nodiscard]]
-    ast::NodePtr parse();
+    NodePtr parse();
 
    private:
     Lexer& lexer_;
@@ -35,21 +35,21 @@ class Parser {
     bool isAtEnd() const;
 
     // Grammar
-    ast::NodePtr parseExpression();
-    ast::NodePtr parseAdditive();
-    ast::NodePtr parseMultiplicative();
-    ast::NodePtr parsePower();
-    ast::NodePtr parseUnary();
-    ast::NodePtr parseExponent();
-    ast::NodePtr parsePostfix();
-    ast::NodePtr parsePrimary();
+    NodePtr parseExpression();
+    NodePtr parseAdditive();
+    NodePtr parseMultiplicative();
+    NodePtr parsePower();
+    NodePtr parseUnary();
+    NodePtr parseExponent();
+    NodePtr parsePostfix();
+    NodePtr parsePrimary();
 
     // Primary expressions
-    ast::NodePtr parseNumber();
-    ast::NodePtr parseIdentifier();
-    std::vector<ast::NodePtr> parseArguments();
-    ast::NodePtr parseParenExpression();
-    ast::NodePtr parseAbsolute();
+    NodePtr parseNumber();
+    NodePtr parseIdentifier();
+    std::vector<NodePtr> parseArguments();
+    NodePtr parseParenExpression();
+    NodePtr parseAbsolute();
 };
 
 }  // namespace numathap::parser

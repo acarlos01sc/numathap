@@ -8,6 +8,11 @@ namespace numathap::parser {
 /**
  * @brief Categories of lexical tokens recognized by the lexer.
  *
+ * The lexer performs lexical analysis only.
+ *
+ * It recognizes tokens from the input stream without assigning
+ * any mathematical meaning to identifiers, operators or literals.
+ *
  * Tokens are produced by the Lexer and consumed by the Parser
  * during syntactic analysis.
  */

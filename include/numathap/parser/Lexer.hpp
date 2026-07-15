@@ -96,7 +96,7 @@ class Lexer {
      * @brief Reads an identifier from the input.
      *
      * Identifiers may represent variables, constants or function names.
-     * Their semantic meaning is determined later by the Parser or Evaluator.
+     * Their semantic meaning is determined during the semantic analysis stage.
      *
      * @return An Identifier token.
      */

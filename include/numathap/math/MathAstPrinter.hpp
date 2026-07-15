@@ -25,8 +25,7 @@ class MathAstPrinter {
      * @param os Output stream.
      * @param node Root node of the Math-AST.
      */
-    void print(std::ostream& os,
-               const MathNodePtr& node) const;
+    void print(const MathNode& node, std::ostream& os) const;
 
    private:
     /**
@@ -38,10 +37,8 @@ class MathAstPrinter {
      * @param isLast Indicates whether this node is the last child of
      *               its parent.
      */
-    void printNode(std::ostream& os,
-                   const MathNode& node,
-                   const std::string& prefix,
-                   bool isLast) const;
+    void printNode(std::ostream& os, const MathNode& node,
+                   const std::string& prefix, bool isLast) const;
 };
 
 }  // namespace numathap::math

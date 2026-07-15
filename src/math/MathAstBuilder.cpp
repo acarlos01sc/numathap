@@ -6,11 +6,11 @@
 #include <vector>
 
 #include "numathap/math/MathNode.hpp"
-#include "numathap/parser/ast/Node.hpp"
+#include "numathap/parser/ParserNode.hpp"
 
 namespace numathap::math {
 
-MathNodePtr MathAstBuilder::build(const ast::NodePtr& root) const {
+MathNodePtr MathAstBuilder::build(const parser::Node* root) const {
     if (!root) {
         return nullptr;
     }
@@ -18,12 +18,12 @@ MathNodePtr MathAstBuilder::build(const ast::NodePtr& root) const {
     return buildNode(*root);
 }
 
-MathNodePtr MathAstBuilder::buildNode(const ast::Node& node) const {
+MathNodePtr MathAstBuilder::buildNode(const parser::Node& node) const {
     //----------------------------------------------------------
     // Number
     //----------------------------------------------------------
 
-    if (const auto* n = dynamic_cast<const ast::NumberNode*>(&node)) {
+    if (const auto* n = dynamic_cast<const parser::NumberNode*>(&node)) {
         return std::make_unique<NumberNode>(n->value);
     }
 
@@ -31,7 +31,7 @@ MathNodePtr MathAstBuilder::buildNode(const ast::Node& node) const {
     // Identifier -> Symbol
     //----------------------------------------------------------
 
-    if (const auto* n = dynamic_cast<const ast::IdentifierNode*>(&node)) {
+    if (const auto* n = dynamic_cast<const parser::IdentifierNode*>(&node)) {
         return std::make_unique<SymbolNode>(n->name);
     }
 
@@ -39,15 +39,15 @@ MathNodePtr MathAstBuilder::buildNode(const ast::Node& node) const {
     // Unary
     //----------------------------------------------------------
 
-    if (const auto* n = dynamic_cast<const ast::UnaryNode*>(&node)) {
+    if (const auto* n = dynamic_cast<const parser::UnaryNode*>(&node)) {
         UnaryOp op;
 
         switch (n->op) {
-            case ast::UnaryOp::Plus:
+            case parser::UnaryOp::Plus:
                 op = UnaryOp::Plus;
                 break;
 
-            case ast::UnaryOp::Minus:
+            case parser::UnaryOp::Minus:
                 op = UnaryOp::Minus;
                 break;
         }
@@ -61,27 +61,27 @@ MathNodePtr MathAstBuilder::buildNode(const ast::Node& node) const {
     // Binary
     //----------------------------------------------------------
 
-    if (const auto* n = dynamic_cast<const ast::BinaryNode*>(&node)) {
+    if (const auto* n = dynamic_cast<const parser::BinaryNode*>(&node)) {
         BinaryOp op;
 
         switch (n->op) {
-            case ast::BinaryOp::Add:
+            case parser::BinaryOp::Add:
                 op = BinaryOp::Add;
                 break;
 
-            case ast::BinaryOp::Subtract:
+            case parser::BinaryOp::Subtract:
                 op = BinaryOp::Subtract;
                 break;
 
-            case ast::BinaryOp::Multiply:
+            case parser::BinaryOp::Multiply:
                 op = BinaryOp::Multiply;
                 break;
 
-            case ast::BinaryOp::Divide:
+            case parser::BinaryOp::Divide:
                 op = BinaryOp::Divide;
                 break;
 
-            case ast::BinaryOp::Power:
+            case parser::BinaryOp::Power:
                 op = BinaryOp::Power;
                 break;
         }
@@ -96,7 +96,7 @@ MathNodePtr MathAstBuilder::buildNode(const ast::Node& node) const {
     // Function call
     //----------------------------------------------------------
 
-    if (const auto* n = dynamic_cast<const ast::FunctionCallNode*>(&node)) {
+    if (const auto* n = dynamic_cast<const parser::FunctionCallNode*>(&node)) {
         std::vector<MathNodePtr> arguments;
         arguments.reserve(n->arguments.size());
 
@@ -113,7 +113,7 @@ MathNodePtr MathAstBuilder::buildNode(const ast::Node& node) const {
     // Absolute value
     //----------------------------------------------------------
 
-    if (const auto* n = dynamic_cast<const ast::AbsoluteNode*>(&node)) {
+    if (const auto* n = dynamic_cast<const parser::AbsoluteNode*>(&node)) {
         std::vector<MathNodePtr> arguments;
         arguments.push_back(buildNode(*n->operand));
 
@@ -126,9 +126,9 @@ MathNodePtr MathAstBuilder::buildNode(const ast::Node& node) const {
     // Postfix operators
     //----------------------------------------------------------
 
-    if (const auto* n = dynamic_cast<const ast::PostfixNode*>(&node)) {
+    if (const auto* n = dynamic_cast<const parser::PostfixNode*>(&node)) {
         switch (n->op) {
-            case ast::PostfixOp::Factorial: {
+            case parser::PostfixOp::Factorial: {
                 std::vector<MathNodePtr> arguments;
                 arguments.push_back(buildNode(*n->operand));
 

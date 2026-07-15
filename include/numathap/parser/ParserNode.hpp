@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace numathap::ast {
+namespace numathap::parser {
 
 /**
  * @brief Base class for all Abstract Syntax Tree (AST) nodes.
@@ -160,4 +160,4 @@ class AbsoluteNode : public Node {
     NodePtr operand;
 };
 
-}  // namespace numathap::ast
+}  // namespace numathap::parser

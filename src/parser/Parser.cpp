@@ -4,7 +4,6 @@
 #include <stdexcept>
 #include <vector>
 
-#include "numathap/parser/ast/Node.hpp"
 #include "numathap/parser/Token.hpp"
 
 namespace numathap::parser {
@@ -60,7 +59,7 @@ bool Parser::isAtEnd() const { return current_.type == TokenType::EndOfInput; }
  * @throws std::logic_error if unexpected tokens are found after the
  *         expression.
  */
-ast::NodePtr Parser::parse() {
+NodePtr Parser::parse() {
     auto expression = parseExpression();
 
     if (!isAtEnd()) {
@@ -74,48 +73,48 @@ ast::NodePtr Parser::parse() {
 // Grammar
 //--------------------------------------------------------------
 
-ast::NodePtr Parser::parseExpression() { return parseAdditive(); }
+NodePtr Parser::parseExpression() { return parseAdditive(); }
 
-ast::NodePtr Parser::parseAdditive() {
+NodePtr Parser::parseAdditive() {
     auto left = parseMultiplicative();
 
     while (true) {
-        ast::BinaryOp op;
+        BinaryOp op;
 
         if (match(TokenType::Plus)) {
-            op = ast::BinaryOp::Add;
+            op = BinaryOp::Add;
         } else if (match(TokenType::Minus)) {
-            op = ast::BinaryOp::Subtract;
+            op = BinaryOp::Subtract;
         } else {
             break;
         }
 
         auto right = parseMultiplicative();
 
-        left = std::make_unique<ast::BinaryNode>(op, std::move(left),
+        left = std::make_unique<BinaryNode>(op, std::move(left),
                                                  std::move(right));
     }
 
     return left;
 }
 
-ast::NodePtr Parser::parseMultiplicative() {
+NodePtr Parser::parseMultiplicative() {
     auto left = parseUnary();
 
     while (true) {
-        ast::BinaryOp op;
+        BinaryOp op;
 
         if (match(TokenType::Star)) {
-            op = ast::BinaryOp::Multiply;
+            op = BinaryOp::Multiply;
         } else if (match(TokenType::Slash)) {
-            op = ast::BinaryOp::Divide;
+            op = BinaryOp::Divide;
         } else {
             break;
         }
 
         auto right = parseUnary();
 
-        left = std::make_unique<ast::BinaryNode>(op, std::move(left),
+        left = std::make_unique<BinaryNode>(op, std::move(left),
                                                  std::move(right));
     }
 
@@ -140,7 +139,7 @@ ast::NodePtr Parser::parseMultiplicative() {
  *
  * @return The AST node representing a power expression.
  */
-ast::NodePtr Parser::parsePower() {
+NodePtr Parser::parsePower() {
     auto left = parsePostfix();
 
     if (!match(TokenType::Caret)) {
@@ -149,7 +148,7 @@ ast::NodePtr Parser::parsePower() {
 
     auto right = parseExponent();
 
-    return std::make_unique<ast::BinaryNode>(ast::BinaryOp::Power,
+    return std::make_unique<BinaryNode>(BinaryOp::Power,
                                              std::move(left), std::move(right));
 }
 
@@ -169,16 +168,16 @@ ast::NodePtr Parser::parsePower() {
  *
  * @return The AST node representing the exponent expression.
  */
-ast::NodePtr Parser::parseExponent() { return parseUnary(); }
+NodePtr Parser::parseExponent() { return parseUnary(); }
 
-ast::NodePtr Parser::parseUnary() {
+NodePtr Parser::parseUnary() {
     if (match(TokenType::Plus)) {
-        return std::make_unique<ast::UnaryNode>(ast::UnaryOp::Plus,
+        return std::make_unique<UnaryNode>(UnaryOp::Plus,
                                                 parseUnary());
     }
 
     if (match(TokenType::Minus)) {
-        return std::make_unique<ast::UnaryNode>(ast::UnaryOp::Minus,
+        return std::make_unique<UnaryNode>(UnaryOp::Minus,
                                                 parseUnary());
     }
 
@@ -195,12 +194,12 @@ ast::NodePtr Parser::parseUnary() {
  *
  * @return The AST node representing the postfix expression.
  */
-ast::NodePtr Parser::parsePostfix() {
+NodePtr Parser::parsePostfix() {
     auto node = parsePrimary();
 
     while (match(TokenType::Factorial)) {
-        node = std::make_unique<ast::PostfixNode>(
-            ast::PostfixOp::Factorial,
+        node = std::make_unique<PostfixNode>(
+            PostfixOp::Factorial,
             std::move(node));
     }
 
@@ -220,7 +219,7 @@ ast::NodePtr Parser::parsePostfix() {
  *
  * @return The AST node representing the primary expression.
  */
-ast::NodePtr Parser::parsePrimary() {
+NodePtr Parser::parsePrimary() {
     if (check(TokenType::Number)) {
         return parseNumber();
     }
@@ -244,27 +243,27 @@ ast::NodePtr Parser::parsePrimary() {
 // Primary expressions
 //--------------------------------------------------------------
 
-ast::NodePtr Parser::parseNumber() {
+NodePtr Parser::parseNumber() {
     std::string value = current_.lexeme;
     advance();
-    return std::make_unique<ast::NumberNode>(std::move(value));
+    return std::make_unique<NumberNode>(std::move(value));
 }
 
-ast::NodePtr Parser::parseIdentifier() {
+NodePtr Parser::parseIdentifier() {
     std::string name = current_.lexeme;
     advance();
     if (!match(TokenType::LParen)) {
-        return std::make_unique<ast::IdentifierNode>(std::move(name));
+        return std::make_unique<IdentifierNode>(std::move(name));
     }
 
     auto arguments = parseArguments();
 
-    return std::make_unique<ast::FunctionCallNode>(std::move(name),
+    return std::make_unique<FunctionCallNode>(std::move(name),
                                                    std::move(arguments));
 }
 
-std::vector<ast::NodePtr> Parser::parseArguments() {
-    std::vector<ast::NodePtr> arguments;
+std::vector<NodePtr> Parser::parseArguments() {
+    std::vector<NodePtr> arguments;
 
     // Empty argument list: f()
     if (match(TokenType::RParen)) {
@@ -293,7 +292,7 @@ std::vector<ast::NodePtr> Parser::parseArguments() {
  *
  * @return The AST node representing the enclosed expression.
  */
-ast::NodePtr Parser::parseParenExpression() {
+NodePtr Parser::parseParenExpression() {
     expect(TokenType::LParen, "Expected '('.");
 
     auto expression = parseExpression();
@@ -317,7 +316,7 @@ ast::NodePtr Parser::parseParenExpression() {
  *
  * @return The AST node representing the absolute value expression.
  */
-ast::NodePtr Parser::parseAbsolute() {
+NodePtr Parser::parseAbsolute() {
     expect(TokenType::VerticalBar, "Expected '|'. ");
 
     auto expression = parseExpression();
@@ -325,7 +324,7 @@ ast::NodePtr Parser::parseAbsolute() {
     expect(TokenType::VerticalBar,
            "Expected closing '|'. ");
 
-    return std::make_unique<ast::AbsoluteNode>(
+    return std::make_unique<AbsoluteNode>(
         std::move(expression));
 }
 
