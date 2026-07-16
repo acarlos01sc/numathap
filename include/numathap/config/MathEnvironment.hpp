@@ -8,13 +8,8 @@
 
 namespace numathap::config {
 
-class Configurator;
-
 class MathEnvironment {
-    friend class Configurator;
-
-public:
-
+   public:
     MathEnvironment();
 
     [[nodiscard]]
@@ -26,23 +21,12 @@ public:
     [[nodiscard]]
     NumericType numericType() const noexcept;
 
+   private:
+    const MathLibrary math_library_{MathLibrary::CMath};
 
-private:
-
-    void setMathLibrary(MathLibrary library);
-
-    void setNumericType(NumericType type);
-
-    void rebuildAdapter();
-
-
-private:
-
-    MathLibrary math_library_{MathLibrary::CMath};
-
-    NumericType numeric_type_{NumericType::Double};
+    const NumericType numeric_type_{NumericType::Double};
 
     std::unique_ptr<MathAdapter> adapter_;
 };
 
-}
+}  // namespace numathap::config
