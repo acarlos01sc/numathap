@@ -25,6 +25,7 @@ add_library(numathap
 
     #core
     src/core/Value.cpp
+    src/core/Context.cpp
 
     #numeric
     src/numeric/Real.cpp 

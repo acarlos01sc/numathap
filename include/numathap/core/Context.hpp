@@ -1,24 +1,59 @@
 #pragma once
 
+#include <optional>
 #include <string>
 #include <unordered_map>
-
-#include "numathap/core/Value.hpp"
 
 namespace numathap::core {
 
 class Context {
-   public:
-    void set(const std::string& name, const Value& value);
+public:
+
+    struct Interval {
+        std::string lower;
+        std::string upper;
+    };
+
+    Context() = default;
+
+    // ------------------------------------------------------------
+    // Variable definitions
+    // ------------------------------------------------------------
+
+    void setValue(const std::string& symbol,
+                  const std::string& definition);
 
     [[nodiscard]]
-    bool contains(const std::string& name) const noexcept;
+    std::optional<std::string>
+    findValue(const std::string& symbol) const;
 
     [[nodiscard]]
-    const Value& get(const std::string& name) const;
+    bool hasValue(const std::string& symbol) const;
 
-   private:
-    std::unordered_map<std::string, Value> variables_;
+    // ------------------------------------------------------------
+    // Interval definitions
+    // ------------------------------------------------------------
+
+    void setInterval(const std::string& symbol,
+                     const std::string& lower,
+                     const std::string& upper);
+
+    [[nodiscard]]
+    std::optional<Interval>
+    findInterval(const std::string& symbol) const;
+
+    [[nodiscard]]
+    bool hasInterval(const std::string& symbol) const;
+
+    // ------------------------------------------------------------
+
+    void clear();
+
+private:
+
+    std::unordered_map<std::string, std::string> values_;
+
+    std::unordered_map<std::string, Interval> intervals_;
 };
 
-}  // namespace numathap::core
+} // namespace numathap::core

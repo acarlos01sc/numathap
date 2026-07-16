@@ -2,7 +2,7 @@
 
 ## Overview
 
-The **numathap** library provides a high-level API for mathematical and numerical computation in **C++** and **Python**.
+The **numathap** library provides a high-level API for mathematical and numerical computation in **C++** and provides an interface to **Python**.
 
 Its primary goal is to allow mathematical expressions to be represented as strings and processed by multiple services such as numerical evaluation, integration, limit computation, symbolic differentiation, algebraic simplification, optimization, and future mathematical capabilities.
 
@@ -19,37 +19,19 @@ This separation allows multiple algorithms and services to operate on the same m
 
 # Public API
 
-The primary user entry point is the **Session**.
-
-A Session represents an isolated mathematical execution environment.
-
-It owns:
-
-- the Configurator;
-- the Math Environment;
-- execution services.
+The primary user entry point is the **prepare** function and **Context**.
 
 The default configuration uses the C++ Standard Library (`cmath`).
 
-Advanced users may customize the Session by selecting another supported mathematical library or enabling additional capabilities.
+Advanced users may customize the environment by selecting another supported mathematical library or enabling additional capabilities.
 
 Example:
 
 ```cpp
-numathap::Session session;
-
-auto result =
-    session.evaluate("sin(x) + sqrt(x)");
-```
-
-Selecting another mathematical library:
-
-```cpp
-session.setMathLibrary("boost");
-
-session.enableCapability(
-    Capability::Simplifier
-);
+numathap::Context ctx;
+auto prep = numathap::prepare("sin(x)+sqrt(x)");
+ctx.setValue("x","pi");
+auto result = numathap::evaluate(prep,ctx);
 ```
 
 ---
@@ -202,7 +184,6 @@ The Evaluator communicates only with the Math Adapter, remaining completely inde
 The initial version of numathap supports the following mathematical libraries:
 
 - C++ Standard Library (`cmath`);
-- Boost.Math.
 
 Future versions may support additional mathematical libraries, including arbitrary-precision and user-defined implementations.
 
@@ -210,11 +191,12 @@ Each supported library is encapsulated by its own Math Adapter implementation.
 
 ---
 
+
 # Orchestrator
 
 The **Orchestrator** prepares a Math-AST according to the capabilities enabled in the current Math Environment.
 
-Possible preparation steps include:
+Possible preparation steps include: (Not yet implemented)
 
 - normalization;
 - simplification;
@@ -277,6 +259,10 @@ Whenever a mathematical function or constant must be resolved, the Evaluator del
 
 The Evaluator contains no knowledge of any particular mathematical library.
 
+The Evaluator Backend is the core numerical execution backend.
+
+All numerical backends use the Evaluator to obtain numerical values from Prepared-AST instances.
+
 ---
 
 ## Symbolic Backends
@@ -296,13 +282,17 @@ Possible services include:
 
 ## Integrator
 
-Performs numerical integration by repeatedly evaluating expressions through the Evaluator Backend.
+The Integrator is a numerical backend that operates on Prepared-AST instances.
+
+It uses the Evaluator Backend to obtain numerical evaluations required by numerical integration algorithms.
 
 ---
 
 ## Limit Calculator
 
-Computes limits through successive evaluations and numerical techniques using the shared evaluation infrastructure.
+The Limit Calculator is a numerical backend that operates on Prepared-AST instances.
+
+It uses the Evaluator Backend to evaluate expressions at different points according to the selected limit algorithm.
 
 ---
 
@@ -326,11 +316,10 @@ becomes
 
 # Processing Pipeline
 
+
 ```text
                              User
                                |
-                               v
-                           Session
                                |
                                v
                         Configurator
@@ -345,7 +334,7 @@ becomes
                |               +---------------+---------------+
                |               |                               |
                |               v                               v
-               |             cmath                       Boost.Math
+               |             cmath                          Others
                |
 Input String   |
      |         |
@@ -389,12 +378,7 @@ Backends                   Backend
 ```
 
 ---
-
 # Architecture Summary
-
-## User Interface
-
-- Session
 
 ---
 
@@ -468,6 +452,6 @@ The execution engine is completely independent of any particular mathematical li
 
 Library-specific behavior is encapsulated by the **Math Adapter**, allowing new mathematical libraries to be added without modifying the parser, AST, evaluator, or mathematical services.
 
-The initial release of **numathap** supports the C++ Standard Library (`cmath`) and **Boost.Math**.
+The initial release of **numathap** supports the C++ Standard Library (`cmath`).
 
 Future releases may extend support to additional mathematical libraries while preserving the same execution architecture.
