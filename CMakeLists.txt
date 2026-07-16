@@ -16,19 +16,32 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(numathap
 
+    #math
     src/math/prepare.cpp
     src/math/PreparedAst.cpp
     src/math/MathAstBuilder.cpp
     src/math/MathAst.cpp
+    src/math/MathAstPrinter.cpp
 
+    #core
+    src/core/Value.cpp
+
+    #numeric
+    src/numeric/Real.cpp 
+    
+    #parser
     src/parser/Parser.cpp
     src/parser/Lexer.cpp
     src/parser/ParserAst.cpp
+    src/parser/ParserAstPrinter.cpp
 
+    #orchestration
     src/orchestration/Orchestrator.cpp
 
+    #config
     src/config/Configurator.cpp 
-    src/config/MathEnvironment.cpp 
+    src/config/MathEnvironment.cpp
+    src/config/CMathAdapter.cpp
 
 )
 
@@ -78,4 +91,17 @@ add_executable(frontend_test
 target_include_directories(frontend_test
     PRIVATE
         include
+)
+
+#----------------------------------------------------------
+# PrepAst_print_test
+#----------------------------------------------------------
+
+add_executable(PrepAst_print_test
+    tests/math/PrepAst_print_test.cpp
+)
+
+target_link_libraries(PrepAst_print_test
+    PRIVATE
+        numathap
 )

@@ -17,5 +17,10 @@ PreparedAst prepare(
     return PreparedAst(mathAst, environment);
 }
 
+PreparedAst prepare(const std::string& expression)
+{
+    config::MathEnvironment environment;
+    return prepare(expression, environment);
+}
 
 }
