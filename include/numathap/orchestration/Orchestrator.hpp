@@ -1,50 +1,70 @@
 #pragma once
 
 #include "numathap/config/MathEnvironment.hpp"
-#include "numathap/math/MathNode.hpp"
+#include "numathap/math/MathAst.hpp"
 
 namespace numathap::orchestration {
 
 /**
- * @brief Prepares a Math-AST for further processing.
+ * @brief Builds a Prepared-AST from a Math-AST.
  *
- * The Orchestrator coordinates the preparation of a Math-AST using
- * the capabilities enabled in a MathEnvironment.
+ * The Orchestrator traverses the Math-AST and constructs a new tree.
+ * During this process it may apply the capabilities enabled in the
+ * MathEnvironment.
  *
- * The input is a Math-AST produced by MathAstBuilder.
- * The output is a Prepared AST, represented currently by the same
- * MathNode hierarchy.
- *
- * Future responsibilities may include:
- *
- * - symbolic simplification;
- * - constant folding;
- * - semantic normalization;
- * - capability-specific preparation;
- * - coordination of mathematical transformations.
- *
- * The Orchestrator does not evaluate expressions and does not
- * depend on parser-level AST nodes.
+ * The source Math-AST is never modified.
  */
 class Orchestrator {
-   public:
+public:
+
+    Orchestrator() = default;
+    ~Orchestrator() = default;
+
     /**
-     * @brief Prepares a Math-AST.
+     * @brief Builds a Prepared-AST tree.
      *
-     * The current implementation performs no transformation and
-     * returns the received tree unchanged. This establishes the
-     * architectural boundary where future preparation stages will
-     * be introduced.
+     * @param mathAst Source Math-AST.
+     * @param environment Preparation environment.
      *
-     * @param ast Math-AST to be prepared.
-     * @param environment Resolved execution environment.
-     *
-     * @return Prepared AST.
+     * @return Root node of the Prepared-AST.
      */
     [[nodiscard]]
-    math::MathNodePtr prepare(
-        math::MathNodePtr ast,
+    math::MathNodePtr build(
+        const math::MathAst& mathAst,
         const config::MathEnvironment& environment) const;
+
+private:
+
+    [[nodiscard]]
+    math::MathNodePtr buildNode(
+        const math::MathNode& node,
+        const config::MathEnvironment& environment) const;
+
+    [[nodiscard]]
+    math::MathNodePtr buildNumber(
+        const math::NumberNode& node,
+        const config::MathEnvironment& environment) const;
+
+    [[nodiscard]]
+    math::MathNodePtr buildSymbol(
+        const math::SymbolNode& node,
+        const config::MathEnvironment& environment) const;
+
+    [[nodiscard]]
+    math::MathNodePtr buildUnary(
+        const math::UnaryNode& node,
+        const config::MathEnvironment& environment) const;
+
+    [[nodiscard]]
+    math::MathNodePtr buildBinary(
+        const math::BinaryNode& node,
+        const config::MathEnvironment& environment) const;
+
+    [[nodiscard]]
+    math::MathNodePtr buildFunction(
+        const math::FunctionNode& node,
+        const config::MathEnvironment& environment) const;
+
 };
 
-}  // namespace numathap::orchestration
+} // namespace numathap::orchestration

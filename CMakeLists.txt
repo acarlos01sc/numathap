@@ -11,6 +11,34 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 #----------------------------------------------------------
+# numathap library
+#----------------------------------------------------------
+
+add_library(numathap
+
+    src/math/prepare.cpp
+    src/math/PreparedAst.cpp
+    src/math/MathAstBuilder.cpp
+    src/math/MathAst.cpp
+
+    src/parser/Parser.cpp
+    src/parser/Lexer.cpp
+    src/parser/ParserAst.cpp
+
+    src/orchestration/Orchestrator.cpp
+
+    src/config/Configurator.cpp 
+    src/config/MathEnvironment.cpp 
+
+)
+
+target_include_directories(numathap
+    PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+
+#----------------------------------------------------------
 # ParserAst_test
 #----------------------------------------------------------
 

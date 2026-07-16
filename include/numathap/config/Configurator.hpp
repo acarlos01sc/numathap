@@ -51,22 +51,6 @@ class Configurator {
     [[nodiscard]]
     NumericType numericType() const noexcept;
 
-    /**
-     * @brief Enables a capability.
-     */
-    void enableCapability(Capability capability);
-
-    /**
-     * @brief Disables a capability.
-     */
-    void disableCapability(Capability capability);
-
-    /**
-     * @brief Checks whether a capability is enabled.
-     */
-    [[nodiscard]]
-    bool hasCapability(Capability capability) const noexcept;
-
    private:
     MathEnvironment& environment_;
 };
