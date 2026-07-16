@@ -19,7 +19,7 @@ This separation allows multiple algorithms and services to operate on the same m
 
 # Public API
 
-The primary user entry point is the **prepare** command and **Context**.
+The primary user entry point is the **prepare** function and **Context**.
 
 The default configuration uses the C++ Standard Library (`cmath`).
 

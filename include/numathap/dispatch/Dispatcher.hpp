@@ -1,28 +1,47 @@
 #pragma once
 
+#include "numathap/math/PreparedAst.hpp"
 #include "numathap/math/MathNode.hpp"
 
 namespace numathap::dispatch {
 
 /**
- * @brief Dispatches operations according to the concrete MathNode type.
+ * @brief Dispatches nodes from a PreparedAst to a backend visitor.
  *
- * The Dispatcher centralizes runtime type inspection of the Prepared-AST.
- * It performs no mathematical computation and never modifies the tree.
+ * The Dispatcher does not perform mathematical operations,
+ * does not modify the tree, and does not control recursion.
+ *
+ * Backend implementations are responsible for traversing child nodes.
  */
 class Dispatcher {
-   public:
+public:
+
     /**
-     * @brief Dispatches a MathNode to a visitor.
+     * @brief Starts dispatching from a PreparedAst.
      *
-     * The visitor must implement operator() for every concrete MathNode type.
+     * The PreparedAst is the only public entry point.
      */
     template<typename Visitor>
     static decltype(auto) dispatch(
+        const math::PreparedAst& ast,
+        Visitor&& visitor);
+
+
+private:
+
+    /**
+     * @brief Dispatches a concrete MathNode.
+     *
+     * Used internally and by backend recursion through the public
+     * dispatch overload.
+     */
+    template<typename Visitor>
+    static decltype(auto) dispatchNode(
         const math::MathNode& node,
         Visitor&& visitor);
+
 };
 
-}  // namespace numathap::dispatch
+} // namespace numathap::dispatch
 
 #include "Dispatcher.tpp"

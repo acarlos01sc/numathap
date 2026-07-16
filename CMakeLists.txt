@@ -28,7 +28,10 @@ add_library(numathap
 
     #numeric
     src/numeric/Real.cpp 
-    
+
+    #dispatch
+    src/dispatch/Dispatcher.cpp
+
     #parser
     src/parser/Parser.cpp
     src/parser/Lexer.cpp
