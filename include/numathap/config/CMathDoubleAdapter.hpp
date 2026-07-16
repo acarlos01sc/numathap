@@ -10,7 +10,7 @@ namespace numathap::config {
  * This adapter exposes the mathematical functions and constants
  * provided by <cmath> through the generic MathAdapter interface.
  */
-class CMathAdapter final : public MathAdapter {
+class CMathDoubleAdapter final : public MathAdapter {
    public:
     [[nodiscard]]
     std::string_view name() const noexcept override;

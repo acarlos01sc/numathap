@@ -2,12 +2,12 @@
 
 #include <memory>
 
-#include "numathap/config/CMathAdapter.hpp"
+#include "numathap/config/CMathDoubleAdapter.hpp"
 
 namespace numathap::config {
 
 MathEnvironment::MathEnvironment()
-    : adapter_(std::make_unique<CMathAdapter>()) {}
+    : adapter_(std::make_unique<CMathDoubleAdapter>()) {}
 
 MathLibrary MathEnvironment::mathLibrary() const noexcept {
     return math_library_;

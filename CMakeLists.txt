@@ -45,7 +45,7 @@ add_library(numathap
     #config
     src/config/Configurator.cpp 
     src/config/MathEnvironment.cpp
-    src/config/CMathAdapter.cpp
+    src/config/CMathDoubleAdapter.cpp
 
 )
 

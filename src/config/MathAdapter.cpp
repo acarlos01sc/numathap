@@ -6,7 +6,7 @@ namespace numathap::config {
 //
 // Concrete implementations include:
 //
-//   - CMathAdapter
+//   - CMathDoubleAdapter
 //   - BoostMathAdapter
 //
 // Each adapter is responsible for mapping mathematical functions

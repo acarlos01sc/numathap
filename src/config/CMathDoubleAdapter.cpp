@@ -1,4 +1,4 @@
-#include "numathap/config/CMathAdapter.hpp"
+#include "numathap/config/CMathDoubleAdapter.hpp"
 
 #include <cmath>
 #include <numbers>
@@ -32,11 +32,11 @@ void expectArguments(
 
 }  // namespace
 
-std::string_view CMathAdapter::name() const noexcept {
+std::string_view CMathDoubleAdapter::name() const noexcept {
     return "cmath";
 }
 
-Value CMathAdapter::callFunction(
+Value CMathDoubleAdapter::callFunction(
     std::string_view function,
     std::span<const Value> arguments) const
 {
@@ -148,7 +148,7 @@ Value CMathAdapter::callFunction(
         "Unsupported function: " + std::string(function));
 }
 
-Value CMathAdapter::resolveConstant(
+Value CMathDoubleAdapter::resolveConstant(
     std::string_view constant) const
 {
     if (constant == "pi") {
