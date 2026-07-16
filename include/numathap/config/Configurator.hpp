@@ -1,6 +1,5 @@
 #pragma once
 
-#include "numathap/config/Capability.hpp"
 #include "numathap/config/MathLibrary.hpp"
 #include "numathap/config/NumericType.hpp"
 
