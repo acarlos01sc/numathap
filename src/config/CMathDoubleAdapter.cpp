@@ -8,38 +8,28 @@ namespace numathap::config {
 
 namespace {
 
+using NativeType = double;
 using numathap::core::Value;
 
-inline double toDouble(const Value& value) {
-    return value.real().value();
-}
+inline NativeType toDouble(const Value& value) { return value.real().value(); }
 
-inline Value makeValue(double value) {
-    return Value(value);
-}
+inline Value makeValue(NativeType value) { return Value(value); }
 
-void expectArguments(
-    std::string_view function,
-    std::span<const Value> arguments,
-    std::size_t expected)
-{
+void expectArguments(std::string_view function,
+                     std::span<const Value> arguments, std::size_t expected) {
     if (arguments.size() != expected) {
-        throw std::invalid_argument(
-            std::string(function) +
-            ": invalid number of arguments.");
+        throw std::invalid_argument("Function '" + std::string(function) +
+                                    "' expects " + std::to_string(expected) +
+                                    " argument(s).");
     }
 }
 
 }  // namespace
 
-std::string_view CMathDoubleAdapter::name() const noexcept {
-    return "cmath";
-}
+std::string_view CMathDoubleAdapter::name() const noexcept { return "cmath"; }
 
-Value CMathDoubleAdapter::callFunction(
-    std::string_view function,
-    std::span<const Value> arguments) const
-{
+Value CMathDoubleAdapter::callFunction(std::string_view function,
+                                       std::span<const Value> arguments) const {
     if (function == "sin") {
         expectArguments(function, arguments, 1);
         return makeValue(std::sin(toDouble(arguments[0])));
@@ -132,71 +122,69 @@ Value CMathDoubleAdapter::callFunction(
 
     if (function == "pow") {
         expectArguments(function, arguments, 2);
-        return makeValue(std::pow(
-            toDouble(arguments[0]),
-            toDouble(arguments[1])));
+        return makeValue(
+            std::pow(toDouble(arguments[0]), toDouble(arguments[1])));
     }
 
     if (function == "atan2") {
         expectArguments(function, arguments, 2);
-        return makeValue(std::atan2(
-            toDouble(arguments[0]),
-            toDouble(arguments[1])));
+        return makeValue(
+            std::atan2(toDouble(arguments[0]), toDouble(arguments[1])));
     }
 
     throw std::invalid_argument(
-        "Unsupported function: " + std::string(function));
+        "Function '" + std::string(function) +
+        "' is not available in the selected math library.");
 }
 
-Value CMathDoubleAdapter::resolveConstant(
-    std::string_view constant) const
-{
+Value CMathDoubleAdapter::resolveConstant(std::string_view constant) const {
     if (constant == "pi") {
-        return makeValue(std::numbers::pi);
+        return makeValue(std::numbers::pi_v<NativeType>);
     }
 
     if (constant == "e") {
-        return makeValue(std::numbers::e);
+        return makeValue(std::numbers::e_v<NativeType>);
     }
 
     if (constant == "phi") {
-        return makeValue(std::numbers::phi);
+        return makeValue(std::numbers::phi_v<NativeType>);
     }
 
     if (constant == "sqrt2") {
-        return makeValue(std::numbers::sqrt2);
+        return makeValue(std::numbers::sqrt2_v<NativeType>);
     }
 
     if (constant == "sqrt3") {
-        return makeValue(std::numbers::sqrt3);
+        return makeValue(std::numbers::sqrt3_v<NativeType>);
     }
 
     if (constant == "inv_pi") {
-        return makeValue(std::numbers::inv_pi);
+        return makeValue(std::numbers::inv_pi_v<NativeType>);
     }
 
     if (constant == "inv_sqrtpi") {
-        return makeValue(std::numbers::inv_sqrtpi);
+        return makeValue(std::numbers::inv_sqrtpi_v<NativeType>);
     }
 
     if (constant == "ln2") {
-        return makeValue(std::numbers::ln2);
+        return makeValue(std::numbers::ln2_v<NativeType>);
     }
 
     if (constant == "ln10") {
-        return makeValue(std::numbers::ln10);
+        return makeValue(std::numbers::ln10_v<NativeType>);
     }
 
     if (constant == "log2e") {
-        return makeValue(std::numbers::log2e);
+        return makeValue(std::numbers::log2e_v<NativeType>);
     }
 
     if (constant == "log10e") {
-        return makeValue(std::numbers::log10e);
+        return makeValue(std::numbers::log10e_v<NativeType>);
     }
 
     throw std::invalid_argument(
-        "Unsupported constant: " + std::string(constant));
+        "Constant '" + std::string(constant) +
+        "' is not available in the selected math library.");
 }
 
 }  // namespace numathap::config

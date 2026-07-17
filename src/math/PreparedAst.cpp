@@ -7,7 +7,7 @@ namespace numathap::math {
 
 PreparedAst::PreparedAst(const MathAst& mathAst,
                          const config::MathEnvironment& environment)
-    : expression_(mathAst.expression()) {
+    : expression_(mathAst.expression()), environment_(environment) {
     orchestration::Orchestrator orchestrator;
 
     root_ = orchestrator.build(mathAst, environment);
@@ -20,6 +20,10 @@ const std::string& PreparedAst::expression() const noexcept {
 }
 
 bool PreparedAst::empty() const noexcept { return root_ == nullptr; }
+
+const config::MathEnvironment& PreparedAst::environment() const noexcept {
+    return environment_;
+}
 
 void PreparedAst::print(std::ostream& os) const {
     if (root_) {

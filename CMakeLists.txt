@@ -16,6 +16,9 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(numathap
 
+    #backend
+    src/backend/Evaluator.cpp
+
     #math
     src/math/prepare.cpp
     src/math/PreparedAst.cpp
@@ -45,6 +48,7 @@ add_library(numathap
     #config
     src/config/Configurator.cpp 
     src/config/MathEnvironment.cpp
+    src/config/MathAdapter.cpp
     src/config/CMathDoubleAdapter.cpp
 
 )

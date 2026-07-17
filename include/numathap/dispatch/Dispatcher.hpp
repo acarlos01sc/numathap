@@ -3,6 +3,10 @@
 #include "numathap/math/PreparedAst.hpp"
 #include "numathap/math/MathNode.hpp"
 
+namespace numathap::backend {
+class Evaluator;
+}
+
 namespace numathap::dispatch {
 
 /**
@@ -28,6 +32,8 @@ public:
 
 
 private:
+
+    friend class numathap::backend::Evaluator;
 
     /**
      * @brief Dispatches a concrete MathNode.

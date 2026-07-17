@@ -57,6 +57,12 @@ class PreparedAst {
     [[nodiscard]]
     bool empty() const noexcept;
 
+     /**
+     * @brief Returns the execution environment used to prepare this AST.
+     */
+    [[nodiscard]]
+    const config::MathEnvironment& environment() const noexcept;
+
     /**
      * @brief Prints the Prepared-AST.
      */
@@ -66,6 +72,8 @@ class PreparedAst {
     std::string expression_;
 
     MathNodePtr root_;
+
+    const config::MathEnvironment& environment_;
 };
 
 }  // namespace numathap::math
