@@ -1,3 +1,10 @@
+/**
+ * @file ParserNode.hpp
+ * @brief Definitions of the Abstract Syntax Tree (AST) node types.
+ * 
+ * This file defines the base Node class and its derived structures that 
+ * represent the various components of a mathematical expression within the AST.
+ */
 #pragma once
 
 #include <memory>

@@ -1,3 +1,9 @@
+/**
+ * @file ParserAst.hpp
+ * @brief Facade interface for processing and representing Abstract Syntax Trees (AST).
+ * @see Parser.hpp
+ * @see Lexer.hpp
+ */
 #pragma once
 
 #include <ostream>

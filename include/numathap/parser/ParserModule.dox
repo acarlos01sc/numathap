@@ -1,0 +1,41 @@
+/**
+ * @defgroup parser Parser Module
+ * @brief Components responsible for the lexical and syntactic analysis of mathematical expressions.
+ * 
+ * This module provides the infrastructure to tokenize, parse, and represent 
+ * mathematical expressions as Abstract Syntax Trees (AST).
+ * 
+ * @{
+ */
+
+/** 
+ * @class numathap::parser::Token
+ * @ingroup parser
+ */
+
+/** 
+ * @class numathap::parser::Node
+ * @ingroup parser
+ */
+
+/** 
+ * @class numathap::parser::ParserAstPrinter
+ * @ingroup parser
+ */
+
+/** 
+ * @class numathap::parser::ParserAst
+ * @ingroup parser
+ */
+
+/** 
+ * @class numathap::parser::Parser
+ * @ingroup parser
+ */
+
+/** 
+ * @class numathap::parser::Lexer
+ * @ingroup parser
+ */
+
+/** @} */

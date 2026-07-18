@@ -1,3 +1,7 @@
+/**
+ * @file Lexer.hpp
+ * @brief Lexical analyzer for mathematical expressions.
+ */
 #pragma once
 
 #include <cstddef>
@@ -15,7 +19,7 @@ namespace numathap::parser {
  * that can be consumed by the parser. It recognizes numeric literals,
  * identifiers, operators, delimiters, and other supported symbols.
  *
- * @note The lexer performs lexical analysis only. It does not validate 
+ * @note The lexer performs lexical analysis only. It does not validate
  * the syntactic correctness of the expression.
  * @invariant The lexer maintains a valid source position corresponding to the
  * next character to be processed.

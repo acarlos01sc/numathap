@@ -1,3 +1,7 @@
+/**
+ * @file Token.hpp
+ * @brief Definition of lexical token types and the token structure.
+ */
 #pragma once
 
 #include <cstddef>

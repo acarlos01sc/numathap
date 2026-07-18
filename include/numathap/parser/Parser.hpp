@@ -1,10 +1,16 @@
+/**
+ * @file Parser.hpp
+ * @brief Definition of the recursive-descent parser for mathematical
+ * expressions.
+ * @see Lexer.hpp
+ */
 #pragma once
 
 #include <vector>
 
 #include "Lexer.hpp"
-#include "Token.hpp"
 #include "ParserNode.hpp"
+#include "Token.hpp"
 
 namespace numathap::parser {
 /**
