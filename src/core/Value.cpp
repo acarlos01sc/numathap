@@ -36,4 +36,9 @@ bool Value::operator!=(const Value& other) const noexcept {
     return !(*this == other);
 }
 
+std::ostream& operator<<(std::ostream& os, const Value& value) {
+    os << value.real().value();
+    return os;
+}
+
 }  // namespace numathap::core

@@ -2,6 +2,7 @@
 
 #include <span>
 #include <string_view>
+#include <memory>
 
 #include "numathap/core/Value.hpp"
 
@@ -21,6 +22,7 @@ class MathAdapter {
    public:
     virtual ~MathAdapter() = default;
 
+    virtual std::unique_ptr<MathAdapter> clone() const = 0;
     /**
      * @brief Returns the adapter name.
      *

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ostream>
+
 #include "numathap/numeric/Real.hpp"
 
 namespace numathap::core {
@@ -48,5 +50,7 @@ class Value {
    private:
     numeric::Real value_;
 };
+
+std::ostream& operator<<(std::ostream& os, const Value& value);
 
 }  // namespace numathap::core

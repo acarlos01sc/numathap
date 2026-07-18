@@ -1,6 +1,7 @@
 #include "numathap/config/CMathDoubleAdapter.hpp"
 
 #include <cmath>
+#include <memory>
 #include <numbers>
 #include <stdexcept>
 
@@ -27,6 +28,10 @@ void expectArguments(std::string_view function,
 }  // namespace
 
 std::string_view CMathDoubleAdapter::name() const noexcept { return "cmath"; }
+
+std::unique_ptr<MathAdapter> CMathDoubleAdapter::clone() const {
+    return std::make_unique<CMathDoubleAdapter>(*this);
+}
 
 Value CMathDoubleAdapter::callFunction(std::string_view function,
                                        std::span<const Value> arguments) const {

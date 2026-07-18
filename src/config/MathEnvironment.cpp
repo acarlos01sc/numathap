@@ -9,6 +9,23 @@ namespace numathap::config {
 MathEnvironment::MathEnvironment()
     : adapter_(std::make_unique<CMathDoubleAdapter>()) {}
 
+MathEnvironment::MathEnvironment(const MathEnvironment& other)
+    : math_library_(other.math_library_),
+      numeric_type_(other.numeric_type_),
+      adapter_(other.adapter_->clone()) {}
+
+MathEnvironment& MathEnvironment::operator=(const MathEnvironment& other) {
+    if (this != &other) {
+        math_library_ = other.math_library_;
+
+        numeric_type_ = other.numeric_type_;
+
+        adapter_ = other.adapter_->clone();
+    }
+
+    return *this;
+}
+
 MathLibrary MathEnvironment::mathLibrary() const noexcept {
     return math_library_;
 }

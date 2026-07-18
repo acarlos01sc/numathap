@@ -12,6 +12,14 @@ class MathEnvironment {
    public:
     MathEnvironment();
 
+    MathEnvironment(const MathEnvironment&);
+    MathEnvironment& operator=(const MathEnvironment&);
+
+    MathEnvironment(MathEnvironment&&) noexcept = default;
+    MathEnvironment& operator=(MathEnvironment&&) noexcept = default;
+
+    ~MathEnvironment() = default;
+
     [[nodiscard]]
     MathLibrary mathLibrary() const noexcept;
 
@@ -22,9 +30,9 @@ class MathEnvironment {
     NumericType numericType() const noexcept;
 
    private:
-    const MathLibrary math_library_{MathLibrary::CMath};
+    MathLibrary math_library_{MathLibrary::CMath};
 
-    const NumericType numeric_type_{NumericType::Double};
+    NumericType numeric_type_{NumericType::Double};
 
     std::unique_ptr<MathAdapter> adapter_;
 };

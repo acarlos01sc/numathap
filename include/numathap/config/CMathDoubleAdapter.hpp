@@ -23,6 +23,8 @@ class CMathDoubleAdapter final : public MathAdapter {
     [[nodiscard]]
     core::Value resolveConstant(
         std::string_view constant) const override;
+
+    std::unique_ptr<MathAdapter> clone() const override;
 };
 
 }  // namespace numathap::config
