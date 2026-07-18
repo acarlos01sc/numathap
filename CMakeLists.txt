@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(numathap_tests
+project(numathap
+	VERSION 0.1.0
 	LANGUAGES CXX
 )
 
@@ -14,43 +15,41 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # numathap library
 #----------------------------------------------------------
 
+# Definição modular
+file(GLOB SOURCES_BACKEND CONFIGURE_DEPENDS "src/backend/*.cpp")
+file(GLOB SOURCES_CONFIG CONFIGURE_DEPENDS "src/config/*.cpp")
+file(GLOB SOURCES_CORE CONFIGURE_DEPENDS "src/core/*.cpp")
+file(GLOB SOURCES_DISPATCH CONFIGURE_DEPENDS "src/dispatch/*.cpp")
+file(GLOB SOURCES_MATH CONFIGURE_DEPENDS "src/math/*.cpp")
+file(GLOB SOURCES_NUMERIC CONFIGURE_DEPENDS "src/numeric/*.cpp")
+file(GLOB SOURCES_ORCH CONFIGURE_DEPENDS "src/orchestration/*.cpp")
+file(GLOB SOURCES_PARSER CONFIGURE_DEPENDS "src/parser/*.cpp")
+
 add_library(numathap
 
 	# backend
-	src/backend/evaluate.cpp
-	src/backend/Evaluator.cpp
+	${SOURCES_BACKEND}
 
 	# config
-	src/config/Configurator.cpp
-	src/config/MathEnvironment.cpp
-	src/config/MathAdapter.cpp
-	src/config/CMathDoubleAdapter.cpp
+	${SOURCES_CONFIG}
 
 	# core
-	src/core/Value.cpp
-	src/core/Context.cpp
+	${SOURCES_CORE}
 
 	# dispatch
-	src/dispatch/Dispatcher.cpp
+	${SOURCES_DISPATCH}
 
 	# math
-	src/math/prepare.cpp
-	src/math/PreparedAst.cpp
-	src/math/MathAstBuilder.cpp
-	src/math/MathAst.cpp
-	src/math/MathAstPrinter.cpp
+	${SOURCES_MATH}
 
 	# numeric
-	src/numeric/Real.cpp
+	${SOURCES_NUMERIC}
 
 	# orchestration
-	src/orchestration/Orchestrator.cpp
+	${SOURCES_ORCH}
 
 	# parser
-	src/parser/Parser.cpp
-	src/parser/Lexer.cpp
-	src/parser/ParserAst.cpp
-	src/parser/ParserAstPrinter.cpp
+	${SOURCES_PARSER}
 
 )
 
