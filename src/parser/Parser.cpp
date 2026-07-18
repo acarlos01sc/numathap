@@ -45,19 +45,12 @@ bool Parser::isAtEnd() const { return current_.type == TokenType::EndOfInput; }
 /**
  * @brief Parses a complete expression.
  *
- * This is the public entry point of the parser. It parses a complete
- * mathematical expression and verifies that no unexpected tokens remain.
+ * This is the public entry point of the parser. It validates that the
+ * entire input constitutes a single valid expression, ensuring no
+ * unexpected tokens remain at the end.
  *
- * Examples:
- *
- *     2 + 3 * x
- *     sin(x)^2
- *     (a+b)!
- *
- * @return The AST node representing the complete expression.
- *
- * @throws std::logic_error if unexpected tokens are found after the
- *         expression.
+ * @return The root node of the constructed Abstract Syntax Tree (AST).
+ * @throws std::logic_error if the expression is invalid or has trailing tokens.
  */
 NodePtr Parser::parse() {
     auto expression = parseExpression();
@@ -91,8 +84,8 @@ NodePtr Parser::parseAdditive() {
 
         auto right = parseMultiplicative();
 
-        left = std::make_unique<BinaryNode>(op, std::move(left),
-                                                 std::move(right));
+        left =
+            std::make_unique<BinaryNode>(op, std::move(left), std::move(right));
     }
 
     return left;
@@ -114,30 +107,32 @@ NodePtr Parser::parseMultiplicative() {
 
         auto right = parseUnary();
 
-        left = std::make_unique<BinaryNode>(op, std::move(left),
-                                                 std::move(right));
+        left =
+            std::make_unique<BinaryNode>(op, std::move(left), std::move(right));
     }
 
     return left;
 }
 
 /**
- * @brief Parses power expressions.
+ * @brief Parses power expressions (right-associative).
  *
- * Power expressions are right-associative:
+ * Handles the '^' operator. Power expressions are right-associative:
+ * @code
+ * a^b^c == a^(b^c)
+ * @endcode
  *
- *     a^b^c == a^(b^c)
+ * The left operand is parsed as a postfix expression to support:
+ * @code
+ * 3!^2 == (3!)^2
+ * @endcode
  *
- * The left operand is parsed as a postfix expression, allowing
- * constructs such as:
+ * Exponents are parsed via parseExponent() to allow signed values:
+ * @code
+ * 2^-3 == 2^(-3)
+ * @endcode
  *
- *     3!^2 == (3!)^2
- *
- * The exponent is parsed separately to allow signed exponents:
- *
- *     2^-3 == 2^(-3)
- *
- * @return The AST node representing a power expression.
+ * @return AST node for the power expression.
  */
 NodePtr Parser::parsePower() {
     auto left = parsePostfix();
@@ -148,59 +143,51 @@ NodePtr Parser::parsePower() {
 
     auto right = parseExponent();
 
-    return std::make_unique<BinaryNode>(BinaryOp::Power,
-                                             std::move(left), std::move(right));
+    return std::make_unique<BinaryNode>(BinaryOp::Power, std::move(left),
+                                        std::move(right));
 }
 
 /**
- * @brief Parses an exponent expression.
+ * @brief Parses an exponent.
  *
- * The exponent is parsed as a unary expression to allow signed
- * exponents such as 2^-3 while preserving the precedence rule
- * that unary operators have lower precedence than power:
+ * An exponent is treated as a unary expression. This preserves precedence
+ * such that unary operators have lower priority than power:
+ * @code
+ * -2^2 == -(2^2)
+ * @endcode
  *
- *     -2^2 == -(2^2)
- *
- * This function participates in the recursive relationship between
- * unary and power parsing to implement right-associative exponentiation:
- *
- *     a^b^c == a^(b^c)
- *
- * @return The AST node representing the exponent expression.
+ * @return AST node for the exponent.
  */
 NodePtr Parser::parseExponent() { return parseUnary(); }
 
 NodePtr Parser::parseUnary() {
     if (match(TokenType::Plus)) {
-        return std::make_unique<UnaryNode>(UnaryOp::Plus,
-                                                parseUnary());
+        return std::make_unique<UnaryNode>(UnaryOp::Plus, parseUnary());
     }
 
     if (match(TokenType::Minus)) {
-        return std::make_unique<UnaryNode>(UnaryOp::Minus,
-                                                parseUnary());
+        return std::make_unique<UnaryNode>(UnaryOp::Minus, parseUnary());
     }
 
     return parsePower();
 }
 
 /**
- * @brief Parses postfix expressions.
+ * @brief Parses postfix expressions (e.g., factorial).
  *
- * Postfix operators have higher precedence than power expressions.
- * Multiple postfix operators may be chained:
+ * Postfix operators have the highest precedence and can be chained:
+ * @code
+ * 3!!! == ((3!)!)!
+ * @endcode
  *
- *     3!!! == ((3!)!)!
- *
- * @return The AST node representing the postfix expression.
+ * @return AST node for the postfix expression.
  */
 NodePtr Parser::parsePostfix() {
     auto node = parsePrimary();
 
     while (match(TokenType::Factorial)) {
-        node = std::make_unique<PostfixNode>(
-            PostfixOp::Factorial,
-            std::move(node));
+        node = std::make_unique<PostfixNode>(PostfixOp::Factorial,
+                                             std::move(node));
     }
 
     return node;
@@ -209,15 +196,13 @@ NodePtr Parser::parsePostfix() {
 /**
  * @brief Parses primary expressions.
  *
- * Primary expressions are the most basic elements of the grammar:
+ * Dispatches to the appropriate parsing function based on the current token:
+ * - Literals (Number)
+ * - Identifiers (Variables/Functions)
+ * - Grouped expressions (Parentheses)
+ * - Absolute values (Vertical bars)
  *
- *     - numeric literals
- *     - identifiers
- *     - function calls
- *     - parenthesized expressions
- *     - absolute value expressions
- *
- * @return The AST node representing the primary expression.
+ * @return AST node for the primary expression.
  */
 NodePtr Parser::parsePrimary() {
     if (check(TokenType::Number)) {
@@ -236,7 +221,7 @@ NodePtr Parser::parsePrimary() {
         return parseAbsolute();
     }
 
-    throw std::logic_error("Expected expression.");    
+    throw std::logic_error("Expected expression.");
 }
 
 //--------------------------------------------------------------
@@ -259,7 +244,7 @@ NodePtr Parser::parseIdentifier() {
     auto arguments = parseArguments();
 
     return std::make_unique<FunctionCallNode>(std::move(name),
-                                                   std::move(arguments));
+                                              std::move(arguments));
 }
 
 std::vector<NodePtr> Parser::parseArguments() {
@@ -282,50 +267,34 @@ std::vector<NodePtr> Parser::parseArguments() {
 /**
  * @brief Parses a parenthesized expression.
  *
- * Parentheses are used only to control operator precedence and do not
- * generate a dedicated AST node.
+ * Parentheses group expressions, overriding precedence rules.
+ * They do not produce a dedicated AST node as they are transparent.
  *
- * Examples:
- *
- *     (a + b)
- *     (x^2 + y^2)
- *
- * @return The AST node representing the enclosed expression.
+ * @return The root node of the enclosed expression.
  */
 NodePtr Parser::parseParenExpression() {
     expect(TokenType::LParen, "Expected '('.");
 
     auto expression = parseExpression();
 
-    expect(TokenType::RParen,
-           "Expected ')' after expression.");
+    expect(TokenType::RParen, "Expected ')' after expression.");
 
     return expression;
 }
 
 /**
- * @brief Parses absolute value expressions.
+ * @brief Parses an absolute value expression: |x|.
  *
- * Absolute value expressions are enclosed by vertical bars:
- *
- *     |x|
- *     |a-b|
- *
- * The vertical bars do not create a precedence level by themselves;
- * they simply group the enclosed expression as an absolute value.
- *
- * @return The AST node representing the absolute value expression.
+ * @return An AbsoluteNode containing the enclosed expression.
  */
 NodePtr Parser::parseAbsolute() {
     expect(TokenType::VerticalBar, "Expected '|'. ");
 
     auto expression = parseExpression();
 
-    expect(TokenType::VerticalBar,
-           "Expected closing '|'. ");
+    expect(TokenType::VerticalBar, "Expected closing '|'. ");
 
-    return std::make_unique<AbsoluteNode>(
-        std::move(expression));
+    return std::make_unique<AbsoluteNode>(std::move(expression));
 }
 
 }  // namespace numathap::parser

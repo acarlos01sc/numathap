@@ -57,7 +57,9 @@ Token Lexer::read_number() {
     }
 
     // Exponent part (optional)
+    // Support scientific notation: 1.2e+10, 1.2e-10, 1.2e10
     if (peek() == 'e' || peek() == 'E') {
+        // Check if the next character is a digit or a sign followed by a digit
         bool has_exponent = std::isdigit(static_cast<unsigned char>(peek(1))) ||
 
                             ((peek(1) == '+' || peek(1) == '-') &&
@@ -66,6 +68,7 @@ Token Lexer::read_number() {
         if (has_exponent) {
             get();  // consume 'e' or 'E'
 
+            // Consume optional sign
             if (peek() == '+' || peek() == '-') {
                 get();
             }

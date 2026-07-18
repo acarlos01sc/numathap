@@ -8,18 +8,11 @@ namespace numathap::parser {
 /**
  * @brief Categories of lexical tokens recognized by the lexer.
  *
- * The lexer performs lexical analysis only.
+ * The lexer performs lexical analysis only. It recognizes tokens from the
+ * input stream without assigning any mathematical meaning to identifiers,
+ * operators or literals.
  *
- * It recognizes tokens from the input stream without assigning
- * any mathematical meaning to identifiers, operators or literals.
- *
- * Tokens are produced by the Lexer and consumed by the Parser
- * during syntactic analysis.
- */
-/**
- * @note
- * This enumeration describes only lexical categories.
- * The semantic meaning of each token is determined later by the Parser.
+ * @note The semantic meaning of each token is determined later by the Parser.
  */
 enum class TokenType {
     Number,        ///< Numeric literal (e.g., 3, 3.14, 2e-5).
@@ -48,23 +41,16 @@ enum class TokenType {
 /**
  * @brief Represents a lexical token produced by the lexer.
  *
- * A token stores:
- * - its lexical category;
- * - the exact lexeme extracted from the input;
- * - the source position (line and column).
+ * A token stores its lexical category, the exact lexeme extracted from the
+ * input, and its source position (line and column).
  */
 struct Token {
-    /// Token category
-    TokenType type;
-
-    /// Exact substring extracted from the input.
-    std::string lexeme;
-
-    /// Line number where the token starts (1-based indexing)
-    std::size_t line;
-
-    /// Column number where the token starts (1-based indexing)
-    std::size_t column;
+    TokenType type;      ///< Token category.
+    std::string lexeme;  ///< Exact substring extracted from the input.
+    std::size_t
+        line;  ///< Line number where the token starts (1-based indexing).
+    std::size_t
+        column;  ///< Column number where the token starts (1-based indexing).
 };
 
 }  // namespace numathap::parser

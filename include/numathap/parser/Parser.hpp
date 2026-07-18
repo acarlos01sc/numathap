@@ -18,8 +18,16 @@ namespace numathap::parser {
  */
 class Parser {
    public:
+    /**
+     * @brief Constructs a new Parser instance.
+     * @param lexer The lexer instance used to provide tokens.
+     */
     explicit Parser(Lexer& lexer);
 
+    /**
+     * @brief Parses the entire input and returns the root of the AST.
+     * @return A smart pointer to the root node of the parsed expression.
+     */
     [[nodiscard]]
     NodePtr parse();
 
