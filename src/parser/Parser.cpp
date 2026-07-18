@@ -12,10 +12,7 @@ namespace numathap::parser {
  * @file Parser.cpp
  * @brief Recursive-descent parser implementation.
  */
-Parser::Parser(Lexer& lexer) : lexer_(lexer) {
-    // Initialize the parser with the first token.
-    advance();
-}
+Parser::Parser(Lexer& lexer) : lexer_(lexer) { advance(); }
 
 //--------------------------------------------------------------
 // Token handling
