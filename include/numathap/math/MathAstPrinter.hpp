@@ -1,3 +1,10 @@
+/**
+ * @file MathAstPrinter.hpp
+ * @brief Definition of the MathAstPrinter class.
+ *
+ * This file provides the utility for visualizing the semantic structure
+ * of a Mathematical Abstract Syntax Tree (Math-AST).
+ */
 #pragma once
 
 #include <ostream>
@@ -20,10 +27,10 @@ namespace numathap::math {
 class MathAstPrinter {
    public:
     /**
-     * @brief Prints a Math-AST.
+     * @brief Prints a Math-AST to the specified output stream.
      *
-     * @param os Output stream.
-     * @param node Root node of the Math-AST.
+     * @param node The root node of the Math-AST to print.
+     * @param os The output stream where the tree will be displayed.
      */
     void print(const MathNode& node, std::ostream& os) const;
 
@@ -31,11 +38,14 @@ class MathAstPrinter {
     /**
      * @brief Recursively prints a Math-AST node.
      *
-     * @param os Output stream.
-     * @param node Current node.
-     * @param prefix Current indentation prefix.
-     * @param isLast Indicates whether this node is the last child of
-     *               its parent.
+     * Traverses the node hierarchy and formats the output with appropriate
+     * indentation and structure markers.
+     *
+     * @param os The output stream.
+     * @param node The current node to print.
+     * @param prefix The current indentation string prefix.
+     * @param isLast A flag indicating whether this node is the last child
+     *               of its parent.
      */
     void printNode(std::ostream& os, const MathNode& node,
                    const std::string& prefix, bool isLast) const;

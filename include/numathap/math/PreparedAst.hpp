@@ -1,3 +1,10 @@
+/**
+ * @file PreparedAst.hpp
+ * @brief Definition of the PreparedAst class.
+ *
+ * This file provides the structure for an AST that has been processed
+ * and prepared for execution within a specific mathematical environment.
+ */
 #pragma once
 
 #include <ostream>
@@ -40,39 +47,47 @@ class PreparedAst {
     ~PreparedAst() = default;
 
     /**
-     * @brief Returns the root node.
+     * @brief Gets the root node of the prepared AST.
+     * @return A pointer to the root MathNode.
      */
     [[nodiscard]]
     const MathNode* root() const noexcept;
 
     /**
-     * @brief Returns the original expression.
+     * @brief Gets the original mathematical expression string.
+     * @return The original expression.
      */
     [[nodiscard]]
     const std::string& expression() const noexcept;
 
     /**
-     * @brief Checks whether the tree is empty.
+     * @brief Checks whether the prepared AST is empty.
+     * @return true if the AST contains no nodes, false otherwise.
      */
     [[nodiscard]]
     bool empty() const noexcept;
 
     /**
-     * @brief Returns the execution environment used to prepare this AST.
+     * @brief Gets the execution environment used to prepare this AST.
+     * @return A const reference to the MathEnvironment.
      */
     [[nodiscard]]
     const config::MathEnvironment& environment() const noexcept;
 
     /**
-     * @brief Prints the Prepared-AST.
+     * @brief Prints the Prepared-AST to an output stream.
+     * @param os The output stream to write to.
      */
     void print(std::ostream& os) const;
 
    private:
+    /// @brief The original expression string.
     std::string expression_;
 
+    /// @brief The root node of the AST.
     MathNodePtr root_;
 
+    /// @brief The environment used during the preparation phase.
     config::MathEnvironment environment_;
 };
 

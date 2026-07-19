@@ -1,3 +1,10 @@
+/**
+ * @file MathNode.hpp
+ * @brief Base definitions for the Math-AST node hierarchy.
+ *
+ * This file defines the core structures of the semantic Abstract Syntax Tree
+ * used by the numathap library to represent mathematical expressions.
+ */
 #pragma once
 
 #include <memory>
@@ -18,6 +25,9 @@ class MathNode {
     virtual ~MathNode() = default;
 };
 
+/**
+ * @brief Alias for a unique pointer to a MathNode.
+ */
 using MathNodePtr = std::unique_ptr<MathNode>;
 
 /**
@@ -27,10 +37,13 @@ using MathNodePtr = std::unique_ptr<MathNode>;
  */
 class NumberNode : public MathNode {
    public:
-    explicit NumberNode(std::string value)
-        : value(std::move(value)) {}
+    /**
+     * @brief Constructs a new NumberNode.
+     * @param value The original textual representation of the number.
+     */
+    explicit NumberNode(std::string value) : value(std::move(value)) {}
 
-    /// Original textual representation of the number.
+    /// @brief Original textual representation of the number.
     std::string value;
 };
 
@@ -42,34 +55,38 @@ class NumberNode : public MathNode {
  */
 class SymbolNode : public MathNode {
    public:
-    explicit SymbolNode(std::string name)
-        : name(std::move(name)) {}
+    /**
+     * @brief Constructs a new SymbolNode.
+     * @param name The name of the symbol.
+     */
+    explicit SymbolNode(std::string name) : name(std::move(name)) {}
 
-    /// Symbol name.
+    /// @brief Symbol name.
     std::string name;
 };
 
 /**
  * @brief Unary mathematical operators.
  */
-enum class UnaryOp {
-    Plus,
-    Minus
-};
+enum class UnaryOp { Plus, Minus };
 
 /**
  * @brief Represents a unary mathematical operation.
  */
 class UnaryNode : public MathNode {
    public:
+    /**
+     * @brief Constructs a new UnaryNode.
+     * @param op The unary operator.
+     * @param operand The node to which the operator is applied.
+     */
     UnaryNode(UnaryOp op, MathNodePtr operand)
-        : op(op),
-          operand(std::move(operand)) {}
+        : op(op), operand(std::move(operand)) {}
 
-    /// Unary operator.
+    /// @brief Unary operator.
     UnaryOp op;
 
-    /// Operand.
+    /// @brief Operand node.
     MathNodePtr operand;
 };
 
@@ -77,11 +94,11 @@ class UnaryNode : public MathNode {
  * @brief Binary mathematical operators.
  */
 enum class BinaryOp {
-    Add,
-    Subtract,
-    Multiply,
-    Divide,
-    Power
+    Add,       ///< Addition operator (+)
+    Subtract,  ///< Subtraction operator (-)
+    Multiply,  ///< Multiplication operator (*)
+    Divide,    ///< Division operator (/)
+    Power      ///< Exponentiation operator (^)
 };
 
 /**
@@ -89,20 +106,22 @@ enum class BinaryOp {
  */
 class BinaryNode : public MathNode {
    public:
-    BinaryNode(BinaryOp op,
-               MathNodePtr left,
-               MathNodePtr right)
-        : op(op),
-          left(std::move(left)),
-          right(std::move(right)) {}
+    /**
+     * @brief Constructs a new BinaryNode.
+     * @param op The binary operator.
+     * @param left The left operand node.
+     * @param right The right operand node.
+     */
+    BinaryNode(BinaryOp op, MathNodePtr left, MathNodePtr right)
+        : op(op), left(std::move(left)), right(std::move(right)) {}
 
-    /// Binary operator.
+    /// @brief Binary operator.
     BinaryOp op;
 
-    /// Left operand.
+    /// @brief Left operand.
     MathNodePtr left;
 
-    /// Right operand.
+    /// @brief Right operand.
     MathNodePtr right;
 };
 
@@ -110,27 +129,25 @@ class BinaryNode : public MathNode {
  * @brief Represents a mathematical function.
  *
  * Examples:
- *   sin(x)
- *   cos(x)
- *   sqrt(x)
- *   abs(x)
- *   factorial(x)
- *   log(x, 10)
+ *   sin(x), cos(x), sqrt(x), abs(x), factorial(x), log(x, 10)
  *
  * Both intrinsic and user-defined functions are represented by this
  * node.
  */
 class FunctionNode : public MathNode {
    public:
-    FunctionNode(std::string name,
-                 std::vector<MathNodePtr> arguments)
-        : name(std::move(name)),
-          arguments(std::move(arguments)) {}
+    /**
+     * @brief Constructs a new FunctionNode.
+     * @param name The name of the function.
+     * @param arguments A vector containing the function's arguments.
+     */
+    FunctionNode(std::string name, std::vector<MathNodePtr> arguments)
+        : name(std::move(name)), arguments(std::move(arguments)) {}
 
-    /// Function name.
+    /// @brief Function name.
     std::string name;
 
-    /// Function arguments.
+    /// @brief List of function arguments.
     std::vector<MathNodePtr> arguments;
 };
 

@@ -1,3 +1,10 @@
+/**
+ * @file MathAstBuilder.hpp
+ * @brief Definition of the MathAstBuilder class.
+ *
+ * This file provides the logic for transforming a syntactic Parser-AST
+ * into a semantic Mathematical AST (Math-AST).
+ */
 #pragma once
 
 #include "numathap/math/MathNode.hpp"
@@ -19,22 +26,21 @@ namespace numathap::math {
 class MathAstBuilder {
    public:
     /**
-     * @brief Builds a Math-AST from a Parser-AST.
+     * @brief Builds a complete Math-AST starting from a Parser-AST root.
      *
-     * @param root Root node of the Parser-AST.
-     *
-     * @return Root node of the generated Math-AST.
+     * @param root The root node of the input Parser-AST.
+     * @return A unique pointer to the root node of the generated Math-AST.
      */
     [[nodiscard]]
     MathNodePtr build(const parser::Node* root) const;
 
    private:
     /**
-     * @brief Recursively converts a Parser-AST node into a Math-AST node.
+     * @brief Recursively converts a single Parser-AST node into its
+     * corresponding Math-AST semantic node.
      *
-     * @param node Parser-AST node.
-     *
-     * @return Corresponding Math-AST node.
+     * @param node The Parser-AST node to transform.
+     * @return A unique pointer to the corresponding Math-AST node.
      */
     [[nodiscard]]
     MathNodePtr buildNode(const parser::Node& node) const;

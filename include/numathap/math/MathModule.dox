@@ -1,0 +1,47 @@
+/**
+ * @defgroup math Math Module
+ * @brief Semantic representation and processing of mathematical expressions.
+ *
+ * The Math module provides the structures for a semantic Abstract Syntax Tree (Math-AST).
+ * It acts as the canonical representation of mathematical expressions, independent 
+ * of the original parsing grammar.
+ *
+ * @{
+ */
+
+/** @class numathap::math::MathAst
+ *  @ingroup math */
+
+/** @class numathap::math::MathNode
+ *  @ingroup math */
+
+/** @class numathap::math::NumberNode
+ *  @ingroup math */
+
+/** @class numathap::math::SymbolNode
+ *  @ingroup math */
+
+/** @class numathap::math::UnaryNode
+ *  @ingroup math */
+
+/** @class numathap::math::BinaryNode
+ *  @ingroup math */
+
+/** @class numathap::math::FunctionNode
+ *  @ingroup math */
+
+/** @class numathap::math::MathAstBuilder
+ *  @ingroup math */
+
+/** @class numathap::math::MathAstPrinter
+ *  @ingroup math */
+
+/** @class numathap::math::PreparedAst
+ *  @ingroup math */
+
+/** 
+ * @fn numathap::math::prepare
+ * @ingroup math
+ */
+
+/** @} */
