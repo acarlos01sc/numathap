@@ -5,6 +5,7 @@
 #include "numathap/config/MathEnvironment.hpp"
 #include "numathap/core/Context.hpp"
 #include "numathap/backend/evaluate.hpp"
+#include "numathap/core/Value.hpp"
 
 namespace numathap {
 
@@ -13,5 +14,6 @@ namespace numathap {
     using PreparedAst = math::PreparedAst;
     using MathEnvironment = config::MathEnvironment;
     using Context = core::Context;
+    using Value = core::Value;
 
 }
