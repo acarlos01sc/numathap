@@ -436,7 +436,6 @@ flowchart TD
     Context["Context"]
     Env["Math Environment"]
     Adapter["CMathAdapter"]
-    CMath["<cmath>"]
 
     %% ---------- Pipeline ----------
     Input --> Lexer
