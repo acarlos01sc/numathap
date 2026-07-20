@@ -454,7 +454,6 @@ flowchart TD
     Eval -. uses .-> Context
     Eval -. uses .-> Env
     Env --> Adapter
-    Adapter --> CMath
 
     %% ---------- Styles ----------
     classDef frontend fill:#E3F2FD,stroke:#1565C0,stroke-width:2px;
