@@ -14,7 +14,7 @@ namespace numathap::backend {
  * PreparedAst itself.
  */
 class Evaluator {
-public:
+   public:
     /**
      * @brief Evaluates a prepared mathematical expression.
      *
@@ -24,9 +24,8 @@ public:
      * @return Result of the evaluation.
      */
     [[nodiscard]]
-    static core::Value evaluate(
-        const math::PreparedAst& prepared,
-        const core::Context& context);
+    static core::Value evaluate(const math::PreparedAst& prepared,
+                                const core::Context& context);
 
     // Dispatcher visitors
 
@@ -45,9 +44,8 @@ public:
     [[nodiscard]]
     core::Value operator()(const math::FunctionNode& node) const;
 
-private:
-    Evaluator(const math::PreparedAst& prepared,
-              const core::Context& context);
+   private:
+    Evaluator(const math::PreparedAst& prepared, const core::Context& context);
 
     [[nodiscard]]
     core::Value dispatch(const math::MathNode& node) const;
@@ -58,9 +56,12 @@ private:
     [[nodiscard]]
     core::Value parseValue(const std::string& text) const;
 
-private:
+    [[nodiscard]]
+    core::Value evaluateConstantExpression(const std::string& expression) const;
+
+   private:
     const math::PreparedAst& prepared_;
     const core::Context& context_;
 };
 
-} // namespace numathap::backend
+}  // namespace numathap::backend

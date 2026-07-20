@@ -6,6 +6,8 @@
 #include "numathap/config/MathAdapter.hpp"
 #include "numathap/dispatch/Dispatcher.hpp"
 #include "numathap/numeric/Real.hpp"
+#include "numathap/backend/evaluate.hpp"
+#include "numathap/math/prepare.hpp"
 
 namespace numathap::backend {
 
@@ -129,6 +131,9 @@ Evaluator::resolveSymbol(const std::string& symbol) const
 core::Value
 Evaluator::parseValue(const std::string& text) const
 {
+    //
+    // 1. Literal numérico
+    //
     try {
 
         std::size_t pos = 0;
@@ -143,9 +148,47 @@ Evaluator::parseValue(const std::string& text) const
     } catch (...) {
     }
 
-    return prepared_.environment()
-        .mathAdapter()
-        .resolveConstant(text);
+    //
+    // 2. Constante da biblioteca matemática
+    //
+    try {
+
+        return prepared_.environment()
+            .mathAdapter()
+            .resolveConstant(text);
+
+    } catch (...) {
+    }
+
+    //
+    // 3. Expressão constante
+    //
+    return evaluateConstantExpression(text);
+}
+
+core::Value
+Evaluator::evaluateConstantExpression(
+    const std::string& expression) const
+{
+    try {
+
+        auto prepared =
+            math::prepare(
+                expression,
+                prepared_.environment());
+
+        core::Context emptyContext;
+
+        return backend::evaluate(
+            prepared,
+            emptyContext);
+
+    } catch (...) {
+
+        throw std::invalid_argument(
+            "Invalid numeric value or constant expression: \"" +
+            expression + "\"");
+    }
 }
 
 } // namespace numathap::backend
