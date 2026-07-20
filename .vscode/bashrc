@@ -1,0 +1,10 @@
+# Carrega a configuração padrão do usuário
+source ~/.bashrc
+
+# Diretório raiz do workspace
+WORKSPACE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Ativa a venv, se existir
+if [ -f "$WORKSPACE_DIR/.venv/bin/activate" ]; then
+    source "$WORKSPACE_DIR/.venv/bin/activate"
+fi
