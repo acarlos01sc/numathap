@@ -1,0 +1,46 @@
+/**
+ * @defgroup config Configuration Module
+ * @brief Manages the library's environment, mathematical backends, and operational settings.
+ *
+ * This module provides the infrastructure to define and retrieve the environment 
+ * settings under which mathematical expressions are evaluated.
+ * 
+ * @{
+ */
+
+/**
+ * @class numathap::config::CMathDoubleAdapter
+ * @brief Math adapter for the C++ Standard Library (cmath).
+ */
+
+/**
+ * @enum numathap::config::Capability
+ * @brief Represents an optional mathematical capability.
+ */
+
+/**
+ * @class numathap::config::Configurator
+ * @brief Interface for configuring the math environment.
+ */
+
+/**
+ * @class numathap::config::MathAdapter
+ * @brief Abstract interface between numathap and a mathematical library.
+ */
+
+/**
+ * @class numathap::config::MathEnvironment
+ * @brief Central hub storing active library and numeric type state.
+ */
+
+/**
+ * @enum numathap::config::MathLibrary
+ * @brief Identifies the mathematical library used by the environment.
+ */
+
+/**
+ * @enum numathap::config::NumericType
+ * @brief Identifies the numeric representation used by the environment.
+ */
+
+/** @} */ // end of config group
