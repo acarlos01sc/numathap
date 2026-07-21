@@ -33,6 +33,8 @@ class MathAst {
      */
     explicit MathAst(const parser::ParserAst& parserAst);
 
+    MathAst(std::string expression, MathNodePtr root);
+
     MathAst(MathAst&&) noexcept = default;
     MathAst& operator=(MathAst&&) noexcept = default;
 

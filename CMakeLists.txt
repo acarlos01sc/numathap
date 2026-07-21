@@ -24,6 +24,7 @@ file(GLOB SOURCES_MATH CONFIGURE_DEPENDS "src/math/*.cpp")
 file(GLOB SOURCES_NUMERIC CONFIGURE_DEPENDS "src/numeric/*.cpp")
 file(GLOB SOURCES_ORCH CONFIGURE_DEPENDS "src/orchestration/*.cpp")
 file(GLOB SOURCES_PARSER CONFIGURE_DEPENDS "src/parser/*.cpp")
+file(GLOB SOURCES_SYMBOLIC CONFIGURE_DEPENDS "src/symbolic/*.cpp")
 
 add_library(numathap
 
@@ -50,6 +51,9 @@ add_library(numathap
 
 	# parser
 	${SOURCES_PARSER}
+
+	# parser
+	${SOURCES_SYMBOLIC}
 )
 
 set_target_properties(numathap
@@ -108,6 +112,18 @@ add_executable(evaluate_test
 )
 
 target_link_libraries(evaluate_test
+	PRIVATE numathap
+)
+
+#----------------------------------------------------------
+# simplifier_test
+#----------------------------------------------------------
+
+add_executable(simplifier_test
+	tests/orchestration/simplifier_test.cpp
+)
+
+target_link_libraries(simplifier_test
 	PRIVATE numathap
 )
 
