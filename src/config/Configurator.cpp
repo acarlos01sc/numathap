@@ -15,4 +15,16 @@ NumericType Configurator::numericType() const noexcept {
     return environment_.numericType();
 }
 
+void Configurator::enableCapability(Capability capability) {
+    environment_.enableCapability(capability);
+}
+
+void Configurator::disableCapability(Capability capability) {
+    environment_.disableCapability(capability);
+}
+
+bool Configurator::hasCapability(Capability capability) const noexcept {
+    return environment_.hasCapability(capability);
+}
+
 }  // namespace numathap::config

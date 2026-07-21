@@ -5,7 +5,9 @@
 #pragma once
 
 #include <memory>
+#include <set>
 
+#include "numathap/config/Capability.hpp"
 #include "numathap/config/MathAdapter.hpp"
 #include "numathap/config/MathLibrary.hpp"
 #include "numathap/config/NumericType.hpp"
@@ -61,6 +63,31 @@ class MathEnvironment {
     [[nodiscard]]
     NumericType numericType() const noexcept;
 
+    /**
+     * @brief Enables a processing capability.
+     *
+     * Enabled capabilities are applied by the processing pipeline.
+     *
+     * @param capability Capability to enable.
+     */
+    void enableCapability(Capability capability);
+
+    /**
+     * @brief Disables a processing capability.
+     *
+     * @param capability Capability to disable.
+     */
+    void disableCapability(Capability capability);
+
+    /**
+     * @brief Checks whether a capability is enabled.
+     *
+     * @param capability Capability to query.
+     * @return true if the capability is enabled.
+     */
+    [[nodiscard]]
+    bool hasCapability(Capability capability) const noexcept;
+
    private:
     MathLibrary math_library_{
         MathLibrary::CMath};  ///< Active math library backend.
@@ -68,6 +95,7 @@ class MathEnvironment {
         NumericType::Double};  ///< Active numeric representation.
     std::unique_ptr<MathAdapter>
         adapter_;  ///< Unique pointer to the current adapter.
+    std::set<Capability> capabilities_;  ///< Enabled processing capabilities.
 };
 
 }  // namespace numathap::config

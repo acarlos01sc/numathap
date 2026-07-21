@@ -127,6 +127,19 @@ target_link_libraries(simplifier_test
 	PRIVATE numathap
 )
 
+#----------------------------------------------------------
+# mathenvironment_test
+#----------------------------------------------------------
+
+add_executable(mathenvironment_test
+	tests/orchestration/mathenvironment_test.cpp
+)
+
+target_link_libraries(mathenvironment_test
+	PRIVATE numathap
+)
+
+
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
 
 if(NUMATHAP_BUILD_PYTHON)
