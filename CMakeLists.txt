@@ -50,14 +50,17 @@ add_library(numathap
 
 	# parser
 	${SOURCES_PARSER}
+)
 
+set_target_properties(numathap
+	PROPERTIES POSITION_INDEPENDENT_CODE ON
 )
 
 # 3. Melhorar warnings e flags
 if(MSVC)
-    target_compile_options(numathap PRIVATE /W4)
+	target_compile_options(numathap PRIVATE /W4)
 else()
-    target_compile_options(numathap PRIVATE -Wall -Wextra -Wpedantic)
+	target_compile_options(numathap PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
 target_include_directories(numathap
@@ -107,3 +110,9 @@ add_executable(evaluate_test
 target_link_libraries(evaluate_test
 	PRIVATE numathap
 )
+
+option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
+
+if(NUMATHAP_BUILD_PYTHON)
+	add_subdirectory(python)
+endif()
