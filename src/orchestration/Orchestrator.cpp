@@ -15,22 +15,29 @@ MathNodePtr Orchestrator::build(
         return nullptr;
     }
 
-    return buildNode(*mathAst.root(), environment);
+    MathAst processedAst = applyCapabilities(mathAst, environment);
+
+    if (processedAst.root() == nullptr) {
+        return nullptr;
+    }
+
+    return buildNode(*processedAst.root(), environment);
 }
 
 MathAst Orchestrator::applyCapabilities(
     const MathAst& mathAst, const config::MathEnvironment& environment) const {
     if (environment.hasCapability(config::Capability::Simplify)) {
         symbolic::Simplifier simplifier;
+
         return simplifier.simplify(mathAst);
     }
 
     //
     // No capability enabled.
-    // Return an editable copy of the original MathAst.
+    // Preserve the original structure.
     //
-    symbolic::Simplifier simplifier;
-    return simplifier.simplify(mathAst);
+    return MathAst(mathAst.expression(),
+                   buildNode(*mathAst.root(), environment));
 }
 
 MathNodePtr Orchestrator::buildNode(

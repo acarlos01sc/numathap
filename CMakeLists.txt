@@ -92,6 +92,19 @@ add_executable(frontend_test
 target_link_libraries(frontend_test PRIVATE numathap)
 
 #----------------------------------------------------------
+# Frontend2_test
+#----------------------------------------------------------
+
+add_executable(frontend2_test
+	tests/parser/frontend2_test.cpp
+)
+
+target_link_libraries(frontend2_test PRIVATE numathap)
+
+
+
+
+#----------------------------------------------------------
 # PrepAst_print_test
 #----------------------------------------------------------
 
@@ -151,6 +164,17 @@ target_link_libraries(configure_test
 	PRIVATE numathap
 )
 
+#----------------------------------------------------------
+# eval2_test
+#----------------------------------------------------------
+
+add_executable(eval2_test
+	tests/backend/eval2_test.cpp
+)
+
+target_link_libraries(eval2_test
+	PRIVATE numathap
+)
 
 
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
