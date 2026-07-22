@@ -68,6 +68,14 @@ class Configurator {
     [[nodiscard]]
     bool hasCapability(Capability capability) const noexcept;
 
+    void apply(Capability capability);
+
+    //void apply(IntegrationMethod method);
+
+    //void apply(const Tolerance& tolerance);
+
+    //void apply(const MaxIterations& iterations);
+
    private:
     MathEnvironment&
         environment_;  ///< Reference to the associated math environment.

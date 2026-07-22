@@ -2,15 +2,15 @@
 
 #include <stdexcept>
 
+#include "numathap/config/Capability.hpp"
+#include "numathap/symbolic/Simplifier.hpp"
+
 namespace numathap::orchestration {
 
 using namespace numathap::math;
 
-MathNodePtr
-Orchestrator::build(
-    const MathAst& mathAst,
-    const config::MathEnvironment& environment) const
-{
+MathNodePtr Orchestrator::build(
+    const MathAst& mathAst, const config::MathEnvironment& environment) const {
     if (mathAst.root() == nullptr) {
         return nullptr;
     }
@@ -18,11 +18,23 @@ Orchestrator::build(
     return buildNode(*mathAst.root(), environment);
 }
 
-MathNodePtr
-Orchestrator::buildNode(
-    const MathNode& node,
-    const config::MathEnvironment& environment) const
-{
+MathAst Orchestrator::applyCapabilities(
+    const MathAst& mathAst, const config::MathEnvironment& environment) const {
+    if (environment.hasCapability(config::Capability::Simplify)) {
+        symbolic::Simplifier simplifier;
+        return simplifier.simplify(mathAst);
+    }
+
+    //
+    // No capability enabled.
+    // Return an editable copy of the original MathAst.
+    //
+    symbolic::Simplifier simplifier;
+    return simplifier.simplify(mathAst);
+}
+
+MathNodePtr Orchestrator::buildNode(
+    const MathNode& node, const config::MathEnvironment& environment) const {
     if (auto p = dynamic_cast<const NumberNode*>(&node)) {
         return buildNumber(*p, environment);
     }
@@ -46,91 +58,65 @@ Orchestrator::buildNode(
     throw std::runtime_error("Unknown MathNode type.");
 }
 
-MathNodePtr
-Orchestrator::buildNumber(
-    const NumberNode& node,
-    const config::MathEnvironment&) const
-{
+MathNodePtr Orchestrator::buildNumber(const NumberNode& node,
+                                      const config::MathEnvironment&) const {
     //
     // Future capabilities may transform this node.
     //
 
-    return std::make_unique<NumberNode>(
-        node.value);
+    return std::make_unique<NumberNode>(node.value);
 }
 
-MathNodePtr
-Orchestrator::buildSymbol(
-    const SymbolNode& node,
-    const config::MathEnvironment&) const
-{
+MathNodePtr Orchestrator::buildSymbol(const SymbolNode& node,
+                                      const config::MathEnvironment&) const {
     //
     // Future capabilities may transform this node.
     //
 
-    return std::make_unique<SymbolNode>(
-        node.name);
+    return std::make_unique<SymbolNode>(node.name);
 }
 
-MathNodePtr
-Orchestrator::buildUnary(
-    const UnaryNode& node,
-    const config::MathEnvironment& environment) const
-{
-    auto operand =
-        buildNode(*node.operand, environment);
+MathNodePtr Orchestrator::buildUnary(
+    const UnaryNode& node, const config::MathEnvironment& environment) const {
+    auto operand = buildNode(*node.operand, environment);
 
     //
     // Future capabilities may rewrite this subtree.
     //
 
-    return std::make_unique<UnaryNode>(
-        node.op,
-        std::move(operand));
+    return std::make_unique<UnaryNode>(node.op, std::move(operand));
 }
 
-MathNodePtr
-Orchestrator::buildBinary(
-    const BinaryNode& node,
-    const config::MathEnvironment& environment) const
-{
-    auto left =
-        buildNode(*node.left, environment);
+MathNodePtr Orchestrator::buildBinary(
+    const BinaryNode& node, const config::MathEnvironment& environment) const {
+    auto left = buildNode(*node.left, environment);
 
-    auto right =
-        buildNode(*node.right, environment);
+    auto right = buildNode(*node.right, environment);
 
     //
     // Future capabilities may rewrite this subtree.
     //
 
-    return std::make_unique<BinaryNode>(
-        node.op,
-        std::move(left),
-        std::move(right));
+    return std::make_unique<BinaryNode>(node.op, std::move(left),
+                                        std::move(right));
 }
 
-MathNodePtr
-Orchestrator::buildFunction(
+MathNodePtr Orchestrator::buildFunction(
     const FunctionNode& node,
-    const config::MathEnvironment& environment) const
-{
+    const config::MathEnvironment& environment) const {
     std::vector<MathNodePtr> arguments;
 
     arguments.reserve(node.arguments.size());
 
     for (const auto& argument : node.arguments) {
-        arguments.push_back(
-            buildNode(*argument, environment));
+        arguments.push_back(buildNode(*argument, environment));
     }
 
     //
     // Future capabilities may rewrite this function.
     //
 
-    return std::make_unique<FunctionNode>(
-        node.name,
-        std::move(arguments));
+    return std::make_unique<FunctionNode>(node.name, std::move(arguments));
 }
 
-} // namespace numathap::orchestration
+}  // namespace numathap::orchestration

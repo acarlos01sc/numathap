@@ -27,4 +27,8 @@ bool Configurator::hasCapability(Capability capability) const noexcept {
     return environment_.hasCapability(capability);
 }
 
+void Configurator::apply(Capability capability) {
+    enableCapability(capability);
+}
+
 }  // namespace numathap::config

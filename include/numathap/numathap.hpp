@@ -6,11 +6,13 @@
 #include "numathap/core/Value.hpp"
 #include "numathap/math/PreparedAst.hpp"
 #include "numathap/math/prepare.hpp"
+#include "numathap/config/configure.hpp"
 
 namespace numathap {
 
 using backend::evaluate;
 using math::prepare;
+using config::configure;
 using PreparedAst = math::PreparedAst;
 using MathEnvironment = config::MathEnvironment;
 using Context = core::Context;

@@ -47,6 +47,23 @@ class Orchestrator {
 
    private:
     /**
+     * @brief Applies the capabilities enabled in the environment.
+     *
+     * A working copy of the original Math-AST is progressively transformed by
+     * the enabled capabilities. If no capabilities are enabled, the returned
+     * tree is simply a structural copy of the original.
+     *
+     * @param mathAst The original immutable Math-AST.
+     * @param environment Active processing environment.
+     *
+     * @return The transformed Math-AST.
+     */
+    [[nodiscard]]
+    math::MathAst applyCapabilities(
+        const math::MathAst& mathAst,
+        const config::MathEnvironment& environment) const;
+
+    /**
      * @brief Internal dispatcher that delegates node creation based on the node
      * type.
      * @internal This is part of the internal visitor/dispatch mechanism.
@@ -75,7 +92,8 @@ class Orchestrator {
         const config::MathEnvironment& environment) const;
 
     /**
-     * @brief Processes and prepares a UnaryNode, recursively building its operand.
+     * @brief Processes and prepares a UnaryNode, recursively building its
+     * operand.
      * @internal Node-specific transformation logic.
      */
     [[nodiscard]]
@@ -84,7 +102,8 @@ class Orchestrator {
         const config::MathEnvironment& environment) const;
 
     /**
-     * @brief Processes and prepares a UnaryNode, recursively building its operand.
+     * @brief Processes and prepares a UnaryNode, recursively building its
+     * operand.
      * @internal Node-specific transformation logic.
      */
     [[nodiscard]]
@@ -93,7 +112,8 @@ class Orchestrator {
         const config::MathEnvironment& environment) const;
 
     /**
-     * @brief Processes and prepares a FunctionNode, recursively building its arguments.
+     * @brief Processes and prepares a FunctionNode, recursively building its
+     * arguments.
      * @internal Node-specific transformation logic.
      */
     [[nodiscard]]

@@ -139,6 +139,19 @@ target_link_libraries(mathenvironment_test
 	PRIVATE numathap
 )
 
+#----------------------------------------------------------
+# mathenvironment_test
+#----------------------------------------------------------
+
+add_executable(configure_test
+	tests/orchestration/configure_test.cpp
+)
+
+target_link_libraries(configure_test
+	PRIVATE numathap
+)
+
+
 
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
 
