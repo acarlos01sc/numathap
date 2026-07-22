@@ -12,6 +12,8 @@ pybind11_add_module(_numathap
     bindings/Context.cpp
     bindings/prepare.cpp
     bindings/evaluate.cpp
+    bindings/Capability.cpp
+    bindings/configure.cpp
 )
 
 target_link_libraries(_numathap

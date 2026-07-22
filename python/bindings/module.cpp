@@ -9,6 +9,8 @@ void bindValue(py::module_& m);
 void bindContext(py::module_& m);
 void bindPrepare(py::module_& m);
 void bindEvaluate(py::module_& m);
+void bindCapability(py::module_& m);
+void bindConfigure(py::module_& m);
 
 }
 
@@ -19,4 +21,6 @@ PYBIND11_MODULE(_numathap, m)
     numathap::python::bindContext(m);
     numathap::python::bindPrepare(m);
     numathap::python::bindEvaluate(m);
+    numathap::python::bindCapability(m);
+    numathap::python::bindConfigure(m);
 }
