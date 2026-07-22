@@ -52,7 +52,7 @@ add_library(numathap
 	# parser
 	${SOURCES_PARSER}
 
-	# parser
+	# symbolic
 	${SOURCES_SYMBOLIC}
 )
 
