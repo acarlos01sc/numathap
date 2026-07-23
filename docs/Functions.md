@@ -121,6 +121,7 @@ Example:
 
 ```cpp
 auto ast = prepare("tgamma(x)");
+```
 
 ---
 
