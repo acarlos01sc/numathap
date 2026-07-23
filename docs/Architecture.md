@@ -62,51 +62,48 @@ The overall processing pipeline is illustrated below.
 
 flowchart LR
 
-    U["Expression"]
+    EX["Expression"]
     PA["Parser AST"]
     MB["Math AST Builder"]
     MA["Math AST"]
     OR["Orchestrator"]
     PR["Prepared AST"]
-    DI["Dispatcher"]
 
-    EV["Evaluator"]
-    IN["Integrator"]
-    LI["Limit"]
-    FB["Future Backends"]
-
-    CT["Context"]
-    FR["Function Registry"]
-    ML["Math Adapter"]
-
-    U --> PA
+    EX --> PA
     PA --> MB
     MB --> MA
     MA --> OR
     OR --> PR
-    PR --> DI
 
-    DI --> EV
-    DI --> IN
-    DI --> LI
-    DI --> FB
+    SB["Symbolic Backends"]
 
-    EV --> CT
-    EV --> FR
+    NB["Numerical Backends"]
+    EV["Evaluator Backend"]
 
-    FR --> ML
+    DI["Dispatcher"]
+
+    AD["Math Adapter"]
+    ML["Math Library (cmath)"]
+
+    SB --> OR
+
+    NB --> EV
+    EV --> DI
+    DI --> PR
+
+    EV --> AD
+    AD --> ML
 
     classDef frontend fill:#E8F1FF,stroke:#4A90E2,color:#000000;
     classDef preparation fill:#EAF7EA,stroke:#4CAF50,color:#000000;
-    classDef execution fill:#FFF4E5,stroke:#F39C12,color:#000000;
     classDef backend fill:#F5E8FF,stroke:#8E44AD,color:#000000;
     classDef support fill:#F2F2F2,stroke:#808080,color:#000000;
 
-    class U,PA,MB,MA frontend;
+    class EX,PA,MB,MA frontend;
     class OR,PR preparation;
-    class DI execution;
-    class EV,IN,LI,FB backend;
-    class CT,FR,ML support;
+    class SB,NB,EV backend;
+    class DI support;
+    class AD,ML support;
 ```
 
 The architecture is intentionally divided into four major stages:
