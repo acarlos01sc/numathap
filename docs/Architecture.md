@@ -85,7 +85,7 @@ flowchart LR
     AD["Math Adapter"]
     ML["Math Library (cmath)"]
 
-    SB --> OR
+    SB --> DI
 
     NB --> EV
     EV --> DI
