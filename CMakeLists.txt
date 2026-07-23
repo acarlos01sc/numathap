@@ -101,9 +101,6 @@ add_executable(frontend2_test
 
 target_link_libraries(frontend2_test PRIVATE numathap)
 
-
-
-
 #----------------------------------------------------------
 # PrepAst_print_test
 #----------------------------------------------------------
@@ -176,6 +173,17 @@ target_link_libraries(eval2_test
 	PRIVATE numathap
 )
 
+#----------------------------------------------------------
+# viewer utility: PrinterTextParser_test
+#----------------------------------------------------------
+add_executable(PrinterTextParser_test
+	tests/utils/viewer/src/PrinterTextParser.cpp
+	tests/utils/viewer/src/PrinterTextParser_test.cpp
+)
+
+target_include_directories(PrinterTextParser_test
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
+)
 
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
 
