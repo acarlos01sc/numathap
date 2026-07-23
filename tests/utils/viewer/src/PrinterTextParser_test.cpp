@@ -1,166 +1,118 @@
-#include <iostream>
+#include "PrinterTextParser.hpp"
+#include "test_framework.hpp"
+
 #include <stdexcept>
 #include <string>
-
-#include "PrinterTextParser.hpp"
-
-namespace {
 
 using numathap::viewer::PrinterTextParser;
 using numathap::viewer::RenderNode;
 
-int g_failures = 0;
+namespace {
 
-void printRenderNode(const RenderNode& node, std::ostream& os, int depth = 0)
-{
-    for (int i = 0; i < depth; ++i)
-    {
-        os << "  ";
-    }
-    os << node.label << '\n';
-    for (const auto& child : node.children)
-    {
-        printRenderNode(child, os, depth + 1);
-    }
-}
-
-std::size_t countNodes(const RenderNode& node)
-{
+std::size_t countNodes(const RenderNode& node) {
     std::size_t total = 1;
-    for (const auto& child : node.children)
-    {
+    for (const auto& child : node.children) {
         total += countNodes(child);
     }
     return total;
 }
 
-void check(bool condition, const std::string& description)
-{
-    if (condition)
-    {
-        std::cout << "  [OK] " << description << '\n';
-    }
-    else
-    {
-        std::cout << "  [FAIL] " << description << '\n';
-        ++g_failures;
-    }
-}
-
 } // namespace
 
-int main()
-{
-    // Case 1: binary expression - mirrors ParserAstPrinter output for "1e12*1"
-    {
-        const std::string text =
-            "Binary(*)\n"
-            "  Number(1e12)\n"
-            "  Number(1)\n";
+TEST(PrinterTextParser, BinaryExpression) {
+    const std::string text =
+        "Binary(*)\n"
+        "  Number(1e12)\n"
+        "  Number(1)\n";
 
-        std::cout << "\n============================================================\n";
-        std::cout << "Case: binary expression\n";
-        std::cout << "------------------------------------------------------------\n";
-        std::cout << "Input text:\n" << text;
+    PrinterTextParser parser;
+    const RenderNode root = parser.parse(text);
 
-        PrinterTextParser parser;
-        const RenderNode root = parser.parse(text);
+    EXPECT_EQ(root.label, "Binary(*)");
+    EXPECT_EQ(root.children.size(), 2u);
+    EXPECT_EQ(root.children[0].label, "Number(1e12)");
+    EXPECT_EQ(root.children[1].label, "Number(1)");
+}
 
-        std::cout << "Reconstructed tree:\n";
-        printRenderNode(root, std::cout);
+TEST(PrinterTextParser, FunctionMultipleArguments) {
+    const std::string text =
+        "Function(log)\n"
+        "  Identifier(x)\n"
+        "  Number(10)\n";
 
-        check(root.label == "Binary(*)", "root label is Binary(*)");
-        check(root.children.size() == 2, "root has 2 children");
-        check(root.children[0].label == "Number(1e12)", "first child is Number(1e12)");
-        check(root.children[1].label == "Number(1)", "second child is Number(1)");
-    }
+    PrinterTextParser parser;
+    const RenderNode root = parser.parse(text);
 
-    // Case 2: function call with multiple arguments (variable arity)
-    {
-        const std::string text =
-            "Function(log)\n"
-            "  Identifier(x)\n"
-            "  Number(10)\n";
+    EXPECT_EQ(root.label, "Function(log)");
+    EXPECT_EQ(root.children.size(), 2u);
+}
 
-        std::cout << "\n============================================================\n";
-        std::cout << "Case: function with multiple arguments\n";
-        std::cout << "------------------------------------------------------------\n";
-        std::cout << "Input text:\n" << text;
+TEST(PrinterTextParser, MultiLevelDedent) {
+    const std::string text =
+        "Binary(+)\n"
+        "  Unary(-)\n"
+        "    Postfix(!)\n"
+        "      Identifier(x)\n"
+        "  Number(1)\n";
 
-        PrinterTextParser parser;
-        const RenderNode root = parser.parse(text);
+    PrinterTextParser parser;
+    const RenderNode root = parser.parse(text);
 
-        std::cout << "Reconstructed tree:\n";
-        printRenderNode(root, std::cout);
+    EXPECT_EQ(root.children.size(), 2u);
+    EXPECT_EQ(root.children[0].label, "Unary(-)");
+    EXPECT_EQ(root.children[0].children.at(0).label, "Postfix(!)");
+    EXPECT_EQ(root.children[1].label, "Number(1)");
+    EXPECT_EQ(countNodes(root), 5u);
+}
 
-        check(root.label == "Function(log)", "root label is Function(log)");
-        check(root.children.size() == 2, "root has 2 arguments");
-    }
+TEST(PrinterTextParser, MalformedIndentationIsRejected) {
+    const std::string text =
+        "Binary(*)\n"
+        "  Number(1)\n"
+        "   Number(2)\n"; // 3 espaços: não alinha à unidade detectada (2)
 
-    // Case 3: multi-level dedent (returning from a deep chain back to a
-    // sibling of an ancestor)
-    {
-        const std::string text =
-            "Binary(+)\n"
-            "  Unary(-)\n"
-            "    Postfix(!)\n"
-            "      Identifier(x)\n"
-            "  Number(1)\n";
+    PrinterTextParser parser;
+    EXPECT_THROWS(parser.parse(text), std::invalid_argument);
+}
 
-        std::cout << "\n============================================================\n";
-        std::cout << "Case: multi-level dedent\n";
-        std::cout << "------------------------------------------------------------\n";
-        std::cout << "Input text:\n" << text;
+// --- Casos novos ---
 
-        PrinterTextParser parser;
-        const RenderNode root = parser.parse(text);
+TEST(PrinterTextParser, SingleNodeTree) {
+    // Sem descida, não há delta positivo para detectar a unidade de
+    // indentação -- exercita o fallback em detectIndentUnit().
+    const std::string text = "Number(42)\n";
 
-        std::cout << "Reconstructed tree:\n";
-        printRenderNode(root, std::cout);
+    PrinterTextParser parser;
+    const RenderNode root = parser.parse(text);
 
-        check(root.children.size() == 2, "root has 2 children after dedent");
-        check(root.children[0].label == "Unary(-)", "first child is Unary(-)");
-        check(root.children[0].children.at(0).label == "Postfix(!)",
-              "Unary's child is Postfix(!)");
-        check(root.children[1].label == "Number(1)",
-              "second child correctly returned to depth 1");
-        check(countNodes(root) == 5, "tree has 5 nodes total");
-    }
+    EXPECT_EQ(root.label, "Number(42)");
+    EXPECT_TRUE(root.children.empty());
+}
 
-    // Case 4: malformed indentation must be rejected, not silently misread
-    {
-        const std::string text =
-            "Binary(*)\n"
-            "  Number(1)\n"
-            "   Number(2)\n"; // 3 spaces: not aligned to the detected unit (2)
+TEST(PrinterTextParser, EmptyTextIsRejected) {
+    PrinterTextParser parser;
+    EXPECT_THROWS(parser.parse(""), std::invalid_argument);
+}
 
-        std::cout << "\n============================================================\n";
-        std::cout << "Case: malformed indentation (expected to throw)\n";
-        std::cout << "------------------------------------------------------------\n";
-        std::cout << "Input text:\n" << text;
+TEST(PrinterTextParser, BlankTextIsRejected) {
+    PrinterTextParser parser;
+    EXPECT_THROWS(parser.parse("   \n\t\n  \n"), std::invalid_argument);
+}
 
-        PrinterTextParser parser;
-        try
-        {
-            [[maybe_unused]] const RenderNode discarded = parser.parse(text);
-            check(false, "malformed indentation should have thrown");
-        }
-        catch (const std::invalid_argument& e)
-        {
-            std::cout << "Caught expected error: " << e.what() << '\n';
-            check(true, "malformed indentation correctly rejected");
-        }
-    }
+TEST(PrinterTextParser, MultipleRootNodesAreRejected) {
+    // Duas árvores de profundidade 0 concatenadas -- deve ser rejeitado
+    // como "mais de um nó raiz", conforme documentado em parse().
+    const std::string text =
+        "Binary(*)\n"
+        "  Number(1)\n"
+        "Binary(+)\n"
+        "  Number(2)\n";
 
-    std::cout << "\n============================================================\n";
-    if (g_failures == 0)
-    {
-        std::cout << "All PrinterTextParser checks passed.\n";
-    }
-    else
-    {
-        std::cout << g_failures << " check(s) FAILED.\n";
-    }
+    PrinterTextParser parser;
+    EXPECT_THROWS(parser.parse(text), std::invalid_argument);
+}
 
-    return g_failures == 0 ? 0 : 1;
+int main(int argc, char** argv) {
+    const std::string filter = (argc > 1) ? argv[1] : "";
+    return testfw::runFiltered(filter);
 }

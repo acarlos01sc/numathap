@@ -5,6 +5,8 @@ project(numathap
 	LANGUAGES CXX
 )
 
+enable_testing() 
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -83,6 +85,23 @@ add_executable(PrinterTextParser_test
 target_include_directories(PrinterTextParser_test
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
 )
+
+foreach(case_name
+	BinaryExpression
+	FunctionMultipleArguments
+	MultiLevelDedent
+	MalformedIndentationIsRejected
+	SingleNodeTree
+	EmptyTextIsRejected
+	BlankTextIsRejected
+	MultipleRootNodesAreRejected
+)
+	add_test(
+		NAME PrinterTextParser.${case_name}
+		COMMAND PrinterTextParser_test ${case_name}
+	)
+endforeach()
+
 
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
 
