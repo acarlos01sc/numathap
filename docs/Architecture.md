@@ -413,16 +413,6 @@ This separation keeps execution contexts simple while allowing different numeric
 
 ---
 
-## Function Registry
-
-The Function Registry provides the connection between mathematical function names appearing in expressions and the selected mathematical library.
-
-Rather than embedding knowledge of individual mathematical functions into the parser or execution infrastructure, function resolution is delegated to the configured mathematical adapter.
-
-This approach allows different mathematical libraries to expose different sets of supported functions while preserving a consistent execution architecture.
-
----
-
 ## Math Adapter
 
 The Math Adapter abstracts the mathematical library used during execution.
