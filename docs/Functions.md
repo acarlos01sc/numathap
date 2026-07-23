@@ -154,6 +154,7 @@ Example:
 
 ```cpp
 auto ast = prepare("fmod(x, y)");
+```
 
 ---
 
