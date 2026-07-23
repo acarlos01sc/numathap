@@ -224,7 +224,7 @@ This design keeps the orchestration logic independent from the symbolic algorith
 
 The Prepared AST is the final result of the preparation phase.
 
-It represents an immutable expression that is ready for execution by any compatible numerical backend.
+It represents an immutable expression that is ready for execution by any compatible numerical or symbolic backend.
 
 Preparing an expression once and reusing it many times provides several advantages:
 
@@ -368,11 +368,11 @@ Each backend operates on a `Prepared AST` and produces a result appropriate for 
 Examples include:
 
 * numerical evaluation;
-* numerical integration;
-* limit computation.
+* numerical integration.
 
 Future backends may include:
 
+* limit computation;
 * root finding;
 * equation solving;
 * optimization;
@@ -449,7 +449,7 @@ auto env = configure(Capability::Simplifier);
 auto ast = prepare("sin(x) + x * 1", env);
 
 Context ctx;
-ctx.set_value("x", "pi / 2");
+ctx.setValue("x", "pi / 2");
 
 Value result = evaluate(ast, ctx);
 ```
@@ -472,7 +472,7 @@ import numathap
 ast = numathap.prepare("sin(x)")
 
 ctx = numathap.Context()
-ctx.set_value("x", "pi / 2")
+ctx.setValue("x", "pi / 2")
 
 result = numathap.evaluate(ast, ctx)
 
