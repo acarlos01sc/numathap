@@ -90,6 +90,11 @@ Value CMathDoubleAdapter::callFunction(std::string_view function,
         return makeValue(std::log(toDouble(arguments[0])));
     }
 
+    if (function == "log2") {
+        expectArguments(function, arguments, 1);
+        return makeValue(std::log2(toDouble(arguments[0])));
+    }
+
     if (function == "log10") {
         expectArguments(function, arguments, 1);
         return makeValue(std::log10(toDouble(arguments[0])));
@@ -103,6 +108,38 @@ Value CMathDoubleAdapter::callFunction(std::string_view function,
     if (function == "cbrt") {
         expectArguments(function, arguments, 1);
         return makeValue(std::cbrt(toDouble(arguments[0])));
+    }
+
+    if (function == "hypot") {
+        expectArguments(function, arguments, 2);
+        return makeValue(
+            std::hypot(toDouble(arguments[0]), toDouble(arguments[1])));
+    }
+
+    if (function == "fmod") {
+        expectArguments(function, arguments, 2);
+        return makeValue(
+            std::fmod(toDouble(arguments[0]), toDouble(arguments[1])));
+    }
+
+    if (function == "erf") {
+        expectArguments(function, arguments, 1);
+        return makeValue(std::erf(toDouble(arguments[0])));
+    }
+
+    if (function == "erfc") {
+        expectArguments(function, arguments, 1);
+        return makeValue(std::erfc(toDouble(arguments[0])));
+    }
+
+    if (function == "tgamma") {
+        expectArguments(function, arguments, 1);
+        return makeValue(std::tgamma(toDouble(arguments[0])));
+    }
+
+    if (function == "lgamma") {
+        expectArguments(function, arguments, 1);
+        return makeValue(std::lgamma(toDouble(arguments[0])));
     }
 
     if (function == "abs") {
