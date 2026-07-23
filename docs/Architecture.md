@@ -80,12 +80,15 @@ flowchart LR
     NB["Numerical Backends"]
     EV["Evaluator Backend"]
 
+    CB["Capability"]
+
     DI["Dispatcher"]
 
     AD["Math Adapter"]
     ML["Math Library (cmath)"]
 
     SB --> DI
+    CB --> OR
 
     NB --> EV
     EV --> DI
