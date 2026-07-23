@@ -13,7 +13,7 @@ namespace numathap::symbolic {
  * a new simplified Math-AST is returned.
  */
 class Simplifier {
-public:
+   public:
     /**
      * @brief Simplifies a Math-AST.
      *
@@ -23,7 +23,7 @@ public:
     [[nodiscard]]
     math::MathAst simplify(const math::MathAst& mathAst) const;
 
-private:
+   private:
     //
     // Recursive simplification
     //
@@ -51,15 +51,13 @@ private:
     //
 
     [[nodiscard]]
-    math::MathNodePtr simplifyUnaryNode(
-        math::UnaryOp op,
-        math::MathNodePtr operand) const;
+    math::MathNodePtr simplifyUnaryNode(math::UnaryOp op,
+                                        math::MathNodePtr operand) const;
 
     [[nodiscard]]
-    math::MathNodePtr simplifyBinaryNode(
-        math::BinaryOp op,
-        math::MathNodePtr left,
-        math::MathNodePtr right) const;
+    math::MathNodePtr simplifyBinaryNode(math::BinaryOp op,
+                                         math::MathNodePtr left,
+                                         math::MathNodePtr right) const;
 
     //
     // Pattern recognition
@@ -73,6 +71,12 @@ private:
 
     [[nodiscard]]
     bool isUnaryMinusOne(const math::MathNode& node) const;
+
+    [[nodiscard]]
+    bool isOpposite(const math::MathNode& left,
+                    const math::MathNode& right) const;
+
+    bool equivalent(const math::MathNode& left, const math::MathNode& right) const;
 };
 
-} // namespace numathap::symbolic
+}  // namespace numathap::symbolic
