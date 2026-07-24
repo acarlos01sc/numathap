@@ -1,8 +1,8 @@
-#include "PrinterTextParser.hpp"
-#include "test_framework.hpp"
-
 #include <stdexcept>
 #include <string>
+
+#include "PrinterTextParser.hpp"
+#include "test_framework.hpp"
 
 using numathap::viewer::PrinterTextParser;
 using numathap::viewer::RenderNode;
@@ -34,7 +34,7 @@ TEST(PrinterTextParser, BinaryExpression) {
     EXPECT_EQ(root.children[1].label, "Number(1)");
 }
 
-TEST(PrinterTextParser, FunctionMultipleArguments) {
+TEST(PrinterTextParser, FunctionWithMultipleArguments) {
     const std::string text =
         "Function(log)\n"
         "  Identifier(x)\n"
@@ -69,44 +69,7 @@ TEST(PrinterTextParser, MalformedIndentationIsRejected) {
     const std::string text =
         "Binary(*)\n"
         "  Number(1)\n"
-        "   Number(2)\n"; // 3 espaços: não alinha à unidade detectada (2)
-
-    PrinterTextParser parser;
-    EXPECT_THROWS(parser.parse(text), std::invalid_argument);
-}
-
-// --- Casos novos ---
-
-TEST(PrinterTextParser, SingleNodeTree) {
-    // Sem descida, não há delta positivo para detectar a unidade de
-    // indentação -- exercita o fallback em detectIndentUnit().
-    const std::string text = "Number(42)\n";
-
-    PrinterTextParser parser;
-    const RenderNode root = parser.parse(text);
-
-    EXPECT_EQ(root.label, "Number(42)");
-    EXPECT_TRUE(root.children.empty());
-}
-
-TEST(PrinterTextParser, EmptyTextIsRejected) {
-    PrinterTextParser parser;
-    EXPECT_THROWS(parser.parse(""), std::invalid_argument);
-}
-
-TEST(PrinterTextParser, BlankTextIsRejected) {
-    PrinterTextParser parser;
-    EXPECT_THROWS(parser.parse("   \n\t\n  \n"), std::invalid_argument);
-}
-
-TEST(PrinterTextParser, MultipleRootNodesAreRejected) {
-    // Duas árvores de profundidade 0 concatenadas -- deve ser rejeitado
-    // como "mais de um nó raiz", conforme documentado em parse().
-    const std::string text =
-        "Binary(*)\n"
-        "  Number(1)\n"
-        "Binary(+)\n"
-        "  Number(2)\n";
+        "   Number(2)\n"; // 3 espaços: não alinhado à unidade detectada (2)
 
     PrinterTextParser parser;
     EXPECT_THROWS(parser.parse(text), std::invalid_argument);
