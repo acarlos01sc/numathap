@@ -79,9 +79,7 @@ TEST(PrinterTextParser, MalformedIndentationIsRejected) {
 TEST(PrinterTextParser, ConnectorStyleBinaryExpression) {
     const std::string text =
         "Binary(*)\n"
-        "\u2514\u2500\u2500 Number(1e12)\n";  // caso degenerado: só 1 filho,
-                                              // para focar no parsing do
-                                              // conector
+        "    \u2514\u2500\u2500 Number(1e12)\n"; // bloco de indentação obrigatório antes do conector
 
     PrinterTextParser parser;
     const RenderNode root = parser.parse(text);
