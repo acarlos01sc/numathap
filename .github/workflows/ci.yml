@@ -16,10 +16,8 @@ jobs:
         run: cmake -S . -B build
 
       - name: Build
-        run: cmake --build build --target PrinterTextParser_test PrinterTextParser_integration_test
+        run: cmake --build build
 
-      - name: Run PrinterTextParser_test
-        run: ./build/PrinterTextParser_test
-
-      - name: Run PrinterTextParser_integration_test
-        run: ./build/PrinterTextParser_integration_test
+      - name: Run tests
+        working-directory: build
+        run: ctest --output-on-failure

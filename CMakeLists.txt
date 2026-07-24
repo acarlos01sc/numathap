@@ -5,7 +5,7 @@ project(numathap
 	LANGUAGES CXX
 )
 
-enable_testing() 
+enable_testing()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
@@ -62,6 +62,23 @@ set_target_properties(numathap
 	PROPERTIES POSITION_INDEPENDENT_CODE ON
 )
 
+#----------------------------------------------------------
+# viewer utility library
+#----------------------------------------------------------
+
+add_library(AstViewerCore STATIC
+	tests/utils/viewer/src/PrinterTextParser.cpp
+	tests/utils/viewer/src/AstViewerCore.cpp
+)
+
+target_include_directories(AstViewerCore
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
+)
+
+target_link_libraries(AstViewerCore
+	PUBLIC numathap
+)
+
 # 3. Melhorar warnings e flags
 if(MSVC)
 	target_compile_options(numathap PRIVATE /W4)
@@ -73,17 +90,15 @@ target_include_directories(numathap
 	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
-
 #----------------------------------------------------------
 # viewer utility: PrinterTextParser_test
 #----------------------------------------------------------
 add_executable(PrinterTextParser_test
-	tests/utils/viewer/src/PrinterTextParser.cpp
 	tests/utils/viewer/src/PrinterTextParser_test.cpp
 )
 
-target_include_directories(PrinterTextParser_test
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
+target_link_libraries(PrinterTextParser_test
+	PRIVATE AstViewerCore
 )
 
 add_test(NAME PrinterTextParser_test COMMAND PrinterTextParser_test)
@@ -92,18 +107,34 @@ add_test(NAME PrinterTextParser_test COMMAND PrinterTextParser_test)
 # viewer utility: PrinterTextParser_integration_test
 #----------------------------------------------------------
 add_executable(PrinterTextParser_integration_test
-    tests/utils/viewer/src/PrinterTextParser.cpp
-    tests/utils/viewer/src/PrinterTextParser_integration_test.cpp
+	tests/utils/viewer/src/PrinterTextParser_integration_test.cpp
 )
 
-target_include_directories(PrinterTextParser_integration_test
-    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
+target_link_libraries(PrinterTextParser_integration_test
+	PRIVATE AstViewerCore
 )
 
-target_link_libraries(PrinterTextParser_integration_test PRIVATE numathap)
+add_test(
+	NAME PrinterTextParser_integration_test
+	COMMAND PrinterTextParser_integration_test
+)
 
+#----------------------------------------------------------
+# viewer utility: AstViewerCore_integration_test
+#----------------------------------------------------------
 
+add_executable(AstViewerCore_integration_test
+	tests/utils/viewer/src/AstViewerCore_integration_test.cpp
+)
 
+target_link_libraries(AstViewerCore_integration_test
+	PRIVATE AstViewerCore
+)
+
+add_test(
+	NAME AstViewerCore_integration_test
+	COMMAND AstViewerCore_integration_test
+)
 
 foreach(case_name
 	BinaryExpression
@@ -120,7 +151,6 @@ foreach(case_name
 		COMMAND PrinterTextParser_test ${case_name}
 	)
 endforeach()
-
 
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
 
