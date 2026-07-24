@@ -19,15 +19,20 @@ bool isBlank(const std::string& line) {
     return line.find_first_not_of(" \t\r\n") == std::string::npos;
 }
 
+bool hasConnectorGlyphs(const std::string& text) {
+    return text.find("\u251C") != std::string::npos ||  // "├"
+           text.find("\u2514") != std::string::npos ||  // "└"
+           text.find("\u2502") != std::string::npos;    // "│"
+}
+
 }  // namespace
 
 std::vector<PrinterTextParser::Line> PrinterTextParser::toLines(
     const std::string& text) const {
-    std::vector<int> rawSpaces;
-    std::vector<std::string> labels;
-
+    std::vector<std::string> rawLines;
     std::istringstream stream(text);
     std::string raw;
+
     while (std::getline(stream, raw)) {
         if (!raw.empty() && raw.back() == '\r') {
             raw.pop_back();  // tolerate CRLF input
@@ -35,14 +40,37 @@ std::vector<PrinterTextParser::Line> PrinterTextParser::toLines(
         if (isBlank(raw)) {
             continue;
         }
+        rawLines.push_back(raw);
+    }
+
+    if (rawLines.empty()) {
+        throw std::invalid_argument(
+            "PrinterTextParser: cannot parse empty or blank printer output");
+    }
+
+    std::vector<Line> lines = hasConnectorGlyphs(text)
+                                  ? parseConnectorStyle(rawLines)
+                                  : parseIndentStyle(rawLines);
+
+    if (lines.front().depth != 0) {
+        throw std::invalid_argument(
+            "PrinterTextParser: first line must be at depth 0 (the tree root)");
+    }
+
+    return lines;
+}
+
+std::vector<PrinterTextParser::Line> PrinterTextParser::parseIndentStyle(
+    const std::vector<std::string>& rawLines) const {
+    std::vector<int> rawSpaces;
+    std::vector<std::string> labels;
+    rawSpaces.reserve(rawLines.size());
+    labels.reserve(rawLines.size());
+
+    for (const auto& raw : rawLines) {
         const int leadingSpaces = countLeadingSpaces(raw);
         rawSpaces.push_back(leadingSpaces);
         labels.push_back(raw.substr(static_cast<std::size_t>(leadingSpaces)));
-    }
-
-    if (rawSpaces.empty()) {
-        throw std::invalid_argument(
-            "PrinterTextParser: cannot parse empty or blank printer output");
     }
 
     const int indentUnit = detectIndentUnit(rawSpaces);
@@ -61,9 +89,49 @@ std::vector<PrinterTextParser::Line> PrinterTextParser::toLines(
         lines.push_back(Line{rawSpaces[i] / indentUnit, labels[i]});
     }
 
-    if (lines.front().depth != 0) {
-        throw std::invalid_argument(
-            "PrinterTextParser: first line must be at depth 0 (the tree root)");
+    return lines;
+}
+
+std::vector<PrinterTextParser::Line> PrinterTextParser::parseConnectorStyle(
+    const std::vector<std::string>& rawLines) const {
+    static const std::string kLast = "\u2514\u2500\u2500 ";    // "└── "
+    static const std::string kBranch = "\u251C\u2500\u2500 ";  // "├── "
+    static const std::string kVert = "\u2502   ";              // "│   "
+    static const std::string kBlank = "    ";
+
+    std::vector<Line> lines;
+    lines.reserve(rawLines.size());
+
+    for (std::size_t i = 0; i < rawLines.size(); ++i) {
+        std::string rest = rawLines[i];
+        int chunks = 0;
+
+        while (true) {
+            if (rest.compare(0, kLast.size(), kLast) == 0) {
+                rest.erase(0, kLast.size());
+            } else if (rest.compare(0, kBranch.size(), kBranch) == 0) {
+                rest.erase(0, kBranch.size());
+            } else if (rest.compare(0, kVert.size(), kVert) == 0) {
+                rest.erase(0, kVert.size());
+            } else if (rest.compare(0, kBlank.size(), kBlank) == 0) {
+                rest.erase(0, kBlank.size());
+            } else {
+                break;
+            }
+            ++chunks;
+        }
+
+        if (rest.rfind("\u251C", 0) == 0 || rest.rfind("\u2514", 0) == 0 ||
+            rest.rfind("\u2502", 0) == 0) {
+            throw std::invalid_argument(
+                "PrinterTextParser: malformed connector prefix at line " +
+                std::to_string(i));
+        }
+
+        // The root line never prints its own connector (see class doc),
+        // so every real depth is one less than the raw chunk count.
+        const int depth = (chunks == 0) ? 0 : chunks - 1;
+        lines.push_back(Line{depth, rest});
     }
 
     return lines;
@@ -80,9 +148,6 @@ int PrinterTextParser::detectIndentUnit(
         }
     }
 
-    // A tree with no descending step (e.g. a single node) has no positive
-    // delta to learn from; the indentation unit is irrelevant in that
-    // case, so any positive value is safe to use.
     return minPositiveDelta > 0 ? minPositiveDelta : 1;
 }
 
