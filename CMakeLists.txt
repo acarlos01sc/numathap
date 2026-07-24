@@ -88,6 +88,23 @@ target_include_directories(PrinterTextParser_test
 
 add_test(NAME PrinterTextParser_test COMMAND PrinterTextParser_test)
 
+#----------------------------------------------------------
+# viewer utility: PrinterTextParser_integration_test
+#----------------------------------------------------------
+add_executable(PrinterTextParser_integration_test
+    tests/utils/viewer/src/PrinterTextParser.cpp
+    tests/utils/viewer/src/PrinterTextParser_integration_test.cpp
+)
+
+target_include_directories(PrinterTextParser_integration_test
+    PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
+)
+
+target_link_libraries(PrinterTextParser_integration_test PRIVATE numathap)
+
+
+
+
 foreach(case_name
 	BinaryExpression
 	FunctionMultipleArguments
