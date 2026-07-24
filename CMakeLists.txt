@@ -86,6 +86,8 @@ target_include_directories(PrinterTextParser_test
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
 )
 
+add_test(NAME PrinterTextParser_test COMMAND PrinterTextParser_test)
+
 foreach(case_name
 	BinaryExpression
 	FunctionMultipleArguments
