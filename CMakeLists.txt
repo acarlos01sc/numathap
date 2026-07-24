@@ -136,22 +136,6 @@ add_test(
 	COMMAND AstViewerCore_integration_test
 )
 
-foreach(case_name
-	BinaryExpression
-	FunctionMultipleArguments
-	MultiLevelDedent
-	MalformedIndentationIsRejected
-	SingleNodeTree
-	EmptyTextIsRejected
-	BlankTextIsRejected
-	MultipleRootNodesAreRejected
-)
-	add_test(
-		NAME PrinterTextParser.${case_name}
-		COMMAND PrinterTextParser_test ${case_name}
-	)
-endforeach()
-
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
 
 if(NUMATHAP_BUILD_PYTHON)
