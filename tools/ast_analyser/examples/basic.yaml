@@ -1,0 +1,35 @@
+# Exemplo de entrada para o ast_analyser.
+#
+# Modo display (mostra as colunas lado a lado):
+#   ./build/ast_analyser tools/ast_analyser/examples/basic.yaml
+#
+# Modo teste (compara contra o bloco 'expected' abaixo, retorna 0/1):
+#   ./build/ast_analyser tools/ast_analyser/examples/basic.yaml --test
+#
+# O bloco 'expected' foi confirmado rodando o binario real (numathap,
+# branch view, 24/07/2026) em modo display e copiando a saida exata
+# de cada coluna.
+
+expression: "1e12*1"
+
+columns:
+  - title: "PreparedAst"
+    capabilities: []
+  - title: "PreparedAst(Simplify)"
+    capabilities: [Simplify]
+
+expected:
+  ParserAst: |
+    Binary(*)
+      Number(1e12)
+      Number(1)
+  MathAst: |
+    Binary(*)
+        ├── Number(1e12)
+        └── Number(1)
+  PreparedAst: |
+    Binary(*)
+        ├── Number(1e12)
+        └── Number(1)
+  PreparedAst(Simplify): |
+    Number(1e12)

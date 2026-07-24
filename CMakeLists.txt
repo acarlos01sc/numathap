@@ -136,6 +136,34 @@ add_test(
 	COMMAND AstViewerCore_integration_test
 )
 
+#----------------------------------------------------------
+# ast_analyser: side-by-side AST inspection / --test snapshot tool
+#----------------------------------------------------------
+
+add_executable(ast_analyser
+	tools/ast_analyser/ast_analyser.cpp
+)
+
+target_include_directories(ast_analyser
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tools/ast_analyser
+)
+
+target_link_libraries(ast_analyser
+	PRIVATE numathap
+)
+
+if(MSVC)
+	target_compile_options(ast_analyser PRIVATE /W4)
+else()
+	target_compile_options(ast_analyser PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+add_test(
+	NAME ast_analyser_snapshot
+	COMMAND ast_analyser
+		${CMAKE_CURRENT_SOURCE_DIR}/tools/ast_analyser/examples/basic.yaml --test
+)
+
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
 
 if(NUMATHAP_BUILD_PYTHON)
