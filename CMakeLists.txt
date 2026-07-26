@@ -66,6 +66,10 @@ set_target_properties(numathap
 	PROPERTIES POSITION_INDEPENDENT_CODE ON
 )
 
+target_include_directories(numathap
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
 #----------------------------------------------------------
 # viewer utility library
 #----------------------------------------------------------
@@ -89,10 +93,6 @@ if(MSVC)
 else()
 	target_compile_options(numathap PRIVATE -Wall -Wextra -Wpedantic)
 endif()
-
-target_include_directories(numathap
-	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
-)
 
 #----------------------------------------------------------
 # viewer utility: PrinterTextParser_test
@@ -166,6 +166,29 @@ add_test(
 	NAME ast_analyser_snapshot
 	COMMAND ast_analyser
 		${CMAKE_CURRENT_SOURCE_DIR}/tools/ast_analyser/examples/basic.yaml --test
+)
+
+#----------------------------------------------------------
+# TEST_integrate_cfg
+#----------------------------------------------------------
+
+add_executable(TEST_integrate_cfg
+	tests/config/TEST_integrate_cfg.cpp
+)
+
+target_include_directories(TEST_integrate_cfg
+	PRIVATE
+	 ${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
+	 ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(TEST_integrate_cfg
+	PRIVATE numathap
+)
+
+add_test(
+	NAME TEST_integrate_cfg
+	COMMAND TEST_integrate_cfg
 )
 
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)

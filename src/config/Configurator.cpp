@@ -1,5 +1,6 @@
 #include "numathap/config/Configurator.hpp"
 
+#include "numathap/backend/integrate/AdaptiveSimpson.hpp"
 #include "numathap/config/MathEnvironment.hpp"
 
 namespace numathap::config {
@@ -29,6 +30,12 @@ bool Configurator::hasCapability(Capability capability) const noexcept {
 
 void Configurator::apply(Capability capability) {
     enableCapability(capability);
+}
+
+void Configurator::apply(
+    const backend::integrate::AdaptiveSimpsonConfig& config) {
+    environment_.setIntegrationConfiguration(
+        backend::integrate::Algorithm::AdaptiveSimpson, config);
 }
 
 }  // namespace numathap::config

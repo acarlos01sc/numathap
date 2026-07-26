@@ -4,6 +4,7 @@
  */
 #pragma once
 
+#include "numathap/backend/integrate/AdaptiveSimpson.hpp"
 #include "numathap/config/Capability.hpp"
 #include "numathap/config/MathLibrary.hpp"
 #include "numathap/config/NumericType.hpp"
@@ -70,11 +71,7 @@ class Configurator {
 
     void apply(Capability capability);
 
-    //void apply(IntegrationMethod method);
-
-    //void apply(const Tolerance& tolerance);
-
-    //void apply(const MaxIterations& iterations);
+    void apply(const backend::integrate::AdaptiveSimpsonConfig& config);
 
    private:
     MathEnvironment&

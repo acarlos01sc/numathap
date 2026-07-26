@@ -4,6 +4,7 @@
  * numerical computation.
  */
 #pragma once
+#include <unordered_map>
 
 #include "numathap/core/Context.hpp"
 #include "numathap/core/Value.hpp"
@@ -38,6 +39,18 @@ class Evaluator {
     static core::Value evaluate(const math::PreparedAst& prepared,
                                 const core::Context& context);
 
+    /**
+     * @brief Evaluates a prepared expression for specified numerical values.
+     *
+     * @param prepared The AST expression to evaluate.
+     * @param values Numerical values assigned to symbols.
+     * @return The computed result as a @ref core::Value.
+     */
+    [[nodiscard]]
+    static core::Value evaluateAt(
+        const math::PreparedAst& prepared,
+        const std::unordered_map<std::string, core::Value>& values);
+
     /** @name Dispatcher Visitors
      *  Overloaded operators that process specific MathNode types.
      */
@@ -60,6 +73,12 @@ class Evaluator {
      */
     Evaluator(const math::PreparedAst& prepared, const core::Context& context);
 
+    /**
+     * @brief Private constructor used by the static evaluateAt() method.
+     */
+    Evaluator(const math::PreparedAst& prepared,
+              const std::unordered_map<std::string, core::Value>& values);
+
     /** @brief Dispatches a node to the appropriate visitor overload. */
     [[nodiscard]]
     core::Value dispatch(const math::MathNode& node) const;
@@ -77,10 +96,11 @@ class Evaluator {
     [[nodiscard]]
     core::Value evaluateConstantExpression(const std::string& expression) const;
 
-   private:
     const math::PreparedAst&
         prepared_;                  ///< Reference to the AST being evaluated.
     const core::Context& context_;  ///< Reference to the execution context.
+    const std::unordered_map<std::string, core::Value>*
+        values_;  ///< Optional numerical symbol values.
 };
 
 }  // namespace numathap::backend

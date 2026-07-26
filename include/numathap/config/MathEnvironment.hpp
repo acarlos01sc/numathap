@@ -7,6 +7,8 @@
 #include <memory>
 #include <set>
 
+#include "numathap/backend/integrate/Algorithm.hpp"
+#include "numathap/backend/integrate/AlgorithmConfig.hpp"
 #include "numathap/config/Capability.hpp"
 #include "numathap/config/MathAdapter.hpp"
 #include "numathap/config/MathLibrary.hpp"
@@ -64,6 +66,21 @@ class MathEnvironment {
     NumericType numericType() const noexcept;
 
     /**
+     * @brief Gets the selected integration algorithm.
+     * @return The currently configured integration algorithm.
+     */
+    [[nodiscard]]
+    backend::integrate::Algorithm integrationAlgorithm() const noexcept;
+
+    /**
+     * @brief Gets the configuration of the selected integration algorithm.
+     * @return The current integration algorithm configuration.
+     */
+    [[nodiscard]]
+    const backend::integrate::AlgorithmConfig& integrationAlgorithmConfig()
+        const noexcept;
+
+    /**
      * @brief Enables a processing capability.
      *
      * Enabled capabilities are applied by the processing pipeline.
@@ -89,13 +106,28 @@ class MathEnvironment {
     bool hasCapability(Capability capability) const noexcept;
 
    private:
+    friend class Configurator;
+
+    void setIntegrationConfiguration(
+        backend::integrate::Algorithm algorithm,
+        backend::integrate::AlgorithmConfig config);
+
     MathLibrary math_library_{
         MathLibrary::CMath};  ///< Active math library backend.
+
     NumericType numeric_type_{
         NumericType::Double};  ///< Active numeric representation.
+
     std::unique_ptr<MathAdapter>
         adapter_;  ///< Unique pointer to the current adapter.
+
     std::set<Capability> capabilities_;  ///< Enabled processing capabilities.
+
+    backend::integrate::Algorithm integration_algorithm_{
+        backend::integrate::Algorithm::AdaptiveSimpson};
+
+    backend::integrate::AlgorithmConfig integration_algorithm_config_{
+        backend::integrate::AdaptiveSimpsonConfig{}};
 };
 
 }  // namespace numathap::config
