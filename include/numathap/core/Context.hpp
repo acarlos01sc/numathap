@@ -8,6 +8,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace numathap::core {
 
@@ -56,6 +57,26 @@ class Context {
      */
     [[nodiscard]]
     std::optional<std::string> findValue(const std::string& symbol) const;
+
+    /**
+     * @brief Resolves a symbolic definition recursively.
+     *
+     * If the supplied expression corresponds to a symbol defined in this
+     * context, its definition is recursively resolved until a terminal
+     * expression is reached.
+     *
+     * Examples:
+     * - a -> b -> pi      returns "pi"
+     * - x -> sqrt(2)      returns "sqrt(2)"
+     * - 2*pi              returns "2*pi"
+     *
+     * Circular definitions result in an exception.
+     *
+     * @param expression Expression or symbol to resolve.
+     * @return The fully resolved expression.
+     */
+    [[nodiscard]]
+    std::string resolveValue(const std::string& expression) const;
 
     /**
      * @brief Checks if a value definition exists for the given symbol.
@@ -111,6 +132,10 @@ class Context {
 
     std::unordered_map<std::string, Interval>
         intervals_;  ///< Map of symbol names to their associated Intervals.
+
+    [[nodiscard]]
+    std::string resolveValue(const std::string& expression,
+                             std::unordered_set<std::string>& visited) const;
 };
 
 }  // namespace numathap::core

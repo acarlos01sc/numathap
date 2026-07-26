@@ -14,112 +14,81 @@ using core::Context;
 using core::Value;
 using math::PreparedAst;
 
-Value Integrator::integrate(
-    const PreparedAst& prepared,
-    const std::string& variable,
-    const Context& context) const
-{
+Value Integrator::integrate(const PreparedAst& prepared,
+                            const std::string& variable,
+                            const Context& context) const {
     return integrate(prepared, variable, context, MathEnvironment{});
 }
 
-Value Integrator::integrate(
-    const PreparedAst& prepared,
-    const std::string& variable,
-    const Context& context,
-    const MathEnvironment& environment) const
-{
+Value Integrator::integrate(const PreparedAst& prepared,
+                            const std::string& variable, const Context& context,
+                            const MathEnvironment& environment) const {
     IntegrationInterval interval = resolveInterval(variable, context);
 
-    if (interval.lowerInfinite || interval.upperInfinite)
-    {
-        return integrateImproper(
-            prepared,
-            variable,
-            interval,
-            environment);
+    if (isInfinite(interval.lower) || isInfinite(interval.upper)) {
+        return integrateImproper(prepared, variable, interval, environment);
     }
 
-    return integrateFinite(
-        prepared,
-        variable,
-        interval,
-        environment);
+    return integrateFinite(prepared, variable, interval, environment);
 }
 
-Integrator::IntegrationInterval
-Integrator::resolveInterval(
-    const std::string& variable,
-    const Context& context) const
-{
+Integrator::IntegrationInterval Integrator::resolveInterval(
+    const std::string& variable, const Context& context) const {
     auto interval = context.findInterval(variable);
 
-    if (!interval)
-    {
+    if (!interval) {
         throw std::runtime_error(
-            "Integration interval not found for variable '" +
-            variable + "'.");
+            "Integration interval not found for variable '" + variable + "'.");
     }
 
-    IntegrationInterval result;
+    return IntegrationInterval{context.resolveValue(interval->lower),
+                               context.resolveValue(interval->upper)};
+}
 
-    //
-    // Temporary stub.
+bool Integrator::isInfinite(const std::string& bound) const {
+    return bound == "inf" || bound == "+inf" || bound == "-inf";
+}
+
+Value Integrator::integrateFinite(const PreparedAst& prepared,
+                                  const std::string& variable,
+                                  const IntegrationInterval& interval,
+                                  const MathEnvironment& environment) const {
+    (void)prepared;
+    (void)variable;
+    (void)interval;
+    (void)environment;
+
     //
     // Future implementation:
-    //  - Resolve symbolic limits ("a", "b", "pi", ...)
-    //  - Evaluate expressions ("sqrt(2)", "2*pi", ...)
-    //  - Detect infinities.
+    //
+    // 1. Evaluate interval.lower -> Value
+    // 2. Evaluate interval.upper -> Value
+    // 3. Dispatch to the selected numerical algorithm
     //
 
-    if (interval->lower == "inf" || interval->lower == "+inf")
-    {
-        result.lowerInfinite = true;
-    }
-    else if (interval->lower == "-inf")
-    {
-        result.lowerInfinite = true;
-    }
-
-    if (interval->upper == "inf" || interval->upper == "+inf")
-    {
-        result.upperInfinite = true;
-    }
-    else if (interval->upper == "-inf")
-    {
-        result.upperInfinite = true;
-    }
-
-    return result;
+    throw std::runtime_error("Finite interval integration not implemented.");
 }
 
-Value Integrator::integrateFinite(
-    const PreparedAst& prepared,
-    const std::string& variable,
-    const IntegrationInterval& interval,
-    const MathEnvironment& environment) const
-{
+Value Integrator::integrateImproper(const PreparedAst& prepared,
+                                    const std::string& variable,
+                                    const IntegrationInterval& interval,
+                                    const MathEnvironment& environment) const {
     (void)prepared;
     (void)variable;
     (void)interval;
     (void)environment;
 
-    throw std::runtime_error(
-        "Finite interval integration not implemented.");
+    //
+    // Future implementation:
+    //
+    // 1. Detect the type of improper interval.
+    // 2. Apply the tangent variable transformation.
+    // 3. Produce an equivalent finite interval.
+    // 4. Evaluate the transformed limits.
+    // 5. Dispatch to the selected numerical algorithm.
+    //
+
+    throw std::runtime_error("Improper interval integration not implemented.");
 }
 
-Value Integrator::integrateImproper(
-    const PreparedAst& prepared,
-    const std::string& variable,
-    const IntegrationInterval& interval,
-    const MathEnvironment& environment) const
-{
-    (void)prepared;
-    (void)variable;
-    (void)interval;
-    (void)environment;
-
-    throw std::runtime_error(
-        "Improper interval integration not implemented.");
-}
-
-} // namespace numathap::backend::integrate
+}  // namespace numathap::backend::integrate

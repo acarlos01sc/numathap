@@ -19,6 +19,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Definição modular
 file(GLOB SOURCES_BACKEND CONFIGURE_DEPENDS "src/backend/*.cpp")
+file(GLOB SOURCES_INTEGRATE CONFIGURE_DEPENDS "src/backend/integrate/*.cpp")
 file(GLOB SOURCES_CONFIG CONFIGURE_DEPENDS "src/config/*.cpp")
 file(GLOB SOURCES_CORE CONFIGURE_DEPENDS "src/core/*.cpp")
 file(GLOB SOURCES_DISPATCH CONFIGURE_DEPENDS "src/dispatch/*.cpp")
@@ -56,6 +57,9 @@ add_library(numathap
 
 	# symbolic
 	${SOURCES_SYMBOLIC}
+
+	# integrate
+	${SOURCES_INTEGRATE}
 )
 
 set_target_properties(numathap
