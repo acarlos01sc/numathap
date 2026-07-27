@@ -6,15 +6,26 @@ set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 CONFIG REQUIRED)
 
 pybind11_add_module(
-	_numathap
-	bindings/module.cpp
-	bindings/MathEnvironment.cpp
-	bindings/Value.cpp
-	bindings/Context.cpp
-	bindings/prepare.cpp
-	bindings/evaluate.cpp
-	bindings/Capability.cpp
-	bindings/configure.cpp
+    _numathap
+    
+    bindings/module.cpp
+
+    # Configuration
+    bindings/MathEnvironment.cpp
+    bindings/Capability.cpp
+    bindings/configure.cpp
+
+    # Core
+    bindings/Value.cpp
+    bindings/Context.cpp
+
+    # Expression processing
+    bindings/prepare.cpp
+    bindings/evaluate.cpp
+
+    # Numerical integration
+    bindings/Algorithm.cpp
+    bindings/integrate.cpp
 )
 
 set_target_properties(_numathap

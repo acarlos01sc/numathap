@@ -11,16 +11,27 @@ void bindPrepare(py::module_& m);
 void bindEvaluate(py::module_& m);
 void bindCapability(py::module_& m);
 void bindConfigure(py::module_& m);
+// Integration
+void bindAlgorithm(py::module_& m);
+void bindIntegrate(py::module_& m);
 
-}
+}  // namespace numathap::python
 
-PYBIND11_MODULE(_numathap, m)
-{
+PYBIND11_MODULE(_numathap, m) {
+    // Configuration
     numathap::python::bindMathEnvironment(m);
-    numathap::python::bindValue(m);
-    numathap::python::bindContext(m);
-    numathap::python::bindPrepare(m);
-    numathap::python::bindEvaluate(m);
     numathap::python::bindCapability(m);
     numathap::python::bindConfigure(m);
+
+    // Core
+    numathap::python::bindValue(m);
+    numathap::python::bindContext(m);
+
+    // Expression processing
+    numathap::python::bindPrepare(m);
+    numathap::python::bindEvaluate(m);
+
+    // Numerical integration
+    numathap::python::bindAlgorithm(m);
+    numathap::python::bindIntegrate(m);
 }
