@@ -201,7 +201,33 @@ target_link_libraries(integral_test
 	PRIVATE numathap
 )
 
+#----------------------------------------------------------
+# TEST_integrate_eval
+#----------------------------------------------------------
 
+add_executable(TEST_integrate_eval
+    tests/backend/TEST_integrate_eval.cpp
+)
+
+target_include_directories(TEST_integrate_eval
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(TEST_integrate_eval
+    PRIVATE numathap
+)
+
+add_test(
+    NAME TEST_integrate_eval
+    COMMAND TEST_integrate_eval
+)
+
+target_compile_definitions(TEST_integrate_eval
+    PRIVATE
+    NUMATHAP_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/backend"
+)
 
 
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)

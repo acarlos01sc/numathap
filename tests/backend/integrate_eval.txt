@@ -1,0 +1,7 @@
+# expression;variable;interval;expected
+
+sin(x);x;[0:pi];2
+
+x*x;x;[0:1];0.333333333333333
+
+cos(x);x;[0:pi/2];1
