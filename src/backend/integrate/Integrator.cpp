@@ -6,7 +6,9 @@
 #include "numathap/backend/integrate/Integrator.hpp"
 
 #include <stdexcept>
+
 #include "numathap/backend/evaluate.hpp"
+#include "numathap/backend/integrate/ImproperIntegralTransformer.hpp"
 #include "numathap/math/prepare.hpp"
 
 namespace numathap::backend::integrate {
@@ -51,15 +53,14 @@ bool Integrator::isInfinite(const std::string& bound) const {
     return bound == "inf" || bound == "+inf" || bound == "-inf";
 }
 
-Value Integrator::integrateFinite(
-    const PreparedAst& prepared,
-    const std::string& variable,
-    const IntegrationInterval& interval,
-    const MathEnvironment& environment) const {
+Value Integrator::integrateFinite(const PreparedAst& prepared,
+                                  const std::string& variable,
+                                  const IntegrationInterval& interval,
+                                  const MathEnvironment& environment) const {
     const auto resolveBound = [](const std::string& expression) -> Value {
         const auto bound = numathap::math::prepare(expression);
         const Context ctx;
-        return numathap::backend::evaluate(bound,ctx);
+        return numathap::backend::evaluate(bound, ctx);
     };
 
     const Value lower = resolveBound(interval.lower);
@@ -67,16 +68,11 @@ Value Integrator::integrateFinite(
 
     switch (environment.integrationAlgorithm()) {
         case Algorithm::AdaptiveSimpson: {
-            const auto& config =
-                std::get<AdaptiveSimpsonConfig>(
-                    environment.integrationAlgorithmConfig());
+            const auto& config = std::get<AdaptiveSimpsonConfig>(
+                environment.integrationAlgorithmConfig());
 
-            return AdaptiveSimpson::integrate(
-                prepared,
-                variable,
-                lower,
-                upper,
-                config);
+            return AdaptiveSimpson::integrate(prepared, variable, lower, upper,
+                                              config);
         }
     }
 
@@ -87,22 +83,54 @@ Value Integrator::integrateImproper(const PreparedAst& prepared,
                                     const std::string& variable,
                                     const IntegrationInterval& interval,
                                     const MathEnvironment& environment) const {
-    (void)prepared;
-    (void)variable;
-    (void)interval;
-    (void)environment;
+    const bool lowerInfinite = isInfinite(interval.lower);
+    const bool upperInfinite = isInfinite(interval.upper);
 
-    //
-    // Future implementation:
-    //
-    // 1. Detect the type of improper interval.
-    // 2. Apply the tangent variable transformation.
-    // 3. Produce an equivalent finite interval.
-    // 4. Evaluate the transformed limits.
-    // 5. Dispatch to the selected numerical algorithm.
-    //
+    if (!lowerInfinite && !upperInfinite) {
+        throw std::logic_error(
+            "integrateImproper() requires at least one infinite bound.");
+    }
 
-    throw std::runtime_error("Improper interval integration not implemented.");
+    if (interval.lower == "+inf" || interval.upper == "-inf") {
+        throw std::invalid_argument("Invalid improper integration interval.");
+    }
+
+    ImproperIntegralTransformer transformer;
+
+    const TransformedIntegral transformed =
+        transformer.transform(prepared, variable, environment);
+
+    IntegrationInterval transformedInterval;
+
+    //----------------------------------------------------------
+    // (-inf, +inf)
+    //----------------------------------------------------------
+
+    if (lowerInfinite && upperInfinite) {
+        transformedInterval.lower = "-pi/2";
+        transformedInterval.upper = "pi/2";
+    }
+
+    //----------------------------------------------------------
+    // (-inf, b)
+    //----------------------------------------------------------
+
+    else if (lowerInfinite) {
+        transformedInterval.lower = "-pi/2";
+        transformedInterval.upper = "atan(" + interval.upper + ")";
+    }
+
+    //----------------------------------------------------------
+    // (a, +inf)
+    //----------------------------------------------------------
+
+    else {
+        transformedInterval.lower = "atan(" + interval.lower + ")";
+        transformedInterval.upper = "pi/2";
+    }
+
+    return integrateFinite(transformed.prepared, transformed.variable,
+                           transformedInterval, environment);
 }
 
 }  // namespace numathap::backend::integrate

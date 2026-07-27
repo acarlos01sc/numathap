@@ -1,5 +1,8 @@
 #include "numathap/core/Value.hpp"
 
+#include <iomanip>
+#include <limits>
+
 namespace numathap::core {
 
 Value::Value(const numeric::Real& value) noexcept : value_(value) {}
@@ -37,7 +40,9 @@ bool Value::operator!=(const Value& other) const noexcept {
 }
 
 std::ostream& operator<<(std::ostream& os, const Value& value) {
-    os << value.real().value();
+    os << std::setprecision(
+              std::numeric_limits<numeric::Real::Storage>::max_digits10)
+       << value.real().value();
     return os;
 }
 

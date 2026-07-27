@@ -192,15 +192,6 @@ add_test(
 )
 
 
-# temporario
-add_executable(integral_test
-	tests/backend/integral_test.cpp
-)
-
-target_link_libraries(integral_test
-	PRIVATE numathap
-)
-
 #----------------------------------------------------------
 # TEST_integrate_eval
 #----------------------------------------------------------
