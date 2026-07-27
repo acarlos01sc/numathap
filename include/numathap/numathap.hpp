@@ -7,12 +7,14 @@
 #include "numathap/math/PreparedAst.hpp"
 #include "numathap/math/prepare.hpp"
 #include "numathap/config/configure.hpp"
+#include "numathap/backend/integrate/integrate.hpp"
 
 namespace numathap {
 
 using backend::evaluate;
 using math::prepare;
 using config::configure;
+using backend::integrate::integrate;
 using PreparedAst = math::PreparedAst;
 using MathEnvironment = config::MathEnvironment;
 using Context = core::Context;

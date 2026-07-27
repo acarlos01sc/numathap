@@ -191,6 +191,19 @@ add_test(
 	COMMAND TEST_integrate_cfg
 )
 
+
+# temporario
+add_executable(integral_test
+	tests/backend/integral_test.cpp
+)
+
+target_link_libraries(integral_test
+	PRIVATE numathap
+)
+
+
+
+
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
 
 if(NUMATHAP_BUILD_PYTHON)

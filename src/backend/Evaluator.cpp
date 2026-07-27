@@ -11,9 +11,19 @@
 
 namespace numathap::backend {
 
+namespace {
+
+const core::Context emptyContext;
+
+}  // namespace
+
 Evaluator::Evaluator(const math::PreparedAst& prepared,
                      const core::Context& context)
-    : prepared_(prepared), context_(context) {}
+    : prepared_(prepared), context_(context), values_(nullptr) {}
+
+Evaluator::Evaluator(const math::PreparedAst& prepared,
+                     const std::unordered_map<std::string, core::Value>& values)
+    : prepared_(prepared), context_(emptyContext), values_(&values) {}
 
 core::Value Evaluator::evaluate(const math::PreparedAst& prepared,
                                 const core::Context& context) {
@@ -101,6 +111,14 @@ core::Value Evaluator::operator()(const math::FunctionNode& node) const {
 }
 
 core::Value Evaluator::resolveSymbol(const std::string& symbol) const {
+    if (values_) {
+        const auto it = values_->find(symbol);
+
+        if (it != values_->end()) {
+            return it->second;
+        }
+    }
+
     auto definition = context_.findValue(symbol);
 
     if (!definition) {

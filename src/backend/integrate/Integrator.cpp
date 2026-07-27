@@ -6,6 +6,8 @@
 #include "numathap/backend/integrate/Integrator.hpp"
 
 #include <stdexcept>
+#include "numathap/backend/evaluate.hpp"
+#include "numathap/math/prepare.hpp"
 
 namespace numathap::backend::integrate {
 
@@ -49,24 +51,36 @@ bool Integrator::isInfinite(const std::string& bound) const {
     return bound == "inf" || bound == "+inf" || bound == "-inf";
 }
 
-Value Integrator::integrateFinite(const PreparedAst& prepared,
-                                  const std::string& variable,
-                                  const IntegrationInterval& interval,
-                                  const MathEnvironment& environment) const {
-    (void)prepared;
-    (void)variable;
-    (void)interval;
-    (void)environment;
+Value Integrator::integrateFinite(
+    const PreparedAst& prepared,
+    const std::string& variable,
+    const IntegrationInterval& interval,
+    const MathEnvironment& environment) const {
+    const auto resolveBound = [](const std::string& expression) -> Value {
+        const auto bound = numathap::math::prepare(expression);
+        const Context ctx;
+        return numathap::backend::evaluate(bound,ctx);
+    };
 
-    //
-    // Future implementation:
-    //
-    // 1. Evaluate interval.lower -> Value
-    // 2. Evaluate interval.upper -> Value
-    // 3. Dispatch to the selected numerical algorithm
-    //
+    const Value lower = resolveBound(interval.lower);
+    const Value upper = resolveBound(interval.upper);
 
-    throw std::runtime_error("Finite interval integration not implemented.");
+    switch (environment.integrationAlgorithm()) {
+        case Algorithm::AdaptiveSimpson: {
+            const auto& config =
+                std::get<AdaptiveSimpsonConfig>(
+                    environment.integrationAlgorithmConfig());
+
+            return AdaptiveSimpson::integrate(
+                prepared,
+                variable,
+                lower,
+                upper,
+                config);
+        }
+    }
+
+    throw std::runtime_error("Unsupported integration algorithm.");
 }
 
 Value Integrator::integrateImproper(const PreparedAst& prepared,
