@@ -1,0 +1,49 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  linux-x86_64:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DNUMATHAP_BUILD_PYTHON=OFF
+
+      - name: Build
+        run: |
+          cmake --build build --parallel
+
+      - name: Test
+        run: |
+          ctest --test-dir build --output-on-failure
+
+      - name: Install
+        run: |
+          cmake --install build \
+            --prefix "${{ github.workspace }}/package/numathap"
+
+      - name: Package
+        run: |
+          tar -C "${{ github.workspace }}/package" \
+            -czf "${{ github.workspace }}/numathap-${GITHUB_REF_NAME}-linux-x86_64.tar.gz" \
+            numathap
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            numathap-${{ github.ref_name }}-linux-x86_64.tar.gz
+          generate_release_notes: true
