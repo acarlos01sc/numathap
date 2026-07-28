@@ -55,9 +55,7 @@ $$
 Therefore,
 
 $$
-S(0,1)
-=
-
+S(0,1) =
 \frac{1}{6}
 \left[
 0+4(0.25)+1
@@ -161,10 +159,7 @@ $$
 Then the estimated error is
 
 $$
-E \approx
-\frac{1.5\times10^{-7}}{15}
-=
-
+E \approx \frac{1.5\times10^{-7}}{15} =
 10^{-8}.
 $$
 
