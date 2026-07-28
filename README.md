@@ -197,6 +197,14 @@ All architectural decisions, implementations, validations, and final technical c
 
 ---
 
+## C++ SDK
+
+The project provides an installable C++ SDK based on CMake.
+
+See [C++ SDK documentation](docs/cpp-sdk.md) for installation and usage instructions.
+
+---
+
 # Contributing
 
 Contributions, suggestions, bug reports, and discussions are always welcome.
