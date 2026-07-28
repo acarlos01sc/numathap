@@ -1,6 +1,8 @@
 name: Release
 
 on:
+  workflow_dispatch:
+
   push:
     tags:
       - 'v*'
@@ -41,7 +43,14 @@ jobs:
             -czf "${{ github.workspace }}/numathap-${GITHUB_REF_NAME}-linux-x86_64.tar.gz" \
             numathap
 
+      - name: Upload package artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: numathap-linux-x86_64
+          path: numathap-*-linux-x86_64.tar.gz
+
       - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
           files: |
