@@ -1,0 +1,81 @@
+/**
+ * @defgroup backend_integrate Integration Backend
+ * @brief Numerical integration algorithms and utilities.
+ *
+ * This module provides the infrastructure for numerical integration, including
+ * adaptive quadrature algorithms, interval transformation for improper integrals,
+ * and a dispatching mechanism to handle different integration scenarios.
+ */
+
+/**
+ * @namespace numathap::backend::integrate
+ * @brief Contains classes and types for numerical integration.
+ */
+
+// --- AdaptiveSimpson.hpp ---
+
+/**
+ * @class numathap::backend::integrate::AdaptiveSimpsonConfig
+ * @ingroup backend_integrate
+ * @brief Configuration parameters for the Adaptive Simpson integration algorithm.
+ */
+
+/**
+ * @class numathap::backend::integrate::AdaptiveSimpson
+ * @ingroup backend_integrate
+ * @brief Implements the Adaptive Simpson's rule for numerical integration.
+ */
+
+// --- Algorithm.hpp ---
+
+/**
+ * @enum numathap::backend::integrate::Algorithm
+ * @ingroup backend_integrate
+ * @brief Identifies the numerical integration algorithm.
+ */
+
+// --- AlgorithmConfig.hpp ---
+
+/**
+ * @typedef numathap::backend::integrate::AlgorithmConfig
+ * @ingroup backend_integrate
+ * @brief Holds the configuration for a supported integration algorithm.
+ */
+
+// --- ImproperIntegralTransformer.hpp ---
+
+/**
+ * @struct numathap::backend::integrate::TransformedIntegral
+ * @ingroup backend_integrate
+ * @brief Result of an improper-integral variable transformation.
+ */
+
+/**
+ * @class numathap::backend::integrate::ImproperIntegralTransformer
+ * @ingroup backend_integrate
+ * @brief Transforms an improper integral using the tangent substitution.
+ */
+
+// --- integrate.hpp ---
+
+/**
+ * @namespace numathap::backend::integrate
+ * 
+ * @fn numathap::backend::integrate::integrate(const math::PreparedAst&, const std::string&, const core::Context&)
+ * @ingroup backend_integrate
+ * @brief Integrates a prepared mathematical expression over an interval (default environment).
+ */
+
+/**
+ * @fn numathap::backend::integrate::integrate(const math::PreparedAst&, const std::string&, const core::Context&, const config::MathEnvironment&)
+ * @ingroup backend_integrate
+ * @brief Integrates a prepared mathematical expression using a specific MathEnvironment.
+ */
+
+// --- Integrator.hpp ---
+
+/**
+ * @class numathap::backend::integrate::Integrator
+ * @ingroup backend_integrate
+ * @brief Numerical integration dispatcher.
+ */

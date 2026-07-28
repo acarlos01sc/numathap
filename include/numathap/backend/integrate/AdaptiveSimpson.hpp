@@ -18,7 +18,11 @@ class PreparedAst;
 namespace numathap::backend::integrate {
 
 /**
- * @brief Configuration parameters for the Adaptive Simpson algorithm.
+ * @brief Configuration parameters for the Adaptive Simpson integration
+ * algorithm.
+ *
+ * Controls the precision and recursion limits for the adaptive quadrature
+ * process.
  */
 struct AdaptiveSimpsonConfig {
     core::Value tolerance = core::Value(1e-10);
@@ -26,7 +30,12 @@ struct AdaptiveSimpsonConfig {
 };
 
 /**
- * @brief Adaptive Simpson numerical integration algorithm.
+ * @brief Implements the Adaptive Simpson's rule for numerical integration.
+ *
+ * This class provides a static interface to compute the definite integral
+ * of a given @ref math::PreparedAst over a specified interval [lower, upper].
+ * The algorithm adaptively subdivides the interval until the estimated error
+ * falls below the provided @ref AdaptiveSimpsonConfig::tolerance.
  */
 class AdaptiveSimpson {
    public:

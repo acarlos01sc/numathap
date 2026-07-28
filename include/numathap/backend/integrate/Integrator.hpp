@@ -15,47 +15,60 @@
 namespace numathap::backend::integrate {
 
 /**
- * @brief Numeric integration dispatcher.
+ * @brief Numerical integration dispatcher.
  *
- * This class selects the appropriate integration workflow according to
- * the integration interval.
+ * The @c Integrator acts as a central hub that analyzes the integration bounds
+ * and dispatches the task to the appropriate numerical integration strategy.
  *
- * Current behavior:
- * - Finite intervals are forwarded to the finite integration stub.
- * - Improper intervals are forwarded to the improper integration stub.
+ * Current functionality includes:
+ * - Detecting finite vs. improper intervals.
+ * - Dispatching to specialized integration routines based on interval type.
  *
- * Future versions will:
- * - Evaluate symbolic finite limits.
- * - Transform improper integrals using the tangent substitution.
- * - Dispatch to the selected numerical integration algorithm.
+ * @note This class encapsulates the strategy selection logic; adding support
+ *       for new domain transformations or symbolic interval evaluation should
+ *       be handled within this dispatcher.
  */
 class Integrator {
    public:
+    /**
+     * @brief Integrates an expression using the default environment settings.
+     */
     core::Value integrate(const math::PreparedAst& prepared,
                           const std::string& variable,
                           const core::Context& context) const;
 
+    /**
+     * @brief Integrates an expression using a specific @ref
+     * config::MathEnvironment.
+     */
     core::Value integrate(const math::PreparedAst& prepared,
                           const std::string& variable,
                           const core::Context& context,
                           const config::MathEnvironment& environment) const;
 
    private:
+    /** @brief Internal representation of integration bounds retrieved from
+     * context. */
     struct IntegrationInterval {
         std::string lower;
         std::string upper;
     };
 
+    /** @brief Resolves interval bounds from the provided context. */
     IntegrationInterval resolveInterval(const std::string& variable,
                                         const core::Context& context) const;
 
+    /** @brief Checks if a given integration bound represents an infinite value.
+     */
     bool isInfinite(const std::string& bound) const;
 
+    /** @brief Executes the finite-interval integration workflow. */
     core::Value integrateFinite(
         const math::PreparedAst& prepared, const std::string& variable,
         const IntegrationInterval& interval,
         const config::MathEnvironment& environment) const;
 
+    /** @brief Executes the improper-interval integration workflow. */
     core::Value integrateImproper(
         const math::PreparedAst& prepared, const std::string& variable,
         const IntegrationInterval& interval,

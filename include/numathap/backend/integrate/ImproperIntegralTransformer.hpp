@@ -20,8 +20,9 @@ namespace numathap::backend::integrate {
  * an internally generated integration variable.
  */
 struct TransformedIntegral {
-    math::PreparedAst prepared;
-    std::string variable;
+    math::PreparedAst prepared;  ///< The transformed expression AST.
+    std::string variable;  ///< The internal variable name substituted into the
+                           ///< expression.
 };
 
 /**

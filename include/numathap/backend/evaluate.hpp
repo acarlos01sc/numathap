@@ -1,6 +1,9 @@
 /**
  * @file evaluate.hpp
  * @brief Provides the entry point for expression evaluation.
+ *
+ * This header defines the primary interface for triggering the evaluation
+ * of a prepared expression AST within a specific environment.
  */
 #pragma once
 
@@ -18,6 +21,9 @@ namespace numathap::backend {
  * provided @ref core::Context to resolve identifiers and compute the final
  * result.
  *
+ * @note The evaluation process is strictly read-only regarding the @p
+ * expression and @p context.
+ *
  * @param expression The prepared AST representing the mathematical expression.
  * @param context The execution context containing variable definitions and
  *                runtime environment settings.
@@ -26,6 +32,8 @@ namespace numathap::backend {
  *
  * @throw std::logic_error If the AST is malformed or evaluation fails due to
  *                         undefined symbols or mathematical errors.
+ *
+ * @see numathap::math::PreparedAst
  */
 [[nodiscard]]
 core::Value evaluate(const math::PreparedAst& expression,

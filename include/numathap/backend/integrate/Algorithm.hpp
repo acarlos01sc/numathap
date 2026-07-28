@@ -14,6 +14,7 @@ namespace numathap::backend::integrate {
  * algorithm-specific configuration.
  */
 enum class Algorithm {
+    /** @brief Adaptive Simpson's rule for high-precision quadrature. */
     AdaptiveSimpson
 };
 
