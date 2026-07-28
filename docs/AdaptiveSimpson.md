@@ -31,9 +31,7 @@ $$
 The approximation of the integral is then given by
 
 $$
-S(a,b)
-=
-
+S(a,b) =
 \frac{b-a}{6}
 \left[
 f(a)+4f(m)+f(b)
