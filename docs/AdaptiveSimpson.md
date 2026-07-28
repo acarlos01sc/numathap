@@ -109,12 +109,15 @@ $$
 We now have two approximations of the same integral:
 
 * The original approximation:
-
-  $$ S(a,b) $$
+  $$
+  S(a,b)
+  $$
 
 * The refined approximation:
 
-  $$  S(a,m)+S(m,b). $$
+  $$
+  S(a,m)+S(m,b).
+  $$
 
 If the two results are very close, it indicates that the approximation is already sufficiently accurate.
 
