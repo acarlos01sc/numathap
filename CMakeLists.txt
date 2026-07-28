@@ -62,13 +62,25 @@ add_library(numathap
 	${SOURCES_INTEGRATE}
 )
 
+# Public modern name
+add_library(numathap::numathap ALIAS numathap)
+
 set_target_properties(numathap
 	PROPERTIES POSITION_INDEPENDENT_CODE ON
 )
 
 target_include_directories(numathap
-	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include
+	PUBLIC
+	 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+	 $<INSTALL_INTERFACE:include>
 )
+
+if(MSVC)
+	target_compile_options(numathap PRIVATE /W4)
+else()
+	target_compile_options(numathap PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 
 #----------------------------------------------------------
 # viewer utility library
@@ -87,12 +99,6 @@ target_link_libraries(AstViewerCore
 	PUBLIC numathap
 )
 
-# 3. Melhorar warnings e flags
-if(MSVC)
-	target_compile_options(numathap PRIVATE /W4)
-else()
-	target_compile_options(numathap PRIVATE -Wall -Wextra -Wpedantic)
-endif()
 
 #----------------------------------------------------------
 # viewer utility: PrinterTextParser_test
@@ -226,3 +232,46 @@ option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
 if(NUMATHAP_BUILD_PYTHON)
 	add_subdirectory(python)
 endif()
+
+#----------------------------------------------------------
+# Installation (SDK)
+#----------------------------------------------------------
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+install(
+	TARGETS numathap
+	EXPORT numathapTargets
+	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+
+install(
+	DIRECTORY include/
+	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+
+install(
+	EXPORT numathapTargets
+	FILE numathapTargets.cmake
+	NAMESPACE numathap::
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/numathap
+)
+
+configure_package_config_file(
+	${CMAKE_CURRENT_SOURCE_DIR}/cmake/numathapConfig.cmake.in
+	${CMAKE_CURRENT_BINARY_DIR}/numathapConfig.cmake
+	INSTALL_DESTINATION
+	${CMAKE_INSTALL_LIBDIR}/cmake/numathap
+)
+
+install(
+	FILES
+		${CMAKE_CURRENT_BINARY_DIR}/numathapConfig.cmake
+	DESTINATION
+		${CMAKE_INSTALL_LIBDIR}/cmake/numathap
+)
