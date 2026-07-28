@@ -12,7 +12,7 @@ The SDK exposes the public numathap API through:
 
 * CMake 3.20 or later
 * A C++20-compatible compiler
-* Linux, macOS, or Windows
+* A supported C++ development environment
 
 The current development environment is based on GCC 13 and Ubuntu Linux.
 
