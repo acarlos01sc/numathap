@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(numathap
-	VERSION 0.1.0
+	VERSION 0.1.2
 	LANGUAGES CXX
 )
 
@@ -14,8 +14,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BUILD_SHARED_LIBS
-    "Build shared libraries"
-    OFF
+	"Build shared libraries"
+	OFF
 )
 
 #----------------------------------------------------------
@@ -76,8 +76,8 @@ set_target_properties(numathap
 
 target_include_directories(numathap
 	PUBLIC
-	 $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-	 $<INSTALL_INTERFACE:include>
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+		$<INSTALL_INTERFACE:include>
 )
 
 if(MSVC)
@@ -85,7 +85,6 @@ if(MSVC)
 else()
 	target_compile_options(numathap PRIVATE -Wall -Wextra -Wpedantic)
 endif()
-
 
 #----------------------------------------------------------
 # viewer utility library
@@ -103,7 +102,6 @@ target_include_directories(AstViewerCore
 target_link_libraries(AstViewerCore
 	PUBLIC numathap
 )
-
 
 #----------------------------------------------------------
 # viewer utility: PrinterTextParser_test
@@ -189,8 +187,8 @@ add_executable(TEST_integrate_cfg
 
 target_include_directories(TEST_integrate_cfg
 	PRIVATE
-	 ${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
-	 ${CMAKE_CURRENT_SOURCE_DIR}/include
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
+		${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries(TEST_integrate_cfg
@@ -202,35 +200,32 @@ add_test(
 	COMMAND TEST_integrate_cfg
 )
 
-
 #----------------------------------------------------------
 # TEST_integrate_eval
 #----------------------------------------------------------
 
 add_executable(TEST_integrate_eval
-    tests/backend/TEST_integrate_eval.cpp
+	tests/backend/TEST_integrate_eval.cpp
 )
 
 target_include_directories(TEST_integrate_eval
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
+		${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries(TEST_integrate_eval
-    PRIVATE numathap
+	PRIVATE numathap
 )
 
 add_test(
-    NAME TEST_integrate_eval
-    COMMAND TEST_integrate_eval
+	NAME TEST_integrate_eval
+	COMMAND TEST_integrate_eval
 )
 
 target_compile_definitions(TEST_integrate_eval
-    PRIVATE
-    NUMATHAP_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/backend"
+	PRIVATE NUMATHAP_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/backend"
 )
-
 
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
 
@@ -253,15 +248,18 @@ install(
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-
 install(
 	DIRECTORY include/
 	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-
 install(
-	EXPORT numathapTargets
+	FILES ${CMAKE_CURRENT_SOURCE_DIR}/docs/cpp_user.md
+	DESTINATION .
+	RENAME README.md
+)
+
+install(EXPORT numathapTargets
 	FILE numathapTargets.cmake
 	NAMESPACE numathap::
 	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/numathap
@@ -275,8 +273,6 @@ configure_package_config_file(
 )
 
 install(
-	FILES
-		${CMAKE_CURRENT_BINARY_DIR}/numathapConfig.cmake
-	DESTINATION
-		${CMAKE_INSTALL_LIBDIR}/cmake/numathap
+	FILES ${CMAKE_CURRENT_BINARY_DIR}/numathapConfig.cmake
+	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/numathap
 )
