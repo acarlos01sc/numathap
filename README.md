@@ -63,3 +63,7 @@ This project is released under an open-source license (see LICENSE file for deta
 # Contributions
 
 Contributions, suggestions, and discussions are welcome.
+
+## Other Documents
+
+- @ref adaptive_simpson "Adaptive Simpson"

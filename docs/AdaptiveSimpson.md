@@ -1,4 +1,4 @@
-# Numerical Integration Using the Adaptive Simpson Method
+# Numerical Integration Using the Adaptive Simpson Method (#adaptive_simpson)
 
 ## 1. The Problem
 
