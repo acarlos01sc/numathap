@@ -37,3 +37,18 @@ set_target_properties(_numathap
 target_link_libraries(_numathap
 	PRIVATE numathap
 )
+
+include(GNUInstallDirs)
+
+install(
+    TARGETS _numathap
+    LIBRARY DESTINATION numathap
+    RUNTIME DESTINATION numathap
+)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/numathap/__init__.py
+    DESTINATION
+        numathap
+)

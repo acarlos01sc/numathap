@@ -1,0 +1,64 @@
+[build-system]
+requires = [
+    "scikit-build-core>=0.11",
+    "pybind11>=2.13"
+]
+build-backend = "scikit_build_core.build"
+
+
+[project]
+name = "numathap"
+version = "0.1.2"
+
+description = "Numerical mathematics library for C++ and Python."
+readme = "README.md"
+
+requires-python = ">=3.12"
+
+license = { text = "MIT" }
+
+authors = [
+    { name = "Antonio Cardoso" }
+]
+
+keywords = [
+    "mathematics",
+    "numerical",
+    "integration",
+    "parser",
+    "calculus"
+]
+
+[project.urls]
+Homepage = "https://github.com/acarlos01sc/numathap"
+Repository = "https://github.com/acarlos01sc/numathap"
+
+
+classifiers = [
+    "Development Status :: 3 - Alpha",
+
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+
+    "License :: OSI Approved :: MIT License",
+
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+
+    "Programming Language :: C++",
+
+    "Topic :: Scientific/Engineering :: Mathematics"
+]
+
+
+[tool.scikit-build]
+
+cmake.version = ">=3.20"
+
+build-dir = "build/{wheel_tag}"
+
+
+[tool.scikit-build.cmake.define]
+
+NUMATHAP_BUILD_PYTHON = "ON"
+NUMATHAP_INSTALL_CPP = "OFF"

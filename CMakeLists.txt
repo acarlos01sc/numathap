@@ -18,6 +18,11 @@ option(BUILD_SHARED_LIBS
 	OFF
 )
 
+option(NUMATHAP_INSTALL_CPP
+	"Install C++ SDK"
+	ON
+)
+
 #----------------------------------------------------------
 # numathap library
 #----------------------------------------------------------
@@ -236,43 +241,46 @@ endif()
 #----------------------------------------------------------
 # Installation (SDK)
 #----------------------------------------------------------
+if(NUMATHAP_INSTALL_CPP)
+	include(GNUInstallDirs)
+	include(CMakePackageConfigHelpers)
 
-include(GNUInstallDirs)
-include(CMakePackageConfigHelpers)
+	install(
+		TARGETS numathap
+		EXPORT numathapTargets
+		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+	)
 
-install(
-	TARGETS numathap
-	EXPORT numathapTargets
-	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+	install(
+		DIRECTORY include/
+		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+	)
 
-install(
-	DIRECTORY include/
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
+	install(
+		FILES ${CMAKE_CURRENT_SOURCE_DIR}/docs/cpp_user.md
+		DESTINATION .
+		RENAME README.md
+	)
 
-install(
-	FILES ${CMAKE_CURRENT_SOURCE_DIR}/docs/cpp_user.md
-	DESTINATION .
-	RENAME README.md
-)
+	install(EXPORT numathapTargets
+		FILE numathapTargets.cmake
+		NAMESPACE numathap::
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/numathap
+	)
 
-install(EXPORT numathapTargets
-	FILE numathapTargets.cmake
-	NAMESPACE numathap::
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/numathap
-)
+	configure_package_config_file(
+		${CMAKE_CURRENT_SOURCE_DIR}/cmake/numathapConfig.cmake.in
+		${CMAKE_CURRENT_BINARY_DIR}/numathapConfig.cmake
+		INSTALL_DESTINATION
+		${CMAKE_INSTALL_LIBDIR}/cmake/numathap
+	)
 
-configure_package_config_file(
-	${CMAKE_CURRENT_SOURCE_DIR}/cmake/numathapConfig.cmake.in
-	${CMAKE_CURRENT_BINARY_DIR}/numathapConfig.cmake
-	INSTALL_DESTINATION
-	${CMAKE_INSTALL_LIBDIR}/cmake/numathap
-)
+	install(
+		FILES ${CMAKE_CURRENT_BINARY_DIR}/numathapConfig.cmake
+		DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/numathap
+	)
 
-install(
-	FILES ${CMAKE_CURRENT_BINARY_DIR}/numathapConfig.cmake
-	DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/numathap
-)
+endif()
+

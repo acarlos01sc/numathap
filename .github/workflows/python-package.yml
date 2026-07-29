@@ -1,0 +1,60 @@
+name: Python Package
+
+on:
+  workflow_dispatch:
+
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-python:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build
+
+      - name: Configure CMake
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build Python package
+        run: |
+          python -m build --outdir build/python/pkg
+
+      - name: Test wheel installation
+        run: |
+          python -m venv test-env
+
+          source test-env/bin/activate
+
+          pip install build/python/pkg/*.whl
+
+          python -c "
+          import numathap
+          print('Version:', numathap.__version__)
+          expr = numathap.prepare('sin(x)')
+          print(expr)
+          "
+
+      - name: Upload wheel and sdist to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/python/pkg/*.whl
+            build/python/pkg/*.tar.gz
