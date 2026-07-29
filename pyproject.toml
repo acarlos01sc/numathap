@@ -29,10 +29,6 @@ keywords = [
     "calculus"
 ]
 
-[project.urls]
-Homepage = "https://github.com/acarlos01sc/numathap"
-Repository = "https://github.com/acarlos01sc/numathap"
-
 
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -49,6 +45,10 @@ classifiers = [
 
     "Topic :: Scientific/Engineering :: Mathematics"
 ]
+
+[project.urls]
+Homepage = "https://github.com/acarlos01sc/numathap"
+Repository = "https://github.com/acarlos01sc/numathap"
 
 
 [tool.scikit-build]

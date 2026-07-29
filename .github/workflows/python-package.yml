@@ -18,43 +18,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install build tools
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install build
-
-      - name: Configure CMake
-        run: |
-          cmake -S . -B build \
-            -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build Python package
-        run: |
-          python -m build --outdir build/python/pkg
+      - name: Build Python wheel
+        uses: pypa/cibuildwheel@v4.1.1
+        env:
+          CIBW_BUILD: cp312-manylinux_x86_64
 
       - name: Test wheel installation
         run: |
-          python -m venv test-env
-
+          python3.12 -m venv test-env
           source test-env/bin/activate
 
-          pip install build/python/pkg/*.whl
+          python -m pip install wheelhouse/*.whl
 
           python -c "
           import numathap
+
           print('Version:', numathap.__version__)
+
           expr = numathap.prepare('sin(x)')
-          print(expr)
+          print('Prepared:', expr)
+
+          ctx = numathap.Context()
+          ctx.set_interval('x', '0', 'pi')
+
+          result = numathap.integrate(expr, 'x', ctx)
+          print('Integral:', result)
           "
 
-      - name: Upload wheel and sdist to GitHub Release
+      - name: Upload wheel to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            build/python/pkg/*.whl
-            build/python/pkg/*.tar.gz
+            wheelhouse/*.whl
