@@ -49,6 +49,7 @@ jobs:
     needs:
       - build-cpp
       - build-python
+      - publish-pypi
 
     runs-on: ubuntu-latest
 
