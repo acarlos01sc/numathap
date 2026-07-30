@@ -336,10 +336,7 @@ Unlike the Legendre polynomial, however, the Kronrod polynomial is **not availab
 Once the complete set of nodes has been obtained, the corresponding weights are determined by imposing the quadrature condition
 
 $$
-\int_{-1}^{1}p(x)dx
-=
-\sum_{i=1}^{2n+1}
-w_i p(x_i)
+\int_{-1}^{1}p(x)dx=\sum_{i=1}^{2n+1}w_i p(x_i)
 $$
 
 for every polynomial

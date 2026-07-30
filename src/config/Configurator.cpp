@@ -1,6 +1,7 @@
 #include "numathap/config/Configurator.hpp"
 
 #include "numathap/backend/integrate/AdaptiveSimpson.hpp"
+#include "numathap/backend/integrate/GaussKronrod15.hpp"
 #include "numathap/config/MathEnvironment.hpp"
 
 namespace numathap::config {
@@ -36,6 +37,12 @@ void Configurator::apply(
     const backend::integrate::AdaptiveSimpsonConfig& config) {
     environment_.setIntegrationConfiguration(
         backend::integrate::Algorithm::AdaptiveSimpson, config);
+}
+
+void Configurator::apply(
+    const backend::integrate::GaussKronrod15Config& config) {
+    environment_.setIntegrationConfiguration(
+        backend::integrate::Algorithm::GaussKronrod15, config);
 }
 
 }  // namespace numathap::config

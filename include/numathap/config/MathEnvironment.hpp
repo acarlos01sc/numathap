@@ -74,6 +74,10 @@ class MathEnvironment {
 
     /**
      * @brief Gets the configuration of the selected integration algorithm.
+     *
+     * The returned variant contains the configuration object corresponding
+     * to the currently selected integration algorithm.
+     *
      * @return The current integration algorithm configuration.
      */
     [[nodiscard]]

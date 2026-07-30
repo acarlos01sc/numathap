@@ -18,15 +18,17 @@ namespace numathap::backend::integrate {
  * @brief Numerical integration dispatcher.
  *
  * The @c Integrator acts as a central hub that analyzes the integration bounds
- * and dispatches the task to the appropriate numerical integration strategy.
+ * and dispatches the task to the appropriate numerical integration strategy
+ * selected by the @ref config::MathEnvironment.
  *
  * Current functionality includes:
  * - Detecting finite vs. improper intervals.
- * - Dispatching to specialized integration routines based on interval type.
+ * - Selecting the configured integration algorithm.
+ * - Dispatching the task to the selected numerical integration routine.
  *
- * @note This class encapsulates the strategy selection logic; adding support
- *       for new domain transformations or symbolic interval evaluation should
- *       be handled within this dispatcher.
+ * @note This class encapsulates the integration strategy selection logic;
+ *       adding support for new integration algorithms should be handled
+ *       through the configured @ref integrate::Algorithm.
  */
 class Integrator {
    public:
@@ -62,13 +64,23 @@ class Integrator {
      */
     bool isInfinite(const std::string& bound) const;
 
-    /** @brief Executes the finite-interval integration workflow. */
+    /**
+     * @brief Executes the finite-interval integration workflow.
+     *
+     * The configured integration algorithm is selected through the provided
+     * mathematical environment.
+     */
     core::Value integrateFinite(
         const math::PreparedAst& prepared, const std::string& variable,
         const IntegrationInterval& interval,
         const config::MathEnvironment& environment) const;
 
-    /** @brief Executes the improper-interval integration workflow. */
+    /**
+     * @brief Executes the improper-interval integration workflow.
+     *
+     * The configured integration algorithm is selected through the provided
+     * mathematical environment.
+     */
     core::Value integrateImproper(
         const math::PreparedAst& prepared, const std::string& variable,
         const IntegrationInterval& interval,

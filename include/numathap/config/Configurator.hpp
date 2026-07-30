@@ -5,6 +5,7 @@
 #pragma once
 
 #include "numathap/backend/integrate/AdaptiveSimpson.hpp"
+#include "numathap/backend/integrate/GaussKronrod15.hpp"
 #include "numathap/config/Capability.hpp"
 #include "numathap/config/MathLibrary.hpp"
 #include "numathap/config/NumericType.hpp"
@@ -71,7 +72,19 @@ class Configurator {
 
     void apply(Capability capability);
 
+     /**
+     * @brief Applies Adaptive Simpson integration configuration.
+     *
+     * @param config Adaptive Simpson configuration.
+     */
     void apply(const backend::integrate::AdaptiveSimpsonConfig& config);
+
+    /**
+     * @brief Applies Gauss-Kronrod 15-point integration configuration.
+     *
+     * @param config Gauss-Kronrod 15-point configuration.
+     */
+    void apply(const backend::integrate::GaussKronrod15Config& config);
 
    private:
     MathEnvironment&

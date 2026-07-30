@@ -15,7 +15,9 @@ namespace numathap::backend::integrate {
  */
 enum class Algorithm {
     /** @brief Adaptive Simpson's rule for high-precision quadrature. */
-    AdaptiveSimpson
+    AdaptiveSimpson,
+    /** @brief Gauss-Kronrod 15-point adaptive quadrature. */
+    GaussKronrod15
 };
 
 }  // namespace numathap::backend::integrate

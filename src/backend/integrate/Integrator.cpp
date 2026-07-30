@@ -8,6 +8,8 @@
 #include <stdexcept>
 
 #include "numathap/backend/evaluate.hpp"
+#include "numathap/backend/integrate/AdaptiveSimpson.hpp"
+#include "numathap/backend/integrate/GaussKronrod15.hpp"
 #include "numathap/backend/integrate/ImproperIntegralTransformer.hpp"
 #include "numathap/math/prepare.hpp"
 
@@ -73,6 +75,14 @@ Value Integrator::integrateFinite(const PreparedAst& prepared,
 
             return AdaptiveSimpson::integrate(prepared, variable, lower, upper,
                                               config);
+        }
+
+        case Algorithm::GaussKronrod15: {
+            const auto& config = std::get<GaussKronrod15Config>(
+                environment.integrationAlgorithmConfig());
+
+            return GaussKronrod15::integrate(prepared, variable, lower, upper,
+                                             config);
         }
     }
 

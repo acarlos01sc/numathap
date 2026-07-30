@@ -8,6 +8,7 @@
 #include <variant>
 
 #include "numathap/backend/integrate/AdaptiveSimpson.hpp"
+#include "numathap/backend/integrate/GaussKronrod15.hpp"
 
 namespace numathap::backend::integrate {
 
@@ -19,7 +20,7 @@ namespace numathap::backend::integrate {
  * New integration algorithms should add their configuration type to this
  * variant.
  */
-using AlgorithmConfig = std::variant<
-    AdaptiveSimpsonConfig>;
+using AlgorithmConfig =
+    std::variant<AdaptiveSimpsonConfig, GaussKronrod15Config>;
 
 }  // namespace numathap::backend::integrate
