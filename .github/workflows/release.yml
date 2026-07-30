@@ -20,6 +20,31 @@ jobs:
     permissions:
       contents: read
 
+  publish-pypi:
+    name: Publish Python package to PyPI
+    needs:
+      - build-python
+
+    runs-on: ubuntu-latest
+
+    environment: pypi
+
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Download Python wheel
+        uses: actions/download-artifact@v4
+        with:
+          name: python-wheel
+          path: dist
+      - name: List Python distributions
+        run: |
+          find dist -type f -print
+
+      - name: Publish package to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+
   create-release:
     needs:
       - build-cpp
