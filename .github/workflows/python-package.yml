@@ -1,14 +1,10 @@
 name: Python Package
 
 on:
-  workflow_dispatch:
-
-  push:
-    tags:
-      - 'v*'
+  workflow_call:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   build-python:
@@ -45,8 +41,8 @@ jobs:
           print('Integral:', result)
           "
 
-      - name: Upload wheel to GitHub Release
-        uses: softprops/action-gh-release@v2
+      - name: Upload wheel artifact
+        uses: actions/upload-artifact@v4
         with:
-          files: |
-            wheelhouse/*.whl
+          name: python-wheel
+          path: wheelhouse/*.whl

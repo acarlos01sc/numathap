@@ -50,11 +50,12 @@ MathNodePtr MathAstBuilder::buildNode(const parser::Node& node) const {
             case parser::UnaryOp::Minus:
                 op = UnaryOp::Minus;
                 break;
+
+            default:
+                throw std::logic_error("Unsupported unary operator.");
         }
 
-        return std::make_unique<UnaryNode>(
-            op,
-            buildNode(*n->operand));
+        return std::make_unique<UnaryNode>(op, buildNode(*n->operand));
     }
 
     //----------------------------------------------------------
@@ -84,12 +85,13 @@ MathNodePtr MathAstBuilder::buildNode(const parser::Node& node) const {
             case parser::BinaryOp::Power:
                 op = BinaryOp::Power;
                 break;
+
+            default:
+                throw std::logic_error("Unsupported binary operator.");
         }
 
-        return std::make_unique<BinaryNode>(
-            op,
-            buildNode(*n->left),
-            buildNode(*n->right));
+        return std::make_unique<BinaryNode>(op, buildNode(*n->left),
+                                            buildNode(*n->right));
     }
 
     //----------------------------------------------------------
@@ -104,9 +106,7 @@ MathNodePtr MathAstBuilder::buildNode(const parser::Node& node) const {
             arguments.push_back(buildNode(*argument));
         }
 
-        return std::make_unique<FunctionNode>(
-            n->name,
-            std::move(arguments));
+        return std::make_unique<FunctionNode>(n->name, std::move(arguments));
     }
 
     //----------------------------------------------------------
@@ -117,9 +117,7 @@ MathNodePtr MathAstBuilder::buildNode(const parser::Node& node) const {
         std::vector<MathNodePtr> arguments;
         arguments.push_back(buildNode(*n->operand));
 
-        return std::make_unique<FunctionNode>(
-            "abs",
-            std::move(arguments));
+        return std::make_unique<FunctionNode>("abs", std::move(arguments));
     }
 
     //----------------------------------------------------------
@@ -132,9 +130,8 @@ MathNodePtr MathAstBuilder::buildNode(const parser::Node& node) const {
                 std::vector<MathNodePtr> arguments;
                 arguments.push_back(buildNode(*n->operand));
 
-                return std::make_unique<FunctionNode>(
-                    "factorial",
-                    std::move(arguments));
+                return std::make_unique<FunctionNode>("factorial",
+                                                      std::move(arguments));
             }
         }
     }

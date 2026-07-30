@@ -1,7 +1,28 @@
 cmake_minimum_required(VERSION 3.20)
 
+#----------------------------------------------------------
+# Project version
+#----------------------------------------------------------
+
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" NUMATHAP_VERSION_FILE)
+
+string(
+	REGEX MATCH
+	"VERSION[ \t]*=[ \t]*\"([0-9]+\.[0-9]+\.[0-9]+)\""
+	_
+	"${NUMATHAP_VERSION_FILE}"
+)
+
+if(NOT CMAKE_MATCH_1)
+	message(FATAL_ERROR
+		"Could not determine numathap version from VERSION file."
+	)
+endif()
+
+set(NUMATHAP_VERSION "${CMAKE_MATCH_1}")
+
 project(numathap
-	VERSION 0.1.2
+	VERSION ${NUMATHAP_VERSION}
 	LANGUAGES CXX
 )
 

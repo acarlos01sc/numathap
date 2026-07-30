@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "scikit-build-core>=0.11",
+    "scikit-build-core>=1.0",
     "pybind11>=2.13"
 ]
 build-backend = "scikit_build_core.build"
@@ -8,7 +8,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "numathap"
-version = "0.1.2"
+dynamic = ["version"]
 
 description = "Numerical mathematics library for C++ and Python."
 readme = "README.md"
@@ -49,6 +49,11 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/acarlos01sc/numathap"
 Repository = "https://github.com/acarlos01sc/numathap"
+
+[[tool.dynamic-metadata]]
+provider = "scikit_build_core.metadata.regex"
+field = "version"
+input = "VERSION"
 
 
 [tool.scikit-build]
