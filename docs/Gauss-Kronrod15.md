@@ -5,7 +5,7 @@
 We want to numerically compute a definite integral
 
 $$
-I=\int_a^b f(x)\,dx.
+I=\int_a^b f(x)\ dx.
 $$
 
 When the antiderivative of $f(x)$ is unknown or difficult to compute, numerical quadrature methods approximate the integral using evaluations of the function at carefully selected points.
@@ -25,9 +25,9 @@ $$
 The integral is approximated by
 
 $$
-\int_{-1}^{1}f(x)\,dx
+\int_{-1}^{1}f(x)\ dx
 \approx
-\sum_{i=1}^{n}w_i\,f(x_i),
+\sum_{i=1}^{n}w_i\ f(x_i),
 $$
 
 where
@@ -92,16 +92,99 @@ Therefore,
 $$
 \int_{-1}^{1}f(x)\,dx
 \approx
-f\!\left(-\frac1{\sqrt3}\right)
+f\left(-\frac1{\sqrt3}\right)
 +
-f\!\left(\frac1{\sqrt3}\right).
+f\left(\frac1{\sqrt3}\right).
 $$
 
 Notice that the evaluation points are located **inside the interval**, not necessarily at its endpoints.
 
 ---
 
-## 4. Integration Over an Arbitrary Interval
+## 4. Computing the Gauss Weights
+
+Once the Gauss nodes have been determined as the roots of the Legendre polynomial
+
+$$
+P_n(x),
+$$
+
+the corresponding weights are uniquely determined.
+
+A remarkable result from the theory of orthogonal polynomials shows that the weights are given by
+
+$$
+\boxed{
+w_i=
+\frac{2}
+{\left(1-x_i^2\right)
+\left[P_n'(x_i)\right]^2}
+}
+$$
+
+where
+
+- $x_i$ is the $i$-th root of $P_n(x)$;
+- $P_n'(x)$ denotes the derivative of the Legendre polynomial.
+
+Therefore, constructing an $n$-point Gauss-Legendre rule requires only two steps:
+
+1. compute the roots of $P_n(x)$;
+2. evaluate the derivative of $P_n(x)$ at each root and apply the formula above.
+
+As an example, for
+
+$$
+n=2,
+$$
+
+the Legendre polynomial is
+
+$$
+P_2(x)=\frac12(3x^2-1),
+$$
+
+whose derivative is
+
+$$
+P_2'(x)=3x.
+$$
+
+Since the roots are
+
+$$
+x_1=-\frac1{\sqrt3},
+\qquad
+x_2=\frac1{\sqrt3},
+$$
+
+we have
+
+$$
+P_2'(x_i)=\pm\sqrt3.
+$$
+
+Substituting into the weight formula,
+
+$$
+w_i=
+\frac{2}
+{\left(1-\frac13\right)(3)}
+=
+1,
+$$
+
+which agrees with the previously stated result,
+
+$$
+w_1=w_2=1.
+$$
+
+In practice, numerical libraries do not symbolically solve the Legendre polynomial. Instead, the roots are computed numerically (typically by Newton's method), after which the weights follow directly from the formula above.
+
+---
+
+## 5. Integration Over an Arbitrary Interval
 
 Most practical integrals are defined over an arbitrary interval
 
@@ -143,7 +226,7 @@ $$
 =
 \frac{b-a}{2}
 \int_{-1}^{1}
-f\!\left(
+f\left(
 \frac{a+b}{2}
 +
 \frac{b-a}{2}t
@@ -160,7 +243,7 @@ $$
 \frac{b-a}{2}
 \sum_{i=1}^{n}
 w_i
-f\!\left(
+f\left(
 \frac{a+b}{2}
 +
 \frac{b-a}{2}x_i
@@ -172,7 +255,7 @@ This is the formula implemented by most numerical integration libraries.
 
 ---
 
-## 5. The Main Limitation of Pure Gauss Quadrature
+## 6. The Main Limitation of Pure Gauss Quadrature
 
 A Gauss rule produces a highly accurate approximation of the integral, but it does **not** directly provide an estimate of its own error.
 
@@ -184,7 +267,7 @@ The Gauss-Kronrod construction was developed precisely to address this limitatio
 
 # Numerical Integration Using the Gauss-Kronrod 15-Point Rule (GK15)
 
-## 6. The Fundamental Idea Behind Gauss-Kronrod
+## 7. The Fundamental Idea Behind Gauss-Kronrod
 
 Suppose we compute a 7-point Gauss approximation,
 
@@ -221,7 +304,7 @@ Only the additional nodes require new evaluations.
 
 ---
 
-## 7. Two Approximations from the Same Function Evaluations
+## 8. Two Approximations from the Same Function Evaluations
 
 After evaluating the function at the fifteen Kronrod nodes, two approximations become available:
 
@@ -251,7 +334,7 @@ This estimate is obtained **without performing a second independent quadrature**
 
 ---
 
-## 8. Estimating the Error
+## 9. Estimating the Error
 
 The estimated integration error is taken as
 
@@ -279,7 +362,7 @@ Otherwise, the interval must be subdivided.
 
 ---
 
-## 9. Adaptive Subdivision
+## 10. Adaptive Subdivision
 
 Suppose the initial interval is
 
@@ -339,7 +422,7 @@ This recursive process continues until every subinterval satisfies the prescribe
 
 ---
 
-## 10. Why Adaptive Gauss-Kronrod Is Efficient
+## 11. Why Adaptive Gauss-Kronrod Is Efficient
 
 The adaptive strategy is based on a simple observation:
 
@@ -355,7 +438,7 @@ This makes the adaptive Gauss-Kronrod algorithm significantly more efficient tha
 
 ---
 
-## 11. Advantages of GK15
+## 12. Advantages of GK15
 
 Compared with classical adaptive Simpson integration, the Gauss-Kronrod 15-point rule offers several advantages:
 
