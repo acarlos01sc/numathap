@@ -167,11 +167,7 @@ $$
 Substituting into the weight formula,
 
 $$
-w_i=
-\frac{2}
-{\left(1-\frac13\right)(3)}
-=
-1,
+w_i=\frac{2}{\left(1-\frac{1}{3}\right)(3)}=1
 $$
 
 which agrees with the previously stated result,
@@ -222,16 +218,12 @@ $$
 we obtain
 
 $$
-\int_a^b f(x)\,dx
-=
+\int_a^b f(x)\,dx=
 \frac{b-a}{2}
 \int_{-1}^{1}
 f\left(
-\frac{a+b}{2}
-+
-\frac{b-a}{2}t
-\right)
-dt.
+\frac{a+b}{2}+\frac{b-a}{2}t
+\right)dt
 $$
 
 Applying the Gauss-Legendre rule yields
@@ -304,7 +296,69 @@ Only the additional nodes require new evaluations.
 
 ---
 
-## 8. Two Approximations from the Same Function Evaluations
+## 8. How the Kronrod Nodes and Weights Are Constructed
+
+The additional Kronrod nodes are **not chosen arbitrarily**, nor are they the roots of another Legendre polynomial.
+
+Instead, they are obtained by solving a much more difficult mathematical problem.
+
+The objective is to construct a new quadrature rule that
+
+- preserves every Gauss node;
+- inserts additional nodes between them;
+- determines a new set of weights for all nodes;
+- achieves the highest possible algebraic degree of precision.
+
+More precisely, if the original Gauss rule uses
+
+$$
+n
+$$
+
+nodes, Kronrod proved that it is possible to build a rule containing
+
+$$
+2n+1
+$$
+
+nodes while retaining all the original Gauss nodes.
+
+The new nodes are the roots of a polynomial of degree
+
+$$
+2n+1,
+$$
+
+called the **Kronrod polynomial**.
+
+Unlike the Legendre polynomial, however, the Kronrod polynomial is **not available in closed form** and must be constructed numerically.
+
+Once the complete set of nodes has been obtained, the corresponding weights are determined by imposing the quadrature condition
+
+$$
+\int_{-1}^{1}p(x)\,dx
+=
+\sum_{i=1}^{2n+1}
+w_i\,p(x_i)
+$$
+
+for every polynomial
+
+$$
+p(x)
+$$
+
+up to the maximum attainable degree.
+
+This leads to a system of equations whose solution uniquely determines all the Kronrod weights.
+
+Because this construction is considerably more involved than that of the Gauss rule, numerical libraries almost never compute the Kronrod nodes and weights at runtime.
+
+Instead, the nodes and weights for commonly used rules (GK15, GK21, GK31, GK41, GK51 and GK61) are precomputed with very high precision and stored as constant tables.
+
+---
+
+## 9. Two Approximations from the Same Function Evaluations
 
 After evaluating the function at the fifteen Kronrod nodes, two approximations become available:
 
@@ -334,7 +388,7 @@ This estimate is obtained **without performing a second independent quadrature**
 
 ---
 
-## 9. Estimating the Error
+## 10. Estimating the Error
 
 The estimated integration error is taken as
 
@@ -362,7 +416,7 @@ Otherwise, the interval must be subdivided.
 
 ---
 
-## 10. Adaptive Subdivision
+## 11. Adaptive Subdivision
 
 Suppose the initial interval is
 
@@ -422,7 +476,7 @@ This recursive process continues until every subinterval satisfies the prescribe
 
 ---
 
-## 11. Why Adaptive Gauss-Kronrod Is Efficient
+## 12. Why Adaptive Gauss-Kronrod Is Efficient
 
 The adaptive strategy is based on a simple observation:
 
@@ -438,7 +492,7 @@ This makes the adaptive Gauss-Kronrod algorithm significantly more efficient tha
 
 ---
 
-## 12. Advantages of GK15
+## 13. Advantages of GK15
 
 Compared with classical adaptive Simpson integration, the Gauss-Kronrod 15-point rule offers several advantages:
 
