@@ -336,10 +336,10 @@ Unlike the Legendre polynomial, however, the Kronrod polynomial is **not availab
 Once the complete set of nodes has been obtained, the corresponding weights are determined by imposing the quadrature condition
 
 $$
-\int_{-1}^{1}p(x)\,dx
+\int_{-1}^{1}p(x)dx
 =
 \sum_{i=1}^{2n+1}
-w_i\,p(x_i)
+w_i p(x_i)
 $$
 
 for every polynomial
@@ -355,6 +355,8 @@ This leads to a system of equations whose solution uniquely determines all the K
 Because this construction is considerably more involved than that of the Gauss rule, numerical libraries almost never compute the Kronrod nodes and weights at runtime.
 
 Instead, the nodes and weights for commonly used rules (GK15, GK21, GK31, GK41, GK51 and GK61) are precomputed with very high precision and stored as constant tables.
+
+The original construction was introduced by Alexander S. Kronrod in 1964. Later, T. N. L. Patterson developed an extension that generated a nested sequence of Gauss-Kronrod rules (Gauss-Kronrod-Patterson), which became the foundation of several modern adaptive quadrature algorithms.
 
 ---
 
