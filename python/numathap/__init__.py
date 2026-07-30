@@ -1,3 +1,5 @@
+from importlib.metadata import version
+
 from ._numathap import (
     Algorithm,
     Capability,
@@ -10,7 +12,7 @@ from ._numathap import (
     prepare,
 )
 
-__version__ = "0.1.2"
+__version__ = version("numathap")
 
 __all__ = [
     "Algorithm",
