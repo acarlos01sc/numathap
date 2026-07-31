@@ -14,27 +14,61 @@ void bindValue(py::module_& m) {
 
         .def(py::init<double>())
 
-        .def("__add__", [](const numathap::Value& a,
-                           const numathap::Value& b) { return a + b; })
+        // Arithmetic operators
+        .def("__add__",
+             [](const numathap::Value& a, const numathap::Value& b) {
+                 return a + b;
+             })
 
-        .def("__sub__", [](const numathap::Value& a,
-                           const numathap::Value& b) { return a - b; })
+        .def("__sub__",
+             [](const numathap::Value& a, const numathap::Value& b) {
+                 return a - b;
+             })
 
-        .def("__mul__", [](const numathap::Value& a,
-                           const numathap::Value& b) { return a * b; })
+        .def("__mul__",
+             [](const numathap::Value& a, const numathap::Value& b) {
+                 return a * b;
+             })
 
-        .def("__truediv__", [](const numathap::Value& a,
-                               const numathap::Value& b) { return a / b; })
+        .def("__truediv__",
+             [](const numathap::Value& a, const numathap::Value& b) {
+                 return a / b;
+             })
 
         .def("__neg__", [](const numathap::Value& v) { return -v; })
 
         .def("__pos__", [](const numathap::Value& v) { return +v; })
 
-        .def("__eq__", [](const numathap::Value& a,
-                          const numathap::Value& b) { return a == b; })
+        // Comparison operators
+        .def("__eq__",
+             [](const numathap::Value& a, const numathap::Value& b) {
+                 return a == b;
+             })
 
-        .def("__ne__", [](const numathap::Value& a,
-                          const numathap::Value& b) { return a != b; })
+        .def("__ne__",
+             [](const numathap::Value& a, const numathap::Value& b) {
+                 return a != b;
+             })
+
+        .def("__lt__",
+             [](const numathap::Value& a, const numathap::Value& b) {
+                 return a < b;
+             })
+
+        .def("__le__",
+             [](const numathap::Value& a, const numathap::Value& b) {
+                 return a <= b;
+             })
+
+        .def("__gt__",
+             [](const numathap::Value& a, const numathap::Value& b) {
+                 return a > b;
+             })
+
+        .def("__ge__",
+             [](const numathap::Value& a, const numathap::Value& b) {
+                 return a >= b;
+             })
 
         .def("__repr__",
              [](const numathap::Value& value) {

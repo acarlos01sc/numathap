@@ -18,14 +18,14 @@ void bindIntegrate(py::module_& m);
 }  // namespace numathap::python
 
 PYBIND11_MODULE(_numathap, m) {
+    // Core
+    numathap::python::bindValue(m);
+    numathap::python::bindContext(m);
+
     // Configuration
     numathap::python::bindMathEnvironment(m);
     numathap::python::bindCapability(m);
     numathap::python::bindConfigure(m);
-
-    // Core
-    numathap::python::bindValue(m);
-    numathap::python::bindContext(m);
 
     // Expression processing
     numathap::python::bindPrepare(m);
