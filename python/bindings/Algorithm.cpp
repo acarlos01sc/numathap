@@ -10,7 +10,9 @@ void bindAlgorithm(py::module_& m) {
     py::enum_<numathap::backend::integrate::Algorithm>(m, "Algorithm")
         .value("AdaptiveSimpson",
                numathap::backend::integrate::Algorithm::AdaptiveSimpson)
+        .value("GaussKronrod15",
+               numathap::backend::integrate::Algorithm::GaussKronrod15)
         .export_values();
 }
 
-} // namespace numathap::python
+}  // namespace numathap::python

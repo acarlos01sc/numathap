@@ -39,6 +39,22 @@ bool Value::operator!=(const Value& other) const noexcept {
     return !(*this == other);
 }
 
+bool Value::operator<(const Value& other) const noexcept {
+    return value_.value() < other.value_.value();
+}
+
+bool Value::operator<=(const Value& other) const noexcept {
+    return value_.value() <= other.value_.value();
+}
+
+bool Value::operator>(const Value& other) const noexcept {
+    return value_.value() > other.value_.value();
+}
+
+bool Value::operator>=(const Value& other) const noexcept {
+    return value_.value() >= other.value_.value();
+}
+
 std::ostream& operator<<(std::ostream& os, const Value& value) {
     os << std::setprecision(
               std::numeric_limits<numeric::Real::Storage>::max_digits10)

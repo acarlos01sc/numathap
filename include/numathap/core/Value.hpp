@@ -59,8 +59,21 @@ class Value {
     ///@{
     [[nodiscard]]
     bool operator==(const Value&) const noexcept;
+
     [[nodiscard]]
     bool operator!=(const Value&) const noexcept;
+    
+    [[nodiscard]]
+    bool operator<(const Value&) const noexcept;
+
+    [[nodiscard]]
+    bool operator<=(const Value&) const noexcept;
+
+    [[nodiscard]]
+    bool operator>(const Value&) const noexcept;
+
+    [[nodiscard]]
+    bool operator>=(const Value&) const noexcept;
     ///@}
 
    private:

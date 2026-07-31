@@ -39,6 +39,17 @@ class Real {
     explicit Real(Storage value) noexcept;
 
     /**
+     * @brief Constructs a Real from a decimal string.
+     *
+     * The decimal representation is converted directly to Storage whenever
+     * Storage supports construction from a C string. This allows arbitrary
+     * precision numeric types to preserve the supplied decimal precision.
+     *
+     * @param value Decimal representation of the value.
+     */
+    explicit Real(const char* value);
+
+    /**
      * @brief Retrieves the raw underlying value.
      * @return The value stored in the Real object.
      */
