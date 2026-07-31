@@ -99,7 +99,7 @@ class Differentiator {
 
 
     /**
-     * @brief Differentiates a Power function.
+     * @brief Differentiates a power expression.
      *
      * Function-specific rules are delegated to the configured mathematical
      * differentiator.

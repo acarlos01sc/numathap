@@ -4,7 +4,7 @@
  */
 
 #include "numathap/backend/differentiate/Differentiator.hpp"
-
+#include "numathap/backend/differentiate/CMathDifferentiator.hpp"
 #include <stdexcept>
 #include <type_traits>
 #include <utility>
@@ -231,10 +231,18 @@ MathNodePtr Differentiator::differentiatePower(const BinaryNode&,
         "Differentiator: power differentiation is not implemented.");
 }
 
-MathNodePtr Differentiator::differentiateFunction(const FunctionNode&,
-                                                  std::string_view) const {
-    throw std::logic_error(
-        "Differentiator: function differentiation is not implemented.");
+MathNodePtr Differentiator::differentiateFunction(
+    const FunctionNode& node, std::string_view variable) const {
+    if (node.arguments.size() != 1) {
+        throw std::invalid_argument("Differentiator: function '" + node.name +
+                                    "' expects exactly one argument.");
+    }
+
+    auto argumentDerivative = differentiateNode(*node.arguments[0], variable);
+
+    CMathDifferentiator differentiator;
+
+    return differentiator.differentiate(node, std::move(argumentDerivative));
 }
 
 }  // namespace numathap::backend::differentiate
