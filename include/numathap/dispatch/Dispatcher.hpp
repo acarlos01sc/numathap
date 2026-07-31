@@ -40,6 +40,10 @@ class Dispatcher {
     static decltype(auto) dispatch(const math::PreparedAst& ast,
                                    Visitor&& visitor);
 
+    template <typename Visitor>
+    static decltype(auto) dispatch(const math::MathNode& node,
+                                   Visitor&& visitor);
+
    private:
     friend class numathap::backend::Evaluator;
 

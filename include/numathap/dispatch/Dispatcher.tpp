@@ -22,6 +22,12 @@ decltype(auto) Dispatcher::dispatch(const math::PreparedAst& ast,
 }
 
 template <typename Visitor>
+decltype(auto) Dispatcher::dispatch(const math::MathNode& node,
+                                    Visitor&& visitor) {
+    return dispatchNode(node, std::forward<Visitor>(visitor));
+}
+
+template <typename Visitor>
 decltype(auto) Dispatcher::dispatchNode(const math::MathNode& node,
                                         Visitor&& visitor) {
     using namespace math;
