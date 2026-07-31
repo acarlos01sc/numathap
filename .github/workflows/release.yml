@@ -55,6 +55,31 @@ jobs:
 
     steps:
 
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Extract release notes
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          awk -v tag="$RELEASE_TAG" '
+            $0 == "## Release " tag {
+              found = 1
+              print
+              next
+            }
+            found && /^## Release / {
+              exit
+            }
+            found {
+              print
+            }
+          ' CHANGELOG.md > release-notes.md
+      
+      - name: Show release notes
+        run: |
+          cat release-notes.md
+      
       - name: Download release artifacts
         uses: actions/download-artifact@v4
         with:
@@ -70,4 +95,4 @@ jobs:
         with:
           files: |
             release-assets/*
-          generate_release_notes: true
+          body_path: release-notes.md
