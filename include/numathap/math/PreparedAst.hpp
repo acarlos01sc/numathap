@@ -38,6 +38,20 @@ class PreparedAst {
     PreparedAst(const MathAst& mathAst,
                 const config::MathEnvironment& environment);
 
+    /**
+     * @brief Builds a PreparedAst from an already prepared MathNode tree.
+     *
+     * This constructor does not apply any capabilities or invoke the
+     * orchestration pipeline. It is intended for operations that produce
+     * an already transformed tree, such as symbolic differentiation.
+     *
+     * @param expression Expression describing the resulting AST.
+     * @param root Root node of the already prepared AST.
+     * @param environment Execution environment.
+     */
+    PreparedAst(std::string expression, MathNodePtr root,
+                const config::MathEnvironment& environment);
+
     PreparedAst(PreparedAst&&) noexcept = default;
     PreparedAst& operator=(PreparedAst&&) noexcept = default;
 

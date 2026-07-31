@@ -14,6 +14,8 @@ void bindConfigure(py::module_& m);
 // Integration
 void bindAlgorithm(py::module_& m);
 void bindIntegrate(py::module_& m);
+// Differentiate
+void bindDifferentiate(py::module_& m);
 
 }  // namespace numathap::python
 
@@ -34,4 +36,8 @@ PYBIND11_MODULE(_numathap, m) {
     // Numerical integration
     numathap::python::bindAlgorithm(m);
     numathap::python::bindIntegrate(m);
+
+    // Differentiate
+    numathap::python::bindDifferentiate(m);
+    
 }

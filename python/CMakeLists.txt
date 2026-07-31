@@ -26,6 +26,9 @@ pybind11_add_module(
     # Numerical integration
     bindings/Algorithm.cpp
     bindings/integrate.cpp
+
+    # Differentiate
+    bindings/differentiate.cpp
 )
 
 set_target_properties(_numathap

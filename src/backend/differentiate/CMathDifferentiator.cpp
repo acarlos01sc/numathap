@@ -292,10 +292,51 @@ MathNodePtr CMathDifferentiator::differentiate(
                            "' differentiation is not implemented.");
 }
 
-MathNodePtr CMathDifferentiator::differentiate(const BinaryNode&, MathNodePtr,
-                                               MathNodePtr) const {
-    throw std::logic_error(
-        "CMathDifferentiator: power differentiation is not implemented.");
+MathNodePtr CMathDifferentiator::differentiate(
+    const BinaryNode& node, MathNodePtr leftDerivative,
+    MathNodePtr rightDerivative) const {
+    //
+    // (u^v)' = v * u^(v - 1) * u'
+    //         + u^v * log(u) * v'
+    //
+
+    //
+    // First term:
+    //
+    // v * u^(v - 1) * u'
+    //
+    auto exponent = cloneNode(*node.right);
+
+    auto exponentMinusOne =
+        makeBinary(BinaryOp::Subtract, cloneNode(*node.right), makeNumber("1"));
+
+    auto powerDerivative = makeBinary(BinaryOp::Power, cloneNode(*node.left),
+                                      std::move(exponentMinusOne));
+
+    auto firstFactor = makeBinary(BinaryOp::Multiply, std::move(exponent),
+                                  std::move(powerDerivative));
+
+    auto firstTerm = makeBinary(BinaryOp::Multiply, std::move(firstFactor),
+                                std::move(leftDerivative));
+
+    //
+    // Second term:
+    //
+    // u^v * log(u) * v'
+    //
+    auto power = makeBinary(BinaryOp::Power, cloneNode(*node.left),
+                            cloneNode(*node.right));
+
+    auto logarithm = makeFunction("log", cloneNode(*node.left));
+
+    auto secondFactor =
+        makeBinary(BinaryOp::Multiply, std::move(power), std::move(logarithm));
+
+    auto secondTerm = makeBinary(BinaryOp::Multiply, std::move(secondFactor),
+                                 std::move(rightDerivative));
+
+    return makeBinary(BinaryOp::Add, std::move(firstTerm),
+                      std::move(secondTerm));
 }
 
 }  // namespace numathap::backend::differentiate

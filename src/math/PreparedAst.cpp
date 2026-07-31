@@ -1,5 +1,7 @@
 #include "numathap/math/PreparedAst.hpp"
 
+#include <utility>
+
 #include "numathap/math/MathAstPrinter.hpp"
 #include "numathap/orchestration/Orchestrator.hpp"
 
@@ -12,6 +14,12 @@ PreparedAst::PreparedAst(const MathAst& mathAst,
 
     root_ = orchestrator.build(mathAst, environment);
 }
+
+PreparedAst::PreparedAst(std::string expression, MathNodePtr root,
+                         const config::MathEnvironment& environment)
+    : expression_(std::move(expression)),
+      root_(std::move(root)),
+      environment_(environment) {}
 
 const MathNode* PreparedAst::root() const noexcept { return root_.get(); }
 

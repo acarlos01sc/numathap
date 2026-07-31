@@ -4,12 +4,14 @@
  */
 
 #include "numathap/backend/differentiate/Differentiator.hpp"
-#include "numathap/backend/differentiate/CMathDifferentiator.hpp"
+
 #include <stdexcept>
+#include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
 
+#include "numathap/backend/differentiate/CMathDifferentiator.hpp"
 #include "numathap/dispatch/Dispatcher.hpp"
 #include "numathap/symbolic/Simplifier.hpp"
 
@@ -67,8 +69,8 @@ MathNodePtr makeNumber(std::string value) {
 
 }  // namespace
 
-MathAst Differentiator::differentiate(const PreparedAst& ast,
-                                      std::string_view variable) const {
+PreparedAst Differentiator::differentiate(const PreparedAst& ast,
+                                          std::string_view variable) const {
     if (ast.empty()) {
         throw std::logic_error(
             "Differentiator: cannot differentiate an empty PreparedAst.");
@@ -87,7 +89,19 @@ MathAst Differentiator::differentiate(const PreparedAst& ast,
     // Simplification is mandatory in the differentiation pipeline.
     //
     symbolic::Simplifier simplifier;
-    return simplifier.simplify(derivativeAst);
+    auto simplifiedAst = simplifier.simplify(derivativeAst);
+
+    //
+    // The simplified tree is already prepared. Clone it because MathAst owns
+    // its root and exposes it only through a const pointer.
+    //
+    auto preparedRoot = cloneNode(*simplifiedAst.root());
+
+    auto expression = std::string("d/d") + std::string(variable) + "(" +
+                      ast.expression() + ")";
+
+    return PreparedAst(std::move(expression), std::move(preparedRoot),
+                       ast.environment());
 }
 
 MathNodePtr Differentiator::differentiateNode(const MathNode& node,
@@ -225,10 +239,15 @@ MathNodePtr Differentiator::differentiateBinary(
     throw std::logic_error("Differentiator: unknown binary operator.");
 }
 
-MathNodePtr Differentiator::differentiatePower(const BinaryNode&,
-                                               std::string_view) const {
-    throw std::logic_error(
-        "Differentiator: power differentiation is not implemented.");
+MathNodePtr Differentiator::differentiatePower(
+    const BinaryNode& node, std::string_view variable) const {
+    auto baseDerivative = differentiateNode(*node.left, variable);
+    auto exponentDerivative = differentiateNode(*node.right, variable);
+
+    CMathDifferentiator differentiator;
+
+    return differentiator.differentiate(node, std::move(baseDerivative),
+                                        std::move(exponentDerivative));
 }
 
 MathNodePtr Differentiator::differentiateFunction(

@@ -51,6 +51,7 @@ option(NUMATHAP_INSTALL_CPP
 # Definição modular
 file(GLOB SOURCES_BACKEND CONFIGURE_DEPENDS "src/backend/*.cpp")
 file(GLOB SOURCES_INTEGRATE CONFIGURE_DEPENDS "src/backend/integrate/*.cpp")
+file(GLOB SOURCES_DIFFERENTIATE CONFIGURE_DEPENDS "src/backend/differentiate/*.cpp")
 file(GLOB SOURCES_CONFIG CONFIGURE_DEPENDS "src/config/*.cpp")
 file(GLOB SOURCES_CORE CONFIGURE_DEPENDS "src/core/*.cpp")
 file(GLOB SOURCES_DISPATCH CONFIGURE_DEPENDS "src/dispatch/*.cpp")
@@ -91,6 +92,9 @@ add_library(numathap
 
 	# integrate
 	${SOURCES_INTEGRATE}
+
+	# differentiate
+	${SOURCES_DIFFERENTIATE}
 )
 
 # Public modern name
@@ -252,6 +256,35 @@ add_test(
 target_compile_definitions(TEST_integrate_eval
 	PRIVATE NUMATHAP_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/backend"
 )
+
+
+#----------------------------------------------------------
+# TEST_differentiate
+#----------------------------------------------------------
+
+add_executable(TEST_differentiate
+	tests/backend/TEST_differentiate.cpp
+)
+
+target_include_directories(TEST_differentiate
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
+		${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(TEST_differentiate
+	PRIVATE numathap
+)
+
+add_test(
+	NAME TEST_differentiate
+	COMMAND TEST_differentiate
+)
+
+target_compile_definitions(TEST_integrate_eval
+	PRIVATE NUMATHAP_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/tests/backend"
+)
+
 
 option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
 

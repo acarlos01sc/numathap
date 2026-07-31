@@ -34,14 +34,14 @@ class Differentiator {
      *
      * @param ast The prepared AST to differentiate.
      * @param variable The differentiation variable.
-     * @return A MathAst representing the simplified derivative.
+     * @return A PreparedAst representing the simplified derivative.
      *
      * @throws std::logic_error If the input AST is empty.
      * @throws std::invalid_argument If the differentiation variable is empty.
      */
     [[nodiscard]]
-    math::MathAst differentiate(const math::PreparedAst& ast,
-                                std::string_view variable) const;
+    math::PreparedAst differentiate(const math::PreparedAst& ast,
+                                    std::string_view variable) const;
 
    private:
     /**
@@ -97,15 +97,15 @@ class Differentiator {
     math::MathNodePtr differentiateFunction(const math::FunctionNode& node,
                                             std::string_view variable) const;
 
-
     /**
      * @brief Differentiates a power expression.
      *
-     * Function-specific rules are delegated to the configured mathematical
-     * differentiator.
+     * The derivatives of the base and exponent are computed recursively and
+     * passed to the configured mathematical differentiator, which constructs
+     * the general derivative rule for a power expression.
      */
     math::MathNodePtr differentiatePower(const math::BinaryNode& node,
-                                   std::string_view variable) const;
+                                         std::string_view variable) const;
 };
 
 }  // namespace numathap::backend::differentiate
