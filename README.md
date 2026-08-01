@@ -20,7 +20,7 @@
 
 # Numathap
 
-**Numathap** is a modern open-source numerical computing library written in C++, focused on numerical integration, limit computation, and scientific computing. The project combines high-performance native code with optional Python bindings, providing a flexible environment for both production applications and scientific prototyping.
+**Numathap** is a modern open-source numerical computing library written in C++, focused on numerical integration, symbolic differentiation, and scientific computing. The project combines high-performance native code with optional Python bindings, providing a flexible environment for both production applications and scientific prototyping.
 
 The library is designed around a modular architecture that separates expression parsing, symbolic transformations, and numerical evaluation, making it straightforward to extend with new algorithms while preserving a clean and stable public API.
 
@@ -34,9 +34,11 @@ The library is designed around a modular architecture that separates expression 
 # Features
 
 - Modern C++ implementation
-- Numerical expression parser
+- Mathematical expression parser
 - Efficient expression evaluation
 - Adaptive Simpson quadrature
+- Gauss-Kronrod 15-point quadrature
+- Symbolic differentiation
 - Python bindings
 - Modular and extensible architecture
 - Focus on numerical stability and correctness
@@ -58,7 +60,7 @@ auto expr = prepare("sin(x)");
 Context ctx;
 ctx.setInterval("x", "0", "pi");
 
-Value result = integrate(expr, "x", ctx);
+Value result = integrate(expr, "x", ctx); // default Algorithm is Adaptive Simpson
 
 std::cout << result << std::endl;
 ```
@@ -112,12 +114,13 @@ Numathap implements classical algorithms described in the numerical analysis lit
 
 ### Current implementation
 
+- Expression evaluation
 - Adaptive Simpson quadrature
+- Gauss-Kronrod 15 quadrature
+- Symbolic differentiation
 
 ### Planned algorithms
 
-- Gauss-Legendre quadrature
-- Gauss-Kronrod quadrature
 - Clenshaw-Curtis quadrature
 - Romberg integration
 - Additional numerical methods
@@ -132,17 +135,18 @@ Numathap is under active development.
 
 ### Implemented
 
-- Expression parser
-- Abstract syntax tree generation
+- Mathematical expression parser
+- AST generation
+- Symbolic differentiation
 - Expression evaluation
 - Adaptive Simpson integration
+- Gauss-Kronrod 15 integration
 - Python bindings
 - Configurable numerical environment
 
 ### Planned
 
 - Additional quadrature methods
-- Symbolic differentiation
 - Algebraic simplification
 - Additional mathematical utilities
 
@@ -164,6 +168,14 @@ It includes:
 - Architecture overview
 - Algorithm descriptions
 - Implementation notes
+
+---
+
+# Mathematical Notes
+
+In addition to the API reference, the documentation contains short mathematical notes describing the numerical methods implemented in Numathap.
+
+These notes introduce the theory, motivation, and practical aspects of algorithms such as [Adaptive Simpson](docs/AdaptiveSimpson.md) and [Gauss–Kronrod quadrature](docs/Gauss-Kronrod15.md), providing readers with both implementation details and the mathematical intuition behind them.
 
 ---
 
@@ -203,6 +215,14 @@ All architectural decisions, implementations, validations, and final technical c
 The project provides an installable C++ SDK based on CMake.
 
 See [C++ SDK documentation](docs/cpp-sdk.md) for installation and usage instructions.
+
+---
+
+## Python
+
+Numathap can be installed via `pip install numathap`
+
+See [Python documentation](docs/python_user.md) for more details.
 
 ---
 

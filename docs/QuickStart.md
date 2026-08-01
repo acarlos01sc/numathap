@@ -1,4 +1,4 @@
-# Overview
+# Introduction
 
 **numathap** is designed to provide a simple and intuitive interface for numerical mathematics. Users write mathematical expressions as strings, and the library transforms them into an internal representation that can be efficiently evaluated by different numerical algorithms.
 
@@ -13,6 +13,7 @@ A numerical computation typically consists of the following stages:
 - **Computation** – Executes the desired numerical operation. Currently, the library provides:
   - **evaluate()** – Evaluates an expression.
   - **integrate()** – Computes a definite integral.
+  - **differentiate()** - Builds a symbolic derivative AST.
 
 # Simple Examples
 
@@ -39,6 +40,11 @@ int main()
     auto area = integrate(expr, "x", ctx);
     std::cout << "Integral: " << area << '\n';
 
+    auto expr_diff = differentiate(expr,"x");
+    ctx.setValue("x","pi/2");
+    auto dif = evaluate(expr_diff,ctx);
+    std::cout << "Differentiate at point pi/2 : " << dif << '\n';
+
     return 0;
 }
 ```
@@ -58,4 +64,9 @@ print("Evaluation:", np.evaluate(expr, ctx))
 ctx.set_interval("x", "0", "pi/2")
 
 print("Integral:", np.integrate(expr, "x", ctx))
+
+expr_diff = np.differentiate(expr,"x")
+ctx.set_value("x","pi/2")
+print("Differentiate at point pi/2 : ",np.evaluate(expr_diff,ctx))
+
 ```
