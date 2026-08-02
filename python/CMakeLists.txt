@@ -52,6 +52,8 @@ install(
 install(
     FILES
         ${CMAKE_CURRENT_SOURCE_DIR}/numathap/__init__.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/numathap/__init__.pyi
+        ${CMAKE_CURRENT_SOURCE_DIR}/numathap/py.typed
     DESTINATION
         numathap
 )

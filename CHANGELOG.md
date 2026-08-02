@@ -3,6 +3,8 @@
 ## Release v0.1.5
 
 - Improved the symbolic simplifier by recognizing the identity `x - x = 0`.
+- Added comprehensive Python type stubs (`__init__.pyi`) for the public API.
+
 
 ## Release v0.1.4
 
