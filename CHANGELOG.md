@@ -2,6 +2,8 @@
 
 ## Release v0.1.5
 
+- Improved the symbolic simplifier by recognizing the identity `x - x = 0`.
+
 ## Release v0.1.4
 
 - Implemented the Gauss-Kronrod 15 (GK15) algorithm for `integrate`.

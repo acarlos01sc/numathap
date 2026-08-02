@@ -121,6 +121,10 @@ MathNodePtr Simplifier::simplifyBinaryNode(BinaryOp op, MathNodePtr left,
 
         case BinaryOp::Subtract:
 
+            if (equivalent(*left, *right)) {
+                return std::make_unique<NumberNode>("0");
+            }
+
             if (isZero(*right)) return left;
 
             if (isZero(*left))
