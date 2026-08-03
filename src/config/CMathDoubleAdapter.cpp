@@ -5,6 +5,23 @@
 #include <numbers>
 #include <stdexcept>
 
+namespace {
+
+double factorial(double x) {
+    if (!std::isfinite(x)) {
+        throw std::domain_error("factorial argument must be finite");
+    }
+
+    if (x < 0.0 || std::floor(x) != x) {
+        throw std::domain_error(
+            "factorial is only defined for non-negative integers");
+    }
+
+    return std::tgamma(x + 1.0);
+}
+
+}  // namespace
+
 namespace numathap::config {
 
 namespace {
@@ -130,6 +147,11 @@ Value CMathDoubleAdapter::callFunction(std::string_view function,
     if (function == "erfc") {
         expectArguments(function, arguments, 1);
         return makeValue(std::erfc(toDouble(arguments[0])));
+    }
+
+    if (function == "factorial") {
+        expectArguments(function, arguments, 1);
+        return makeValue(factorial(toDouble(arguments[0])));
     }
 
     if (function == "tgamma") {

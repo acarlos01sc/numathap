@@ -6,6 +6,7 @@
 
 #include "numathap/config/MathAdapter.hpp"
 
+
 namespace numathap::config {
 
 /**

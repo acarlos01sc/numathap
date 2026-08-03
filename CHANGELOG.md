@@ -4,6 +4,7 @@
 
 - Improved the symbolic simplifier by recognizing the identity `x - x = 0`.
 - Added comprehensive Python type stubs (`__init__.pyi`) for the public API.
+- Implemented factorial function using ! symbol.
 
 
 ## Release v0.1.4
