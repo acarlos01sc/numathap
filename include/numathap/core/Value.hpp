@@ -5,6 +5,8 @@
 #pragma once
 
 #include <ostream>
+#include <string>
+#include <string_view>
 
 #include "numathap/numeric/Real.hpp"
 
@@ -62,7 +64,7 @@ class Value {
 
     [[nodiscard]]
     bool operator!=(const Value&) const noexcept;
-    
+
     [[nodiscard]]
     bool operator<(const Value&) const noexcept;
 
@@ -75,6 +77,24 @@ class Value {
     [[nodiscard]]
     bool operator>=(const Value&) const noexcept;
     ///@}
+
+    /**
+     * @brief Parses a textual representation into a Value.
+     *
+     * @param value Numeric value as text.
+     * @return The parsed Value.
+     * @throws std::invalid_argument if the text is not a valid number.
+     */
+    [[nodiscard]]
+    static Value parse(std::string_view value);
+
+    /**
+     * @brief Returns the canonical textual representation of the value.
+     *
+     * @return String representation suitable for NumberNode.
+     */
+    [[nodiscard]]
+    std::string str() const;
 
    private:
     numeric::Real

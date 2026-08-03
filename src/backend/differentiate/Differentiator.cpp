@@ -13,6 +13,7 @@
 
 #include "numathap/backend/differentiate/CMathDifferentiator.hpp"
 #include "numathap/dispatch/Dispatcher.hpp"
+#include "numathap/symbolic/ConstantFolder.hpp"
 #include "numathap/symbolic/Simplifier.hpp"
 
 namespace numathap::backend::differentiate {
@@ -86,10 +87,16 @@ PreparedAst Differentiator::differentiate(const PreparedAst& ast,
     MathAst derivativeAst(ast.expression(), std::move(derivativeRoot));
 
     //
+    // Constant folding is the first optimization pass.
+    //
+    symbolic::ConstantFolder constantFolder;
+    auto foldedAst = constantFolder.fold(derivativeAst);
+
+    //
     // Simplification is mandatory in the differentiation pipeline.
     //
     symbolic::Simplifier simplifier;
-    auto simplifiedAst = simplifier.simplify(derivativeAst);
+    auto simplifiedAst = simplifier.simplify(foldedAst);
 
     //
     // The simplified tree is already prepared. Clone it because MathAst owns

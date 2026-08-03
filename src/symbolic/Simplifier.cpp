@@ -161,6 +161,15 @@ MathNodePtr Simplifier::simplifyBinaryNode(BinaryOp op, MathNodePtr left,
 
             break;
 
+        case BinaryOp::Power:
+
+            //
+            // x^1 -> x
+            //
+            if (isOne(*right)) return left;
+
+            break;
+
         default:
             break;
     }
