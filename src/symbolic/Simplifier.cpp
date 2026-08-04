@@ -4,6 +4,8 @@
 #include <utility>
 #include <vector>
 
+#include "numathap/core/Value.hpp"
+
 namespace numathap::symbolic {
 
 using namespace numathap::math;
@@ -180,13 +182,21 @@ MathNodePtr Simplifier::simplifyBinaryNode(BinaryOp op, MathNodePtr left,
 bool Simplifier::isZero(const MathNode& node) const {
     auto number = dynamic_cast<const NumberNode*>(&node);
 
-    return number != nullptr && number->value == "0";
+    if (number == nullptr) {
+        return false;
+    }
+
+    return core::Value::parse(number->value) == core::Value::parse("0");
 }
 
 bool Simplifier::isOne(const MathNode& node) const {
     auto number = dynamic_cast<const NumberNode*>(&node);
 
-    return number != nullptr && number->value == "1";
+    if (number == nullptr) {
+        return false;
+    }
+
+    return core::Value::parse(number->value) == core::Value::parse("1");
 }
 
 bool Simplifier::isUnaryMinusOne(const MathNode& node) const {
