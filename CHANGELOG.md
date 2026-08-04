@@ -7,6 +7,7 @@
 - Implemented factorial function using ! symbol.
 - Implemented Constant Folder and inserted in differentiate pipeline.
 - Included x^1 to x in Simplifier.
+- Improved the binding of the configure function.
 
 
 ## Release v0.1.4
