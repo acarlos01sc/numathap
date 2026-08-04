@@ -16,7 +16,9 @@ MathEnvironment::MathEnvironment(const MathEnvironment& other)
       adapter_(other.adapter_->clone()),
       capabilities_(other.capabilities_),
       integration_algorithm_(other.integration_algorithm_),
-      integration_algorithm_config_(other.integration_algorithm_config_) {}
+      integration_algorithm_config_(other.integration_algorithm_config_),
+      series_type_(other.series_type_),
+      series_config_(other.series_config_) {}
 
 MathEnvironment& MathEnvironment::operator=(const MathEnvironment& other) {
     if (this != &other) {
@@ -31,6 +33,10 @@ MathEnvironment& MathEnvironment::operator=(const MathEnvironment& other) {
         integration_algorithm_ = other.integration_algorithm_;
 
         integration_algorithm_config_ = other.integration_algorithm_config_;
+
+        series_type_ = other.series_type_;
+
+        series_config_ = other.series_config_;
     }
 
     return *this;
@@ -70,11 +76,26 @@ MathEnvironment::integrationAlgorithmConfig() const noexcept {
     return integration_algorithm_config_;
 }
 
+backend::series::SeriesType MathEnvironment::seriesType() const noexcept {
+    return series_type_;
+}
+
+const backend::series::SeriesConfig& MathEnvironment::seriesConfig()
+    const noexcept {
+    return series_config_;
+}
+
 void MathEnvironment::setIntegrationConfiguration(
     backend::integrate::Algorithm algorithm,
     backend::integrate::AlgorithmConfig config) {
     integration_algorithm_ = algorithm;
     integration_algorithm_config_ = std::move(config);
+}
+
+void MathEnvironment::setSeriesConfiguration(
+    backend::series::SeriesType type, backend::series::SeriesConfig config) {
+    series_type_ = type;
+    series_config_ = std::move(config);
 }
 
 }  // namespace numathap::config

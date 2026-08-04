@@ -29,6 +29,9 @@ pybind11_add_module(
 
     # Differentiate
     bindings/differentiate.cpp
+
+    # Series
+    bindings/series.cpp
 )
 
 set_target_properties(_numathap

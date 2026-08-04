@@ -9,6 +9,7 @@
 #include "numathap/config/configure.hpp"
 #include "numathap/backend/integrate/integrate.hpp"
 #include "numathap/backend/differentiate/differentiate.hpp"
+#include "numathap/backend/series/series.hpp"
 
 namespace numathap {
 
@@ -17,6 +18,7 @@ using math::prepare;
 using config::configure;
 using backend::integrate::integrate;
 using backend::differentiate::differentiate;
+using backend::series::series;
 using PreparedAst = math::PreparedAst;
 using MathEnvironment = config::MathEnvironment;
 using Context = core::Context;

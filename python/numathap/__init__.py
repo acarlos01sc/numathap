@@ -14,6 +14,7 @@ from ._numathap import (
     evaluate,
     integrate,
     differentiate,
+    series,
     prepare,
 )
 
@@ -33,5 +34,6 @@ __all__ = [
     "evaluate",
     "integrate",
     "differentiate",
+    "series",
     "prepare",
 ]

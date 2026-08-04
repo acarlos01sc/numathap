@@ -52,6 +52,7 @@ option(NUMATHAP_INSTALL_CPP
 file(GLOB SOURCES_BACKEND CONFIGURE_DEPENDS "src/backend/*.cpp")
 file(GLOB SOURCES_INTEGRATE CONFIGURE_DEPENDS "src/backend/integrate/*.cpp")
 file(GLOB SOURCES_DIFFERENTIATE CONFIGURE_DEPENDS "src/backend/differentiate/*.cpp")
+file(GLOB SOURCES_SERIES CONFIGURE_DEPENDS "src/backend/series/*.cpp")
 file(GLOB SOURCES_CONFIG CONFIGURE_DEPENDS "src/config/*.cpp")
 file(GLOB SOURCES_CORE CONFIGURE_DEPENDS "src/core/*.cpp")
 file(GLOB SOURCES_DISPATCH CONFIGURE_DEPENDS "src/dispatch/*.cpp")
@@ -95,6 +96,9 @@ add_library(numathap
 
 	# differentiate
 	${SOURCES_DIFFERENTIATE}
+
+	# series
+	${SOURCES_SERIES}
 )
 
 # Public modern name

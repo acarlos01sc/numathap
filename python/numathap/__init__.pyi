@@ -152,6 +152,7 @@ class Value:
     def real(self) -> float:
         ...
 
+
 def evaluate(
     expression: _PreparedAst,
     context: Context
@@ -160,6 +161,7 @@ def evaluate(
     Evaluate a prepared expression.
     """
     ...
+
 
 @overload
 def integrate(
@@ -179,6 +181,7 @@ def integrate(
 ) -> Value:
     ...
 
+
 def differentiate(
     expression: _PreparedAst,
     variable: str
@@ -186,10 +189,125 @@ def differentiate(
     ...
 
 
+@overload
+def series(
+    expression: _PreparedAst,
+    variable: str,
+    center: str
+) -> _PreparedAst:
+    """
+    Build a series expansion using the default environment.
+
+    Args:
+        expression:
+            Prepared mathematical expression.
+
+        variable:
+            Name of the expansion variable.
+
+        center:
+            Expansion center expression, such as "0" or "pi/2".
+
+    Returns:
+        Prepared expression containing the series expansion.
+    """
+    ...
+
+
+@overload
+def series(
+    expression: _PreparedAst,
+    variable: str,
+    center: str,
+    context: Context
+) -> _PreparedAst:
+    """
+    Build a series expansion using a custom context.
+
+    Args:
+        expression:
+            Prepared mathematical expression.
+
+        variable:
+            Name of the expansion variable.
+
+        center:
+            Expansion center expression.
+
+        context:
+            Context containing symbol values.
+
+    Returns:
+        Prepared expression containing the series expansion.
+    """
+    ...
+
+
+@overload
+def series(
+    expression: _PreparedAst,
+    variable: str,
+    center: str,
+    environment: MathEnvironment
+) -> _PreparedAst:
+    """
+    Build a series expansion using a custom environment.
+
+    Args:
+        expression:
+            Prepared mathematical expression.
+
+        variable:
+            Name of the expansion variable.
+
+        center:
+            Expansion center expression.
+
+        environment:
+            Environment containing series configuration.
+
+    Returns:
+        Prepared expression containing the series expansion.
+    """
+    ...
+
+
+@overload
+def series(
+    expression: _PreparedAst,
+    variable: str,
+    center: str,
+    context: Context,
+    environment: MathEnvironment
+) -> _PreparedAst:
+    """
+    Build a series expansion using a custom context and environment.
+
+    Args:
+        expression:
+            Prepared mathematical expression.
+
+        variable:
+            Name of the expansion variable.
+
+        center:
+            Expansion center expression.
+
+        context:
+            Context containing symbol values.
+
+        environment:
+            Environment containing series configuration.
+
+    Returns:
+        Prepared expression containing the series expansion.
+    """
+    ...
+
+
 class Algorithm(Enum):
     AdaptiveSimpson = ...
     GaussKronrod15 = ...
-
 
 
 class Capability(Enum):
@@ -203,6 +321,8 @@ class MathLibrary(Enum):
 class NumericType(Enum):
     Double = ...
 
+class SeriesType(Enum):
+    Taylor = ...
 
 class AdaptiveSimpsonConfig:
     tolerance: Value
@@ -213,3 +333,6 @@ class GaussKronrod15Config:
     absoluteTolerance: Value
     relativeTolerance: Value
     maxEvaluations: int
+
+class TaylorConfig:
+    order: int

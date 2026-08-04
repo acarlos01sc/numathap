@@ -16,6 +16,8 @@ void bindAlgorithm(py::module_& m);
 void bindIntegrate(py::module_& m);
 // Differentiate
 void bindDifferentiate(py::module_& m);
+// Series
+void bindSeries(py::module_& m);
 
 }  // namespace numathap::python
 
@@ -39,5 +41,8 @@ PYBIND11_MODULE(_numathap, m) {
 
     // Differentiate
     numathap::python::bindDifferentiate(m);
+
+    // Series
+    numathap::python::bindSeries(m);
     
 }

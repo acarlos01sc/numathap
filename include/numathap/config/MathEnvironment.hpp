@@ -9,6 +9,8 @@
 
 #include "numathap/backend/integrate/Algorithm.hpp"
 #include "numathap/backend/integrate/AlgorithmConfig.hpp"
+#include "numathap/backend/series/SeriesConfig.hpp"
+#include "numathap/backend/series/SeriesType.hpp"
 #include "numathap/config/Capability.hpp"
 #include "numathap/config/MathAdapter.hpp"
 #include "numathap/config/MathLibrary.hpp"
@@ -85,6 +87,25 @@ class MathEnvironment {
         const noexcept;
 
     /**
+     * @brief Gets the selected series type.
+     *
+     * @return The currently configured series type.
+     */
+    [[nodiscard]]
+    backend::series::SeriesType seriesType() const noexcept;
+
+    /**
+     * @brief Gets the configuration of the selected series type.
+     *
+     * The returned variant contains the configuration object corresponding
+     * to the currently selected series type.
+     *
+     * @return The current series configuration.
+     */
+    [[nodiscard]]
+    const backend::series::SeriesConfig& seriesConfig() const noexcept;
+
+    /**
      * @brief Enables a processing capability.
      *
      * Enabled capabilities are applied by the processing pipeline.
@@ -116,6 +137,9 @@ class MathEnvironment {
         backend::integrate::Algorithm algorithm,
         backend::integrate::AlgorithmConfig config);
 
+    void setSeriesConfiguration(backend::series::SeriesType type,
+                                backend::series::SeriesConfig config);
+
     MathLibrary math_library_{
         MathLibrary::CMath};  ///< Active math library backend.
 
@@ -132,6 +156,12 @@ class MathEnvironment {
 
     backend::integrate::AlgorithmConfig integration_algorithm_config_{
         backend::integrate::AdaptiveSimpsonConfig{}};
+
+    backend::series::SeriesType series_type_{
+        backend::series::SeriesType::Taylor};
+
+    backend::series::SeriesConfig series_config_{
+        backend::series::TaylorConfig{}};
 };
 
 }  // namespace numathap::config
