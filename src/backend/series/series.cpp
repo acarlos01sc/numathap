@@ -5,10 +5,10 @@
 
 #include "numathap/backend/series/series.hpp"
 
-
 #include <type_traits>
 #include <variant>
 
+#include "numathap/backend/BackendSupport.hpp"
 #include "numathap/backend/series/Taylor.hpp"
 #include "numathap/config/MathEnvironment.hpp"
 #include "numathap/core/Context.hpp"
@@ -26,8 +26,7 @@ math::PreparedAst series(const math::PreparedAst& prepared,
 }
 
 math::PreparedAst series(const math::PreparedAst& prepared,
-                         const std::string& variable,
-                         const std::string& center,
+                         const std::string& variable, const std::string& center,
                          const core::Context& context) {
     config::MathEnvironment environment;
 
@@ -35,8 +34,7 @@ math::PreparedAst series(const math::PreparedAst& prepared,
 }
 
 math::PreparedAst series(const math::PreparedAst& prepared,
-                         const std::string& variable,
-                         const std::string& center,
+                         const std::string& variable, const std::string& center,
                          const config::MathEnvironment& environment) {
     core::Context context;
 
@@ -44,11 +42,9 @@ math::PreparedAst series(const math::PreparedAst& prepared,
 }
 
 math::PreparedAst series(const math::PreparedAst& prepared,
-                         const std::string& variable,
-                         const std::string& center,
+                         const std::string& variable, const std::string& center,
                          const core::Context& context,
                          const config::MathEnvironment& environment) {
-    (void)context;
 
     return std::visit(
         [&](const auto& config) -> math::PreparedAst {
@@ -56,7 +52,9 @@ math::PreparedAst series(const math::PreparedAst& prepared,
 
             if constexpr (std::is_same_v<Config, TaylorConfig>) {
                 return Taylor::series(prepared, variable,
-                                      core::Value::parse(center), config);
+                                      BackendSupport::evaluateConstant(
+                                          center, context, environment),
+                                      config);
             } else {
                 static_assert(std::is_same_v<Config, void>,
                               "Unsupported series configuration.");

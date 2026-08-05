@@ -3,11 +3,9 @@
 #include <stdexcept>
 #include <vector>
 
-#include "numathap/backend/evaluate.hpp"
+#include "numathap/backend/BackendSupport.hpp"
 #include "numathap/config/MathAdapter.hpp"
 #include "numathap/dispatch/Dispatcher.hpp"
-#include "numathap/math/prepare.hpp"
-#include "numathap/numeric/Real.hpp"
 
 namespace numathap::backend {
 
@@ -45,7 +43,8 @@ core::Value Evaluator::dispatch(const math::MathNode& node) const {
 }
 
 core::Value Evaluator::operator()(const math::NumberNode& node) const {
-    return parseValue(node.value);
+    return BackendSupport::evaluateConstant(node.value, context_,
+                                            prepared_.environment());
 }
 
 core::Value Evaluator::operator()(const math::SymbolNode& node) const {
@@ -125,54 +124,8 @@ core::Value Evaluator::resolveSymbol(const std::string& symbol) const {
         return prepared_.environment().mathAdapter().resolveConstant(symbol);
     }
 
-    return parseValue(*definition);
-}
-
-core::Value Evaluator::parseValue(const std::string& text) const {
-    //
-    // 1. Literal numérico
-    //
-    try {
-        std::size_t pos = 0;
-
-        const auto value = std::stod(text, &pos);
-
-        if (pos == text.size()) {
-            return core::Value(numeric::Real::Storage(value));
-        }
-
-    } catch (...) {
-    }
-
-    //
-    // 2. Constante da biblioteca matemática
-    //
-    try {
-        return prepared_.environment().mathAdapter().resolveConstant(text);
-
-    } catch (...) {
-    }
-
-    //
-    // 3. Expressão constante
-    //
-    return evaluateConstantExpression(text);
-}
-
-core::Value Evaluator::evaluateConstantExpression(
-    const std::string& expression) const {
-    try {
-        auto prepared = math::prepare(expression, prepared_.environment());
-
-        core::Context emptyContext;
-
-        return backend::evaluate(prepared, emptyContext);
-
-    } catch (...) {
-        throw std::invalid_argument(
-            "Invalid numeric value or constant expression: \"" + expression +
-            "\"");
-    }
+    return BackendSupport::evaluateConstant(*definition, context_,
+                                            prepared_.environment());
 }
 
 }  // namespace numathap::backend
