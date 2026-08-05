@@ -1,5 +1,9 @@
 # Changelog
 
+## Release v0.1.6
+
+- Package corrections.
+
 ## Release v0.1.5
 
 - Improved the symbolic simplifier by recognizing the identity `x - x = 0`.
