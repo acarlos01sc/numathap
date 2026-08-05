@@ -318,7 +318,7 @@ if(NUMATHAP_INSTALL_CPP)
 	)
 
 	install(
-		FILES ${CMAKE_CURRENT_SOURCE_DIR}/docs/cpp_user.md
+		FILES ${CMAKE_CURRENT_SOURCE_DIR}/docs/developer/cpp_user.md
 		DESTINATION .
 		RENAME README.md
 	)
