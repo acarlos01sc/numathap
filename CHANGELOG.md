@@ -1,5 +1,17 @@
 # Changelog
 
+## Release v0.1.7
+
+- Improved the symbolic simplifier by recognizing the identity `x - x = 0`.
+- Added comprehensive Python type stubs (`__init__.pyi`) for the public API.
+- Implemented factorial function using ! symbol.
+- Implemented Constant Folder and inserted in differentiate pipeline.
+- Included x^1 to x in Simplifier.
+- Improved the binding of the configure function.
+- Taylor Series implemented via function `series`.
+- `series()` expansion center now accepts mathematical constants and constant expressions.
+- Fixed Python binding for `TaylorConfig` in `configure()`.
+
 ## Release v0.1.6
 
 - Package corrections.
