@@ -13,7 +13,8 @@ A numerical computation typically consists of the following stages:
 - **Computation** – Executes the desired numerical operation. Currently, the library provides:
   - **evaluate()** – Evaluates an expression.
   - **integrate()** – Computes a definite integral.
-  - **differentiate()** - Builds a symbolic derivative AST.
+  - **differentiate()** - Builds a symbolic derivative AST. Default algorithm is Adaptive Simpson.
+  - **series()** - Builds a symbolic series AST. The default is Taylor series type.
 
 # Simple Examples
 
@@ -43,7 +44,12 @@ int main()
     auto expr_diff = differentiate(expr,"x");
     ctx.setValue("x","pi/2");
     auto dif = evaluate(expr_diff,ctx);
-    std::cout << "Differentiate at point pi/2 : " << dif << '\n';
+    std::cout << "Differentiate at point pi/2: " << dif << '\n';
+
+    // Calculating via Taylor series
+    auto taylor = series(expr,"x","pi/2");
+    auto taylor_v = evaluate(taylor,ctx);
+    std::cout << "Calculus via Taylor series: " << taylor_v << 'n';
 
     return 0;
 }
@@ -59,14 +65,17 @@ expr = np.prepare("sin(x)")
 ctx = np.Context()
 ctx.set_value("x", "pi/2")
 
-print("Evaluation:", np.evaluate(expr, ctx))
+print("Evaluation: ", np.evaluate(expr, ctx))
 
 ctx.set_interval("x", "0", "pi/2")
 
-print("Integral:", np.integrate(expr, "x", ctx))
+print("Integral: ", np.integrate(expr, "x", ctx))
 
 expr_diff = np.differentiate(expr,"x")
 ctx.set_value("x","pi/2")
-print("Differentiate at point pi/2 : ",np.evaluate(expr_diff,ctx))
+print("Differentiate at point pi/2: ",np.evaluate(expr_diff,ctx))
+
+taylor = np.series(expr,"x","pi/2")
+print("Calculus via Taylor series: ",np.evaluate(taylor,ctx))
 
 ```
