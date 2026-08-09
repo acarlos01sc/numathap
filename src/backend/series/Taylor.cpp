@@ -19,6 +19,7 @@
 #include "numathap/math/MathNode.hpp"
 #include "numathap/math/PreparedAst.hpp"
 #include "numathap/symbolic/Simplifier.hpp"
+#include "numathap/symbolic/UltraSimplifier.hpp"
 
 namespace numathap::backend::series {
 
@@ -215,61 +216,115 @@ math::PreparedAst Taylor::series(const math::PreparedAst& prepared,
     context.setValue(variable, center.str());
 
     // f(center) — the degree-0 term.
-    core::Value valueAtCenter = numathap::backend::evaluate(prepared, context);
+    core::Value valueAtCenter =
+        numathap::backend::evaluate(prepared, context);
 
-    MathNodePtr expansion = buildTerm(valueAtCenter, variable, center, 0);
+    MathNodePtr expansion =
+        buildTerm(valueAtCenter, variable, center, 0);
 
     if (config.order > 0) {
-        // First derivative — subsequent ones are obtained by repeatedly
-        // differentiating the previous one.
+        //
+        // First derivative.
+        //
         math::PreparedAst derivative =
-            numathap::backend::differentiate::differentiate(prepared, variable);
+            numathap::backend::differentiate::differentiate(
+                prepared, variable);
 
-        for (std::size_t degree = 1; degree <= config.order; ++degree) {
-            if (degree > 1) {
-                derivative = numathap::backend::differentiate::differentiate(
-                    derivative, variable);
-            }
+        symbolic::UltraSimplifier ultraSimplifier;
 
-            // Count the nodes of the symbolic derivative before evaluating
-            // it. The derivative that reaches the limit is still used to
-            // construct its Taylor term.
-            const std::size_t derivativeNodes = countNodes(*derivative.root());
+        for (std::size_t degree = 1;
+             degree <= config.order;
+             ++degree) {
+            //
+            // Count the nodes of the current symbolic derivative.
+            //
+            const std::size_t derivativeNodes =
+                countNodes(*derivative.root());
 
+            //
+            // Evaluate f^(degree)(center).
+            //
             core::Value derivativeAtCenter =
                 numathap::backend::evaluate(derivative, context);
 
+            //
+            // Add the current Taylor term.
+            //
             expansion = std::make_unique<BinaryNode>(
-                BinaryOp::Add, std::move(expansion),
-                buildTerm(derivativeAtCenter, variable, center, degree));
+                BinaryOp::Add,
+                std::move(expansion),
+                buildTerm(derivativeAtCenter,
+                          variable,
+                          center,
+                          degree));
 
-            // The current term has already been included. If this derivative
-            // reached the configured limit, stop the expansion.
+            //
+            // The current derivative has already been used.
+            // Do not generate the next derivative if the limit
+            // has been reached.
+            //
             if (derivativeNodes >= config.maxDerivativeNodes) {
                 break;
             }
+
+            //
+            // Convert PreparedAst -> MathAst so that UltraSimplifier
+            // can simplify the symbolic derivative tree.
+            //
+            math::MathAst derivativeAst(
+                derivative.expression(),
+                cloneNode(*derivative.root()));
+
+            //
+            // Reduce the current derivative before using it as the
+            // input to the next symbolic differentiation.
+            //
+            auto simplifiedDerivativeAst =
+                ultraSimplifier.simplify(derivativeAst);
+
+            //
+            // Convert MathAst -> PreparedAst.
+            //
+            derivative = math::PreparedAst(
+                simplifiedDerivativeAst.expression(),
+                cloneNode(*simplifiedDerivativeAst.root()),
+                derivative.environment());
+
+            //
+            // Generate the next derivative from the simplified tree.
+            //
+            derivative =
+                numathap::backend::differentiate::differentiate(
+                    derivative, variable);
         }
     }
 
     //
-    // Simplification is the final optimization pass.
+    // Final simplification of the generated Taylor expression.
     //
-    math::MathAst expansionAst(prepared.expression(), std::move(expansion));
+    math::MathAst expansionAst(
+        prepared.expression(),
+        std::move(expansion));
 
     symbolic::Simplifier simplifier;
-    auto simplifiedAst = simplifier.simplify(expansionAst);
+    auto simplifiedAst =
+        simplifier.simplify(expansionAst);
 
     //
     // Clone the simplified tree because MathAst owns its root.
     //
-    auto preparedRoot = cloneNode(*simplifiedAst.root());
+    auto preparedRoot =
+        cloneNode(*simplifiedAst.root());
 
-    std::string expression = "taylor(" + prepared.expression() + ", " +
-                             variable + ", " + center.str() + ", " +
-                             std::to_string(config.order) + ")";
+    std::string expression =
+        "taylor(" + prepared.expression() + ", " +
+        variable + ", " + center.str() + ", " +
+        std::to_string(config.order) + ")";
 
-    return math::PreparedAst(std::move(expression), std::move(preparedRoot),
-                             prepared.environment());
+    return math::PreparedAst(
+        std::move(expression),
+        std::move(preparedRoot),
+        prepared.environment());
 }
 
 }  // namespace numathap::backend::series

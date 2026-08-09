@@ -13,6 +13,7 @@
 - Fixed Python binding for `TaylorConfig` in `configure()`.
 - Added resource protection to the Taylor series expansion, preventing excessive memory consumption.
 - maxDerivativeNodes in Taylor exposed do python.
+- Added UltraSimplifier do Taylor pipeline.
 
     ## Release v0.1.6
 
