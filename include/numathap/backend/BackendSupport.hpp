@@ -14,6 +14,7 @@
 #include "numathap/config/MathEnvironment.hpp"
 #include "numathap/core/Context.hpp"
 #include "numathap/core/Value.hpp"
+#include "numathap/math/MathNode.hpp"
 
 namespace numathap::backend {
 
@@ -50,9 +51,23 @@ class BackendSupport {
      */
     [[nodiscard]]
     static core::Value evaluateConstant(
-        const std::string& expression,
-        const core::Context& context,
+        const std::string& expression, const core::Context& context,
         const config::MathEnvironment& environment);
+
+    /**
+     * @brief Creates a deep copy of a MathNode tree.
+     *
+     * Recursively clones every supported node type (NumberNode, SymbolNode,
+     * UnaryNode, BinaryNode, FunctionNode) via numathap::dispatch::Dispatcher,
+     * producing a tree that is structurally identical to and fully
+     * independent from @p node.
+     *
+     * @param node Root of the tree to clone.
+     *
+     * @return A new MathNode tree, structurally identical to @p node.
+     */
+    [[nodiscard]]
+    static math::MathNodePtr cloneNode(const math::MathNode& node);
 };
 
 }  // namespace numathap::backend

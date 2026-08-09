@@ -2,6 +2,10 @@
 
 ## Release v0.1.7
 
+- cloneNode centralized in BackendSupport.
+
+## Release v0.1.7
+
 - Improved the symbolic simplifier by recognizing the identity `x - x = 0`.
 - Added comprehensive Python type stubs (`__init__.pyi`) for the public API.
 - Implemented factorial function using ! symbol.
@@ -15,7 +19,7 @@
 - maxDerivativeNodes in Taylor exposed do python.
 - Added UltraSimplifier do Taylor pipeline.
 
-    ## Release v0.1.6
+## Release v0.1.6
 
 - Package corrections.
 
