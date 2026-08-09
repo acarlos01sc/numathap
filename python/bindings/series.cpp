@@ -11,10 +11,9 @@ namespace py = pybind11;
 
 namespace numathap::python {
 
-void bindSeries(py::module_& m)
-{
-  // SeriesType
-  py::enum_<numathap::backend::series::SeriesType>(m, "SeriesType",
+void bindSeries(py::module_& m) {
+    // SeriesType
+    py::enum_<numathap::backend::series::SeriesType>(m, "SeriesType",
                                                      R"pbdoc(
       Series expansion type to use.
 
@@ -23,43 +22,52 @@ void bindSeries(py::module_& m)
       use :class:`TaylorConfig` via :func:`configure` for fine-grained
       control.
       )pbdoc")
-      .value("Taylor", numathap::backend::series::SeriesType::Taylor,
-             R"pbdoc(
+        .value("Taylor", numathap::backend::series::SeriesType::Taylor,
+               R"pbdoc(
       Taylor series expansion. Configurable via :class:`TaylorConfig`.
       )pbdoc")
-      .export_values();
+        .export_values();
 
-  // Taylor series configuration
-  py::class_<numathap::backend::series::TaylorConfig>(m, "TaylorConfig",
+    // Taylor series configuration
+    py::class_<numathap::backend::series::TaylorConfig>(m, "TaylorConfig",
                                                         R"pbdoc(
       Tuning parameters for the Taylor series expansion.
 
       Pass an instance to :func:`configure` to build a MathEnvironment
       that expands series using these settings.
       )pbdoc")
-      .def(py::init<>(),
-           R"pbdoc(
+        .def(py::init<>(),
+             R"pbdoc(
       Create a TaylorConfig with the default expansion order.
       )pbdoc")
-      .def_readwrite("order", &numathap::backend::series::TaylorConfig::order,
-                      R"pbdoc(
+        .def_readwrite("order", &numathap::backend::series::TaylorConfig::order,
+                       R"pbdoc(
       int: Number of terms of the expansion (i.e. the highest degree
       retained). Higher values mean a more accurate approximation at
       the cost of more computation.
-      )pbdoc");
+      )pbdoc")
+        .def_readwrite(
+            "maxDerivativeNodes",
+            &numathap::backend::series::TaylorConfig::maxDerivativeNodes,
+            R"pbdoc(
+Maximum number of AST nodes allowed in an intermediate derivative.
 
-  // series(expression, variable, center) — default environment
-  m.def(
-      "series",
-      [](const numathap::PreparedAst& expression,
-         const std::string& variable,
-         const std::string& center) {
-        return numathap::series(expression, variable, center);
-      },
-      py::arg("expression"),
-      py::arg("variable"),
-      py::arg("center"),
-      R"pbdoc(
+This limit prevents Taylor series generation from producing
+excessively large intermediate derivative trees. If the limit is
+exceeded, series generation may stop with an exception.
+
+int: Maximum number of nodes in a derivative AST.
+)pbdoc");
+
+    // series(expression, variable, center) — default environment
+    m.def(
+        "series",
+        [](const numathap::PreparedAst& expression, const std::string& variable,
+           const std::string& center) {
+            return numathap::series(expression, variable, center);
+        },
+        py::arg("expression"), py::arg("variable"), py::arg("center"),
+        R"pbdoc(
       Build a series expansion using the default environment.
 
       Generates a series expansion around the specified center. The
@@ -77,20 +85,16 @@ void bindSeries(py::module_& m)
           expansion.
       )pbdoc");
 
-  // series(expression, variable, center, context) — custom context
-  m.def(
-      "series",
-      [](const numathap::PreparedAst& expression,
-         const std::string& variable,
-         const std::string& center,
-         const numathap::Context& context) {
-        return numathap::series(expression, variable, center, context);
-      },
-      py::arg("expression"),
-      py::arg("variable"),
-      py::arg("center"),
-      py::arg("context"),
-      R"pbdoc(
+    // series(expression, variable, center, context) — custom context
+    m.def(
+        "series",
+        [](const numathap::PreparedAst& expression, const std::string& variable,
+           const std::string& center, const numathap::Context& context) {
+            return numathap::series(expression, variable, center, context);
+        },
+        py::arg("expression"), py::arg("variable"), py::arg("center"),
+        py::arg("context"),
+        R"pbdoc(
       Build a series expansion using a custom context.
 
       The context is used to resolve symbols required to evaluate the
@@ -109,20 +113,17 @@ void bindSeries(py::module_& m)
           expansion.
       )pbdoc");
 
-  // series(expression, variable, center, environment) — custom environment
-  m.def(
-      "series",
-      [](const numathap::PreparedAst& expression,
-         const std::string& variable,
-         const std::string& center,
-         const numathap::MathEnvironment& environment) {
-        return numathap::series(expression, variable, center, environment);
-      },
-      py::arg("expression"),
-      py::arg("variable"),
-      py::arg("center"),
-      py::arg("environment"),
-      R"pbdoc(
+    // series(expression, variable, center, environment) — custom environment
+    m.def(
+        "series",
+        [](const numathap::PreparedAst& expression, const std::string& variable,
+           const std::string& center,
+           const numathap::MathEnvironment& environment) {
+            return numathap::series(expression, variable, center, environment);
+        },
+        py::arg("expression"), py::arg("variable"), py::arg("center"),
+        py::arg("environment"),
+        R"pbdoc(
       Build a series expansion using a custom environment.
 
       The environment defines the active series type (see
@@ -141,23 +142,18 @@ void bindSeries(py::module_& m)
           expansion.
       )pbdoc");
 
-  // series(expression, variable, center, context, environment) — full control
-  m.def(
-      "series",
-      [](const numathap::PreparedAst& expression,
-         const std::string& variable,
-         const std::string& center,
-         const numathap::Context& context,
-         const numathap::MathEnvironment& environment) {
-        return numathap::series(expression, variable, center, context,
-                                 environment);
-      },
-      py::arg("expression"),
-      py::arg("variable"),
-      py::arg("center"),
-      py::arg("context"),
-      py::arg("environment"),
-      R"pbdoc(
+    // series(expression, variable, center, context, environment) — full control
+    m.def(
+        "series",
+        [](const numathap::PreparedAst& expression, const std::string& variable,
+           const std::string& center, const numathap::Context& context,
+           const numathap::MathEnvironment& environment) {
+            return numathap::series(expression, variable, center, context,
+                                    environment);
+        },
+        py::arg("expression"), py::arg("variable"), py::arg("center"),
+        py::arg("context"), py::arg("environment"),
+        R"pbdoc(
       Build a series expansion using a custom context and environment.
 
       Provides full control over symbol resolution (via ``context``)
@@ -177,4 +173,4 @@ void bindSeries(py::module_& m)
       )pbdoc");
 }
 
-} // namespace numathap::python
+}  // namespace numathap::python
