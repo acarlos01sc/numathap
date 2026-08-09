@@ -23,6 +23,7 @@ namespace numathap::backend::series {
  */
 struct TaylorConfig {
     std::size_t order = 10;
+    std::size_t maxDerivativeNodes = 50;
 };
 
 /**
