@@ -1,6 +1,6 @@
 # Changelog
 
-## Release v0.1.7
+## Release v0.1.8
 
 - cloneNode centralized in BackendSupport.
 
