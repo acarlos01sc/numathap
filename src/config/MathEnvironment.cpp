@@ -1,5 +1,6 @@
 #include "numathap/config/MathEnvironment.hpp"
 
+#include <algorithm>
 #include <memory>
 #include <utility>
 
@@ -55,15 +56,24 @@ NumericType MathEnvironment::numericType() const noexcept {
 }
 
 void MathEnvironment::enableCapability(Capability capability) {
-    capabilities_.insert(capability);
+    if (!hasCapability(capability)) {
+        capabilities_.push_back(capability);
+    }
 }
 
 void MathEnvironment::disableCapability(Capability capability) {
-    capabilities_.erase(capability);
+    capabilities_.erase(
+        std::remove(capabilities_.begin(), capabilities_.end(), capability),
+        capabilities_.end());
 }
 
 bool MathEnvironment::hasCapability(Capability capability) const noexcept {
-    return capabilities_.contains(capability);
+    return std::find(capabilities_.begin(), capabilities_.end(), capability) !=
+           capabilities_.end();
+}
+
+const std::vector<Capability>& MathEnvironment::capabilities() const noexcept {
+    return capabilities_;
 }
 
 backend::integrate::Algorithm MathEnvironment::integrationAlgorithm()

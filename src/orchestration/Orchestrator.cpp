@@ -3,7 +3,9 @@
 #include <stdexcept>
 
 #include "numathap/config/Capability.hpp"
+#include "numathap/symbolic/ConstantFolder.hpp"
 #include "numathap/symbolic/Simplifier.hpp"
+#include "numathap/symbolic/UltraSimplifier.hpp"
 
 namespace numathap::orchestration {
 
@@ -26,18 +28,32 @@ MathNodePtr Orchestrator::build(
 
 MathAst Orchestrator::applyCapabilities(
     const MathAst& mathAst, const config::MathEnvironment& environment) const {
-    if (environment.hasCapability(config::Capability::Simplify)) {
-        symbolic::Simplifier simplifier;
+    MathAst currentAst(mathAst.expression(),
+                       buildNode(*mathAst.root(), environment));
 
-        return simplifier.simplify(mathAst);
+    for (const auto capability : environment.capabilities()) {
+        switch (capability) {
+            case config::Capability::ConstantFolder: {
+                symbolic::ConstantFolder folder;
+                currentAst = folder.fold(currentAst);
+                break;
+            }
+
+            case config::Capability::Simplify: {
+                symbolic::Simplifier simplifier;
+                currentAst = simplifier.simplify(currentAst);
+                break;
+            }
+
+            case config::Capability::UltraSimplifier: {
+                symbolic::UltraSimplifier simplifier;
+                currentAst = simplifier.simplify(currentAst);
+                break;
+            }
+        }
     }
 
-    //
-    // No capability enabled.
-    // Preserve the original structure.
-    //
-    return MathAst(mathAst.expression(),
-                   buildNode(*mathAst.root(), environment));
+    return currentAst;
 }
 
 MathNodePtr Orchestrator::buildNode(

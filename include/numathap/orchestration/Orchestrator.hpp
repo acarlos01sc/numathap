@@ -49,9 +49,11 @@ class Orchestrator {
     /**
      * @brief Applies the capabilities enabled in the environment.
      *
-     * A working copy of the original Math-AST is progressively transformed by
-     * the enabled capabilities. If no capabilities are enabled, the returned
-     * tree is simply a structural copy of the original.
+     * The capabilities are applied sequentially to the working AST
+     * in the same order in which they were configured.
+     *
+     * A working copy of the original Math-AST is progressively
+     * transformed by the enabled capabilities.
      *
      * @param mathAst The original immutable Math-AST.
      * @param environment Active processing environment.

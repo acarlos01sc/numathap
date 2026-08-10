@@ -5,7 +5,7 @@
 #pragma once
 
 #include <memory>
-#include <set>
+#include <vector>
 
 #include "numathap/backend/integrate/Algorithm.hpp"
 #include "numathap/backend/integrate/AlgorithmConfig.hpp"
@@ -130,6 +130,16 @@ class MathEnvironment {
     [[nodiscard]]
     bool hasCapability(Capability capability) const noexcept;
 
+    /**
+     * @brief Gets the configured processing capabilities.
+     *
+     * The capabilities are returned in the order in which they were enabled.
+     *
+     * @return The configured processing capability sequence.
+     */
+    [[nodiscard]]
+    const std::vector<Capability>& capabilities() const noexcept;
+
    private:
     friend class Configurator;
 
@@ -149,7 +159,7 @@ class MathEnvironment {
     std::unique_ptr<MathAdapter>
         adapter_;  ///< Unique pointer to the current adapter.
 
-    std::set<Capability> capabilities_;  ///< Enabled processing capabilities.
+    std::vector<Capability> capabilities_;    ///< Enabled processing capabilities in configuration order.
 
     backend::integrate::Algorithm integration_algorithm_{
         backend::integrate::Algorithm::AdaptiveSimpson};
