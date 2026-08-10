@@ -71,6 +71,15 @@ class Configurator {
     [[nodiscard]]
     bool hasCapability(Capability capability) const noexcept;
 
+    /**
+     * @brief Enables a processing capability.
+     *
+     * The capability is appended to the configured processing pipeline.
+     * The order in which capabilities are applied is the order in which
+     * they are configured.
+     *
+     * @param capability Capability to enable.
+     */
     void apply(Capability capability);
 
     /**

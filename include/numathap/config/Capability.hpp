@@ -17,12 +17,19 @@ namespace numathap::config {
  */
 enum class Capability {
     /**
-     * @brief Enables the expression simplify to optimize the AST.
-     *
-     * When active, the simplify reduces the complexity of mathematical
-     * expressions by applying algebraic identities and constant folding.
+     * @brief Enables constant folding on the Math-AST.
      */
-    Simplify
+    ConstantFolder,
+
+    /**
+     * @brief Enables algebraic simplification of the Math-AST.
+     */
+    Simplify,
+
+    /**
+     * @brief Enables advanced algebraic simplification of the Math-AST.
+     */
+    UltraSimplifier
 };
 
 }  // namespace numathap::config
