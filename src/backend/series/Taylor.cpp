@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "numathap/backend/BackendSupport.hpp"
@@ -40,10 +41,11 @@ using namespace math;
  *        of degree >= 1.
  */
 MathNodePtr buildOffsetNode(const std::string& variable,
-                             const core::Value& center) {
-  return std::make_unique<BinaryNode>(
-      BinaryOp::Subtract, std::make_unique<SymbolNode>(variable),
-      std::make_unique<NumberNode>(center.str()));
+                            const core::Value& center) {
+    return std::make_unique<BinaryNode>(
+        BinaryOp::Subtract,
+        std::make_unique<SymbolNode>(variable),
+        std::make_unique<NumberNode>(center.str()));
 }
 
 /**
@@ -58,15 +60,19 @@ MathNodePtr buildOffsetNode(const std::string& variable,
  * @return MathNode representing factorial(degree).
  */
 MathNodePtr buildFactorialNode(std::size_t degree) {
-  std::vector<MathNodePtr> arguments;
-  arguments.push_back(std::make_unique<NumberNode>(std::to_string(degree)));
-  return std::make_unique<FunctionNode>("factorial", std::move(arguments));
+    std::vector<MathNodePtr> arguments;
+    arguments.push_back(
+        std::make_unique<NumberNode>(std::to_string(degree)));
+
+    return std::make_unique<FunctionNode>(
+        "factorial",
+        std::move(arguments));
 }
 
 /**
  * @brief Builds the k-th term of the Taylor expansion:
  *
- *   (f^(k)(center) / k!) * (x - center)^k
+ * (f^(k)(center) / k!) * (x - center)^k
  *
  * For degree == 0 the term is simply f(center).
  * For degree == 1 the redundant exponent is omitted.
@@ -83,32 +89,43 @@ MathNodePtr buildFactorialNode(std::size_t degree) {
  * @return The MathNode tree for this term.
  */
 MathNodePtr buildTerm(const core::Value& derivativeAtCenter,
-                       const std::string& variable, const core::Value& center,
-                       std::size_t degree) {
-  MathNodePtr derivativeNode =
-      std::make_unique<NumberNode>(derivativeAtCenter.str());
+                      const std::string& variable,
+                      const core::Value& center,
+                      std::size_t degree) {
+    MathNodePtr derivativeNode =
+        std::make_unique<NumberNode>(derivativeAtCenter.str());
 
-  if (degree == 0) {
-    return derivativeNode;
-  }
+    if (degree == 0) {
+        return derivativeNode;
+    }
 
-  MathNodePtr factorialNode = buildFactorialNode(degree);
-  MathNodePtr coefficientNode = std::make_unique<BinaryNode>(
-      BinaryOp::Divide, std::move(derivativeNode), std::move(factorialNode));
+    MathNodePtr factorialNode = buildFactorialNode(degree);
 
-  MathNodePtr offset = buildOffsetNode(variable, center);
+    MathNodePtr coefficientNode =
+        std::make_unique<BinaryNode>(
+            BinaryOp::Divide,
+            std::move(derivativeNode),
+            std::move(factorialNode));
 
-  MathNodePtr powerNode;
-  if (degree == 1) {
-    powerNode = std::move(offset);
-  } else {
-    powerNode = std::make_unique<BinaryNode>(
-        BinaryOp::Power, std::move(offset),
-        std::make_unique<NumberNode>(std::to_string(degree)));
-  }
+    MathNodePtr offset = buildOffsetNode(variable, center);
 
-  return std::make_unique<BinaryNode>(
-      BinaryOp::Multiply, std::move(coefficientNode), std::move(powerNode));
+    MathNodePtr powerNode;
+
+    if (degree == 1) {
+        powerNode = std::move(offset);
+    } else {
+        powerNode =
+            std::make_unique<BinaryNode>(
+                BinaryOp::Power,
+                std::move(offset),
+                std::make_unique<NumberNode>(
+                    std::to_string(degree)));
+    }
+
+    return std::make_unique<BinaryNode>(
+        BinaryOp::Multiply,
+        std::move(coefficientNode),
+        std::move(powerNode));
 }
 
 /**
@@ -121,153 +138,174 @@ MathNodePtr buildTerm(const core::Value& derivativeAtCenter,
  * @return Total number of nodes in the tree.
  */
 std::size_t countNodes(const MathNode& node) {
-  return dispatch::Dispatcher::dispatch(
-      node, [](const auto& concreteNode) -> std::size_t {
-        using NodeType = std::decay_t<decltype(concreteNode)>;
+    return dispatch::Dispatcher::dispatch(
+        node,
+        [](const auto& concreteNode) -> std::size_t {
+            using NodeType = std::decay_t<decltype(concreteNode)>;
 
-        if constexpr (std::is_same_v<NodeType, NumberNode>) {
-          return 1;
-        } else if constexpr (std::is_same_v<NodeType, SymbolNode>) {
-          return 1;
-        } else if constexpr (std::is_same_v<NodeType, UnaryNode>) {
-          return 1 + countNodes(*concreteNode.operand);
-        } else if constexpr (std::is_same_v<NodeType, BinaryNode>) {
-          return 1 + countNodes(*concreteNode.left) +
-                 countNodes(*concreteNode.right);
-        } else if constexpr (std::is_same_v<NodeType, FunctionNode>) {
-          std::size_t count = 1;
-          for (const auto& argument : concreteNode.arguments) {
-            count += countNodes(*argument);
-          }
-          return count;
-        } else {
-          static_assert(std::is_same_v<NodeType, void>,
-                        "Taylor: unsupported MathNode type.");
-        }
-      });
+            if constexpr (std::is_same_v<NodeType, NumberNode>) {
+                return 1;
+
+            } else if constexpr (std::is_same_v<NodeType, SymbolNode>) {
+                return 1;
+
+            } else if constexpr (std::is_same_v<NodeType, UnaryNode>) {
+                return 1 + countNodes(*concreteNode.operand);
+
+            } else if constexpr (std::is_same_v<NodeType, BinaryNode>) {
+                return 1 + countNodes(*concreteNode.left) +
+                       countNodes(*concreteNode.right);
+
+            } else if constexpr (std::is_same_v<NodeType, FunctionNode>) {
+                std::size_t count = 1;
+
+                for (const auto& argument : concreteNode.arguments) {
+                    count += countNodes(*argument);
+                }
+
+                return count;
+
+            } else {
+                static_assert(
+                    std::is_same_v<NodeType, void>,
+                    "Taylor: unsupported MathNode type.");
+            }
+        });
 }
 
 }  // namespace
 
 math::PreparedAst Taylor::series(const math::PreparedAst& prepared,
-                                  const std::string& variable,
-                                  const core::Value& center,
-                                  const TaylorConfig& config) {
-  // A single-symbol context: derivatives of `prepared` are evaluated at
-  // `variable = center` to obtain the numerical value of each derivative.
-  core::Context context;
-  context.setValue(variable, center.str());
+                                 const std::string& variable,
+                                 const core::Value& center,
+                                 const TaylorConfig& config) {
+    // A single-symbol context: derivatives of `prepared` are evaluated at
+    // `variable = center` to obtain the numerical value of each derivative.
+    core::Context context;
+    context.setValue(variable, center.str());
 
-  // f(center) — the degree-0 term.
-  core::Value valueAtCenter =
-      numathap::backend::evaluate(prepared, context);
+    // f(center) — the degree-0 term.
+    core::Value valueAtCenter =
+        numathap::backend::evaluate(prepared, context);
 
-  MathNodePtr expansion =
-      buildTerm(valueAtCenter, variable, center, 0);
+    MathNodePtr expansion =
+        buildTerm(valueAtCenter, variable, center, 0);
 
-  if (config.order > 0) {
-    //
-    // First derivative.
-    //
-    math::PreparedAst derivative =
-        numathap::backend::differentiate::differentiate(
-            prepared, variable);
+    if (config.order > 0) {
+        //
+        // First derivative.
+        //
+        math::PreparedAst derivative =
+            numathap::backend::differentiate::differentiate(
+                prepared, variable);
 
-    symbolic::UltraSimplifier ultraSimplifier;
+        symbolic::UltraSimplifier ultraSimplifier;
 
-    for (std::size_t degree = 1;
-         degree <= config.order;
-         ++degree) {
-      //
-      // Count the nodes of the current symbolic derivative.
-      //
-      const std::size_t derivativeNodes =
-          countNodes(*derivative.root());
+        for (std::size_t degree = 1;
+             degree <= config.order;
+             ++degree) {
+            //
+            // Convert PreparedAst -> MathAst so that UltraSimplifier
+            // can simplify the symbolic derivative tree.
+            //
+            math::MathAst derivativeAst(
+                derivative.expression(),
+                BackendSupport::cloneNode(*derivative.root()));
 
-      //
-      // Evaluate f^(degree)(center).
-      //
-      core::Value derivativeAtCenter =
-          numathap::backend::evaluate(derivative, context);
+            //
+            // Reduce the current derivative before:
+            //
+            // 1. counting its nodes;
+            // 2. evaluating it at the expansion center;
+            // 3. generating the next derivative.
+            //
+            auto simplifiedDerivativeAst =
+                ultraSimplifier.simplify(derivativeAst);
 
-      //
-      // Add the current Taylor term.
-      //
-      expansion = std::make_unique<BinaryNode>(
-          BinaryOp::Add,
-          std::move(expansion),
-          buildTerm(derivativeAtCenter,
-                    variable,
-                    center,
-                    degree));
+            //
+            // Convert MathAst -> PreparedAst.
+            //
+            derivative = math::PreparedAst(
+                simplifiedDerivativeAst.expression(),
+                BackendSupport::cloneNode(
+                    *simplifiedDerivativeAst.root()),
+                derivative.environment());
 
-      //
-      // The current derivative has already been used.
-      // Do not generate the next derivative if the limit
-      // has been reached.
-      //
-      if (derivativeNodes >= config.maxDerivativeNodes) {
-        break;
-      }
+            //
+            // Count the nodes of the SIMPLIFIED symbolic derivative.
+            //
+            const std::size_t derivativeNodes =
+                countNodes(*derivative.root());
 
-      //
-      // Convert PreparedAst -> MathAst so that UltraSimplifier
-      // can simplify the symbolic derivative tree.
-      //
-      math::MathAst derivativeAst(
-          derivative.expression(),
-          BackendSupport::cloneNode(*derivative.root()));
+            //
+            // Evaluate f^(degree)(center).
+            //
+            core::Value derivativeAtCenter =
+                numathap::backend::evaluate(
+                    derivative,
+                    context);
 
-      //
-      // Reduce the current derivative before using it as the
-      // input to the next symbolic differentiation.
-      //
-      auto simplifiedDerivativeAst =
-          ultraSimplifier.simplify(derivativeAst);
+            //
+            // Add the current Taylor term.
+            //
+            expansion =
+                std::make_unique<BinaryNode>(
+                    BinaryOp::Add,
+                    std::move(expansion),
+                    buildTerm(
+                        derivativeAtCenter,
+                        variable,
+                        center,
+                        degree));
 
-      //
-      // Convert MathAst -> PreparedAst.
-      //
-      derivative = math::PreparedAst(
-          simplifiedDerivativeAst.expression(),
-          BackendSupport::cloneNode(*simplifiedDerivativeAst.root()),
-          derivative.environment());
+            //
+            // The current derivative has already been used.
+            //
+            // Do not generate the next derivative if the number of
+            // nodes of the simplified derivative has reached the limit.
+            //
+            if (derivativeNodes >= config.maxDerivativeNodes) {
+                break;
+            }
 
-      //
-      // Generate the next derivative from the simplified tree.
-      //
-      derivative =
-          numathap::backend::differentiate::differentiate(
-              derivative, variable);
+            //
+            // Generate the next derivative from the simplified tree.
+            //
+            derivative =
+                numathap::backend::differentiate::differentiate(
+                    derivative,
+                    variable);
+        }
     }
-  }
 
-  //
-  // Final simplification of the generated Taylor expression.
-  //
-  math::MathAst expansionAst(
-      prepared.expression(),
-      std::move(expansion));
+    //
+    // Final simplification of the generated Taylor expression.
+    //
+    math::MathAst expansionAst(
+        prepared.expression(),
+        std::move(expansion));
 
-  symbolic::Simplifier simplifier;
-  auto simplifiedAst =
-      simplifier.simplify(expansionAst);
+    symbolic::Simplifier simplifier;
 
-  //
-  // Clone the simplified tree because MathAst owns its root.
-  //
-  auto preparedRoot =
-      BackendSupport::cloneNode(*simplifiedAst.root());
+    auto simplifiedAst =
+        simplifier.simplify(expansionAst);
 
-  std::string expression =
-      "taylor(" + prepared.expression() + ", " +
-      variable + ", " + center.str() + ", " +
-      std::to_string(config.order) + ")";
+    //
+    // Clone the simplified tree because MathAst owns its root.
+    //
+    auto preparedRoot =
+        BackendSupport::cloneNode(*simplifiedAst.root());
 
-  return math::PreparedAst(
-      std::move(expression),
-      std::move(preparedRoot),
-      prepared.environment());
+    std::string expression =
+        "taylor(" + prepared.expression() + ", " +
+        variable + ", " + center.str() + ", " +
+        std::to_string(config.order) + ")";
+
+    return math::PreparedAst(
+        std::move(expression),
+        std::move(preparedRoot),
+        prepared.environment());
 }
 
 }  // namespace numathap::backend::series
+
