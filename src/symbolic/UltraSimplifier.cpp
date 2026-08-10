@@ -5,7 +5,8 @@
 
 #include "numathap/symbolic/UltraSimplifier.hpp"
 
-#include <algorithm>
+#include <memory>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <type_traits>
@@ -25,7 +26,8 @@ using namespace numathap::backend;
 // Rational
 // ============================================================================
 
-UltraSimplifier::Rational::Rational(long long numerator, long long denominator)
+UltraSimplifier::Rational::Rational(long long numerator,
+                                    long long denominator)
     : numerator(numerator), denominator(denominator) {
     normalize();
 }
@@ -82,14 +84,16 @@ bool UltraSimplifier::Rational::isNegative() const noexcept {
 UltraSimplifier::Rational UltraSimplifier::Rational::operator+(
     const Rational& other) const {
     return Rational(
-        numerator * other.denominator + other.numerator * denominator,
+        numerator * other.denominator +
+            other.numerator * denominator,
         denominator * other.denominator);
 }
 
 UltraSimplifier::Rational UltraSimplifier::Rational::operator-(
     const Rational& other) const {
     return Rational(
-        numerator * other.denominator - other.numerator * denominator,
+        numerator * other.denominator -
+            other.numerator * denominator,
         denominator * other.denominator);
 }
 
@@ -99,7 +103,8 @@ UltraSimplifier::Rational UltraSimplifier::Rational::operator-() const {
 
 bool UltraSimplifier::Rational::operator==(
     const Rational& other) const noexcept {
-    return numerator == other.numerator && denominator == other.denominator;
+    return numerator == other.numerator &&
+           denominator == other.denominator;
 }
 
 // ============================================================================
@@ -120,7 +125,8 @@ MathAst UltraSimplifier::simplify(const MathAst& ast) const {
 
 MathNodePtr UltraSimplifier::simplifyNode(const MathNode& node) const {
     return dispatch::Dispatcher::dispatch(
-        node, [this](const auto& concreteNode) -> MathNodePtr {
+        node,
+        [this](const auto& concreteNode) -> MathNodePtr {
             using NodeType = std::decay_t<decltype(concreteNode)>;
 
             if constexpr (std::is_same_v<NodeType, NumberNode>) {
@@ -130,14 +136,16 @@ MathNodePtr UltraSimplifier::simplifyNode(const MathNode& node) const {
                 return std::make_unique<SymbolNode>(concreteNode.name);
 
             } else if constexpr (std::is_same_v<NodeType, UnaryNode>) {
-                auto operand = simplifyNode(*concreteNode.operand);
+                auto operand =
+                    simplifyNode(*concreteNode.operand);
 
                 if (concreteNode.op == UnaryOp::Plus) {
                     return operand;
                 }
 
-                return std::make_unique<UnaryNode>(concreteNode.op,
-                                                   std::move(operand));
+                return std::make_unique<UnaryNode>(
+                    concreteNode.op,
+                    std::move(operand));
 
             } else if constexpr (std::is_same_v<NodeType, BinaryNode>) {
                 return simplifyBinary(concreteNode);
@@ -146,13 +154,15 @@ MathNodePtr UltraSimplifier::simplifyNode(const MathNode& node) const {
                 return simplifyFunction(concreteNode);
 
             } else {
-                static_assert(std::is_same_v<NodeType, void>,
-                              "UltraSimplifier: unsupported MathNode type.");
+                static_assert(
+                    std::is_same_v<NodeType, void>,
+                    "UltraSimplifier: unsupported MathNode type.");
             }
         });
 }
 
-MathNodePtr UltraSimplifier::simplifyBinary(const BinaryNode& node) const {
+MathNodePtr UltraSimplifier::simplifyBinary(
+    const BinaryNode& node) const {
     auto lhs = simplifyNode(*node.left);
     auto rhs = simplifyNode(*node.right);
 
@@ -161,22 +171,28 @@ MathNodePtr UltraSimplifier::simplifyBinary(const BinaryNode& node) const {
             return normalizeAdd(std::move(lhs), std::move(rhs));
 
         case BinaryOp::Subtract:
-            return normalizeSubtract(std::move(lhs), std::move(rhs));
+            return normalizeSubtract(
+                std::move(lhs), std::move(rhs));
 
         case BinaryOp::Multiply:
-            return normalizeMultiply(std::move(lhs), std::move(rhs));
+            return normalizeMultiply(
+                std::move(lhs), std::move(rhs));
 
         case BinaryOp::Divide:
-            return normalizeDivide(std::move(lhs), std::move(rhs));
+            return normalizeDivide(
+                std::move(lhs), std::move(rhs));
 
         case BinaryOp::Power:
-            return normalizePower(std::move(lhs), std::move(rhs));
+            return normalizePower(
+                std::move(lhs), std::move(rhs));
     }
 
-    throw std::logic_error("UltraSimplifier: unknown binary operator.");
+    throw std::logic_error(
+        "UltraSimplifier: unknown binary operator.");
 }
 
-MathNodePtr UltraSimplifier::simplifyFunction(const FunctionNode& node) const {
+MathNodePtr UltraSimplifier::simplifyFunction(
+    const FunctionNode& node) const {
     return normalizeFunction(node);
 }
 
@@ -184,18 +200,24 @@ MathNodePtr UltraSimplifier::simplifyFunction(const FunctionNode& node) const {
 // Rational extraction / construction
 // ============================================================================
 
-std::optional<UltraSimplifier::Rational> UltraSimplifier::extractRational(
+std::optional<UltraSimplifier::Rational>
+UltraSimplifier::extractRational(
     const MathNode& node) const {
     return dispatch::Dispatcher::dispatch(
-        node, [this](const auto& concreteNode) -> std::optional<Rational> {
-            using NodeType = std::decay_t<decltype(concreteNode)>;
+        node,
+        [this](const auto& concreteNode)
+            -> std::optional<Rational> {
+            using NodeType =
+                std::decay_t<decltype(concreteNode)>;
 
             if constexpr (std::is_same_v<NodeType, NumberNode>) {
                 try {
                     std::size_t pos = 0;
 
                     const long long value =
-                        std::stoll(concreteNode.value, &pos);
+                        std::stoll(
+                            concreteNode.value,
+                            &pos);
 
                     if (pos != concreteNode.value.size()) {
                         return std::nullopt;
@@ -206,22 +228,29 @@ std::optional<UltraSimplifier::Rational> UltraSimplifier::extractRational(
                     return std::nullopt;
                 }
 
-            } else if constexpr (std::is_same_v<NodeType, BinaryNode>) {
+            } else if constexpr (
+                std::is_same_v<NodeType, BinaryNode>) {
                 if (concreteNode.op != BinaryOp::Divide) {
                     return std::nullopt;
                 }
 
-                const auto numerator = extractRational(*concreteNode.left);
+                const auto numerator =
+                    extractRational(*concreteNode.left);
 
-                const auto denominator = extractRational(*concreteNode.right);
+                const auto denominator =
+                    extractRational(*concreteNode.right);
 
-                if (!numerator || !denominator || denominator->isZero()) {
+                if (!numerator ||
+                    !denominator ||
+                    denominator->isZero()) {
                     return std::nullopt;
                 }
 
                 return Rational(
-                    numerator->numerator * denominator->denominator,
-                    numerator->denominator * denominator->numerator);
+                    numerator->numerator *
+                        denominator->denominator,
+                    numerator->denominator *
+                        denominator->numerator);
 
             } else {
                 return std::nullopt;
@@ -229,27 +258,34 @@ std::optional<UltraSimplifier::Rational> UltraSimplifier::extractRational(
         });
 }
 
-MathNodePtr UltraSimplifier::buildRational(const Rational& value) const {
+MathNodePtr UltraSimplifier::buildRational(
+    const Rational& value) const {
     if (value.denominator == 1) {
-        return std::make_unique<NumberNode>(std::to_string(value.numerator));
+        return std::make_unique<NumberNode>(
+            std::to_string(value.numerator));
     }
 
     auto numerator =
-        std::make_unique<NumberNode>(std::to_string(value.numerator));
+        std::make_unique<NumberNode>(
+            std::to_string(value.numerator));
 
     auto denominator =
-        std::make_unique<NumberNode>(std::to_string(value.denominator));
+        std::make_unique<NumberNode>(
+            std::to_string(value.denominator));
 
-    return std::make_unique<BinaryNode>(BinaryOp::Divide, std::move(numerator),
-                                        std::move(denominator));
+    return std::make_unique<BinaryNode>(
+        BinaryOp::Divide,
+        std::move(numerator),
+        std::move(denominator));
 }
 
 // ============================================================================
 // Addition / subtraction
 // ============================================================================
 
-MathNodePtr UltraSimplifier::normalizeAdd(MathNodePtr lhs,
-                                          MathNodePtr rhs) const {
+MathNodePtr UltraSimplifier::normalizeAdd(
+    MathNodePtr lhs,
+    MathNodePtr rhs) const {
     if (isZero(*lhs)) {
         return rhs;
     }
@@ -258,26 +294,32 @@ MathNodePtr UltraSimplifier::normalizeAdd(MathNodePtr lhs,
         return lhs;
     }
 
-    return std::make_unique<BinaryNode>(BinaryOp::Add, std::move(lhs),
-                                        std::move(rhs));
+    return std::make_unique<BinaryNode>(
+        BinaryOp::Add,
+        std::move(lhs),
+        std::move(rhs));
 }
 
-MathNodePtr UltraSimplifier::normalizeSubtract(MathNodePtr lhs,
-                                               MathNodePtr rhs) const {
+MathNodePtr UltraSimplifier::normalizeSubtract(
+    MathNodePtr lhs,
+    MathNodePtr rhs) const {
     if (isZero(*rhs)) {
         return lhs;
     }
 
-    return std::make_unique<BinaryNode>(BinaryOp::Subtract, std::move(lhs),
-                                        std::move(rhs));
+    return std::make_unique<BinaryNode>(
+        BinaryOp::Subtract,
+        std::move(lhs),
+        std::move(rhs));
 }
 
 // ============================================================================
 // Multiplication
 // ============================================================================
 
-MathNodePtr UltraSimplifier::normalizeMultiply(MathNodePtr lhs,
-                                               MathNodePtr rhs) const {
+MathNodePtr UltraSimplifier::normalizeMultiply(
+    MathNodePtr lhs,
+    MathNodePtr rhs) const {
     if (isZero(*lhs) || isZero(*rhs)) {
         return std::make_unique<NumberNode>("0");
     }
@@ -313,11 +355,14 @@ MathNodePtr UltraSimplifier::normalizeMultiply(MathNodePtr lhs,
 // Division
 // ============================================================================
 
-MathNodePtr UltraSimplifier::normalizeDivide(MathNodePtr lhs,
-                                             MathNodePtr rhs) const {
+MathNodePtr UltraSimplifier::normalizeDivide(
+    MathNodePtr lhs,
+    MathNodePtr rhs) const {
     if (isZero(*lhs)) {
-        return std::make_unique<BinaryNode>(BinaryOp::Divide, std::move(lhs),
-                                            std::move(rhs));
+        return std::make_unique<BinaryNode>(
+            BinaryOp::Divide,
+            std::move(lhs),
+            std::move(rhs));
     }
 
     if (isOne(*rhs)) {
@@ -328,26 +373,37 @@ MathNodePtr UltraSimplifier::normalizeDivide(MathNodePtr lhs,
     // (A + B) / C
     // (A - B) / C
     //
-    if (auto* binary = dynamic_cast<BinaryNode*>(lhs.get())) {
-        if (binary->op == BinaryOp::Add || binary->op == BinaryOp::Subtract) {
-            return distributeDivisionOverNumerator(std::move(lhs),
-                                                   std::move(rhs));
+    if (auto* binary =
+            dynamic_cast<BinaryNode*>(lhs.get())) {
+        if (binary->op == BinaryOp::Add ||
+            binary->op == BinaryOp::Subtract) {
+            return distributeDivisionOverNumerator(
+                std::move(lhs),
+                std::move(rhs));
         }
     }
 
     //
     // A / A^q -> A^(1-q)
     //
-    auto numeratorFactor = extractPowerFactor(*lhs);
+    auto numeratorFactor =
+        extractPowerFactor(*lhs);
 
-    auto denominatorFactor = extractPowerFactor(*rhs);
+    auto denominatorFactor =
+        extractPowerFactor(*rhs);
 
-    if (numeratorFactor && denominatorFactor &&
-        equivalent(*numeratorFactor->base, *denominatorFactor->base)) {
+    if (numeratorFactor &&
+        denominatorFactor &&
+        equivalent(
+            *numeratorFactor->base,
+            *denominatorFactor->base)) {
         const Rational exponent =
-            numeratorFactor->exponent - denominatorFactor->exponent;
+            numeratorFactor->exponent -
+            denominatorFactor->exponent;
 
-        return buildPowerFactor(std::move(numeratorFactor->base), exponent);
+        return buildPowerFactor(
+            std::move(numeratorFactor->base),
+            exponent);
     }
 
     //
@@ -357,16 +413,21 @@ MathNodePtr UltraSimplifier::normalizeDivide(MathNodePtr lhs,
     //
     auto inverse = buildInverse(std::move(rhs));
 
-    return normalizeMultiply(std::move(lhs), std::move(inverse));
+    return normalizeMultiply(
+        std::move(lhs),
+        std::move(inverse));
 }
 
 MathNodePtr UltraSimplifier::distributeDivisionOverNumerator(
-    MathNodePtr numerator, MathNodePtr denominator) const {
-    auto* binary = dynamic_cast<BinaryNode*>(numerator.get());
+    MathNodePtr numerator,
+    MathNodePtr denominator) const {
+    auto* binary =
+        dynamic_cast<BinaryNode*>(numerator.get());
 
     if (binary == nullptr) {
-        return normalizeMultiply(std::move(numerator),
-                                 buildInverse(std::move(denominator)));
+        return normalizeMultiply(
+            std::move(numerator),
+            buildInverse(std::move(denominator)));
     }
 
     const BinaryOp op = binary->op;
@@ -374,69 +435,147 @@ MathNodePtr UltraSimplifier::distributeDivisionOverNumerator(
     auto left = std::move(binary->left);
     auto right = std::move(binary->right);
 
-    auto denominatorInverse = buildInverse(std::move(denominator));
+    auto denominatorInverse =
+        buildInverse(std::move(denominator));
 
     auto leftTerm = normalizeMultiply(
-        std::move(left), BackendSupport::cloneNode(*denominatorInverse));
+        std::move(left),
+        BackendSupport::cloneNode(*denominatorInverse));
 
-    auto rightTerm =
-        normalizeMultiply(std::move(right), std::move(denominatorInverse));
+    auto rightTerm = normalizeMultiply(
+        std::move(right),
+        std::move(denominatorInverse));
 
     if (op == BinaryOp::Add) {
-        return normalizeAdd(std::move(leftTerm), std::move(rightTerm));
+        return normalizeAdd(
+            std::move(leftTerm),
+            std::move(rightTerm));
     }
 
-    return normalizeSubtract(std::move(leftTerm), std::move(rightTerm));
+    return normalizeSubtract(
+        std::move(leftTerm),
+        std::move(rightTerm));
 }
 
-MathNodePtr UltraSimplifier::buildInverse(MathNodePtr node) const {
+MathNodePtr UltraSimplifier::buildInverse(
+    MathNodePtr node) const {
     //
     // If X is already X^q, invert its exponent directly.
     //
     auto factor = extractPowerFactor(*node);
 
     if (factor) {
-        return buildPowerFactor(std::move(factor->base), -factor->exponent);
+        return buildPowerFactor(
+            std::move(factor->base),
+            -factor->exponent);
     }
 
-    return buildPowerFactor(std::move(node), Rational(-1));
+    return buildPowerFactor(
+        std::move(node),
+        Rational(-1));
 }
 
 // ============================================================================
 // Powers
 // ============================================================================
 
-MathNodePtr UltraSimplifier::normalizePower(MathNodePtr base,
-                                            MathNodePtr exponent) const {
-    const auto rational = extractRational(*exponent);
+MathNodePtr UltraSimplifier::normalizePower(
+    MathNodePtr base,
+    MathNodePtr exponent) const {
+    const auto rational =
+        extractRational(*exponent);
 
     if (!rational) {
-        return std::make_unique<BinaryNode>(BinaryOp::Power, std::move(base),
-                                            std::move(exponent));
+        return std::make_unique<BinaryNode>(
+            BinaryOp::Power,
+            std::move(base),
+            std::move(exponent));
     }
 
-    return buildPowerFactor(std::move(base), *rational);
+    /*
+     * Power of a power:
+     *
+     *     (A^p)^n -> A^(p*n)
+     *
+     * This transformation is intentionally restricted to a
+     * positive integer outer exponent.
+     *
+     * The restriction avoids transformations such as:
+     *
+     *     (x^2)^(1/2) -> x
+     *
+     * which would not preserve the real-valued meaning because
+     * the left-hand side is |x|.
+     *
+     * For a positive integer n, however:
+     *
+     *     (A^p)^n = A^(p*n)
+     *
+     * on the domain where A^p is defined.
+     */
+    if (rational->denominator == 1 &&
+        rational->numerator > 0) {
+        auto* innerPower =
+            dynamic_cast<BinaryNode*>(base.get());
+
+        if (innerPower != nullptr &&
+            innerPower->op == BinaryOp::Power) {
+            const auto innerExponent =
+                extractRational(*innerPower->right);
+
+            if (innerExponent) {
+                const Rational combinedExponent(
+                    innerExponent->numerator *
+                        rational->numerator,
+                    innerExponent->denominator);
+
+                auto innerBase =
+                    std::move(innerPower->left);
+
+                return buildPowerFactor(
+                    std::move(innerBase),
+                    combinedExponent);
+            }
+        }
+    }
+
+    return buildPowerFactor(
+        std::move(base),
+        *rational);
 }
 
-MathNodePtr UltraSimplifier::combinePowers(MathNodePtr lhs,
-                                           MathNodePtr rhs) const {
-    auto leftFactor = extractPowerFactor(*lhs);
+MathNodePtr UltraSimplifier::combinePowers(
+    MathNodePtr lhs,
+    MathNodePtr rhs) const {
+    auto leftFactor =
+        extractPowerFactor(*lhs);
 
-    auto rightFactor = extractPowerFactor(*rhs);
+    auto rightFactor =
+        extractPowerFactor(*rhs);
 
     if (!leftFactor || !rightFactor) {
-        return std::make_unique<BinaryNode>(BinaryOp::Multiply, std::move(lhs),
-                                            std::move(rhs));
+        return std::make_unique<BinaryNode>(
+            BinaryOp::Multiply,
+            std::move(lhs),
+            std::move(rhs));
     }
 
-    if (!equivalent(*leftFactor->base, *rightFactor->base)) {
-        return std::make_unique<BinaryNode>(BinaryOp::Multiply, std::move(lhs),
-                                            std::move(rhs));
+    if (!equivalent(
+            *leftFactor->base,
+            *rightFactor->base)) {
+        return std::make_unique<BinaryNode>(
+            BinaryOp::Multiply,
+            std::move(lhs),
+            std::move(rhs));
     }
 
-    const Rational exponent = leftFactor->exponent + rightFactor->exponent;
+    const Rational exponent =
+        leftFactor->exponent +
+        rightFactor->exponent;
 
-    return buildPowerFactor(std::move(leftFactor->base), exponent);
+    return buildPowerFactor(
+        std::move(leftFactor->base),
+        exponent);
 }
 
 MathNodePtr UltraSimplifier::combinePowerFactors(
@@ -458,17 +597,21 @@ MathNodePtr UltraSimplifier::combinePowerFactors(
     std::vector<MathNodePtr> nonPowerFactors;
 
     for (auto& factor : factors) {
-        auto powerFactor = extractPowerFactor(*factor);
+        auto powerFactor =
+            extractPowerFactor(*factor);
 
         if (!powerFactor) {
-            nonPowerFactors.push_back(std::move(factor));
+            nonPowerFactors.push_back(
+                std::move(factor));
             continue;
         }
 
         bool found = false;
 
         for (auto& existing : accumulated) {
-            if (!equivalent(*existing.base, *powerFactor->base)) {
+            if (!equivalent(
+                    *existing.base,
+                    *powerFactor->base)) {
                 continue;
             }
 
@@ -485,21 +628,27 @@ MathNodePtr UltraSimplifier::combinePowerFactors(
              * Rational::operator+() performs the
              * exact fraction arithmetic.
              */
-            existing.exponent = existing.exponent + powerFactor->exponent;
+            existing.exponent =
+                existing.exponent +
+                powerFactor->exponent;
 
             found = true;
             break;
         }
 
         if (!found) {
-            accumulated.push_back(AccumulatedFactor{
-                std::move(powerFactor->base), powerFactor->exponent});
+            accumulated.push_back(
+                AccumulatedFactor{
+                    std::move(powerFactor->base),
+                    powerFactor->exponent});
         }
     }
 
     std::vector<MathNodePtr> result;
 
-    result.reserve(nonPowerFactors.size() + accumulated.size());
+    result.reserve(
+        nonPowerFactors.size() +
+        accumulated.size());
 
     //
     // Preserve factors whose exponents could not
@@ -525,7 +674,9 @@ MathNodePtr UltraSimplifier::combinePowerFactors(
         }
 
         result.push_back(
-            buildPowerFactor(std::move(entry.base), entry.exponent));
+            buildPowerFactor(
+                std::move(entry.base),
+                entry.exponent));
     }
 
     return buildProduct(std::move(result));
@@ -535,14 +686,21 @@ MathNodePtr UltraSimplifier::combinePowerFactors(
 // Factor collection
 // ============================================================================
 
-void UltraSimplifier::collectFactors(const MathNode& node,
-                                     std::vector<MathNodePtr>& factors) const {
-    const auto* binary = dynamic_cast<const BinaryNode*>(&node);
+void UltraSimplifier::collectFactors(
+    const MathNode& node,
+    std::vector<MathNodePtr>& factors) const {
+    const auto* binary =
+        dynamic_cast<const BinaryNode*>(&node);
 
-    if (binary != nullptr && binary->op == BinaryOp::Multiply) {
-        collectFactors(*binary->left, factors);
+    if (binary != nullptr &&
+        binary->op == BinaryOp::Multiply) {
+        collectFactors(
+            *binary->left,
+            factors);
 
-        collectFactors(*binary->right, factors);
+        collectFactors(
+            *binary->right,
+            factors);
 
         return;
     }
@@ -577,11 +735,17 @@ MathNodePtr UltraSimplifier::buildProduct(
         return std::move(filtered.front());
     }
 
-    MathNodePtr result = std::move(filtered.front());
+    MathNodePtr result =
+        std::move(filtered.front());
 
-    for (std::size_t i = 1; i < filtered.size(); ++i) {
-        result = std::make_unique<BinaryNode>(
-            BinaryOp::Multiply, std::move(result), std::move(filtered[i]));
+    for (std::size_t i = 1;
+         i < filtered.size();
+         ++i) {
+        result =
+            std::make_unique<BinaryNode>(
+                BinaryOp::Multiply,
+                std::move(result),
+                std::move(filtered[i]));
     }
 
     return result;
@@ -591,14 +755,21 @@ MathNodePtr UltraSimplifier::buildProduct(
 // Sum collection
 // ============================================================================
 
-void UltraSimplifier::collectTerms(const MathNode& node,
-                                   std::vector<MathNodePtr>& terms) const {
-    const auto* binary = dynamic_cast<const BinaryNode*>(&node);
+void UltraSimplifier::collectTerms(
+    const MathNode& node,
+    std::vector<MathNodePtr>& terms) const {
+    const auto* binary =
+        dynamic_cast<const BinaryNode*>(&node);
 
-    if (binary != nullptr && binary->op == BinaryOp::Add) {
-        collectTerms(*binary->left, terms);
+    if (binary != nullptr &&
+        binary->op == BinaryOp::Add) {
+        collectTerms(
+            *binary->left,
+            terms);
 
-        collectTerms(*binary->right, terms);
+        collectTerms(
+            *binary->right,
+            terms);
 
         return;
     }
@@ -606,7 +777,8 @@ void UltraSimplifier::collectTerms(const MathNode& node,
     terms.push_back(simplifyNode(node));
 }
 
-MathNodePtr UltraSimplifier::buildSum(std::vector<MathNodePtr> terms) const {
+MathNodePtr UltraSimplifier::buildSum(
+    std::vector<MathNodePtr> terms) const {
     if (terms.empty()) {
         return std::make_unique<NumberNode>("0");
     }
@@ -627,11 +799,17 @@ MathNodePtr UltraSimplifier::buildSum(std::vector<MathNodePtr> terms) const {
         return std::move(filtered.front());
     }
 
-    MathNodePtr result = std::move(filtered.front());
+    MathNodePtr result =
+        std::move(filtered.front());
 
-    for (std::size_t i = 1; i < filtered.size(); ++i) {
-        result = std::make_unique<BinaryNode>(BinaryOp::Add, std::move(result),
-                                              std::move(filtered[i]));
+    for (std::size_t i = 1;
+         i < filtered.size();
+         ++i) {
+        result =
+            std::make_unique<BinaryNode>(
+                BinaryOp::Add,
+                std::move(result),
+                std::move(filtered[i]));
     }
 
     return result;
@@ -641,28 +819,37 @@ MathNodePtr UltraSimplifier::buildSum(std::vector<MathNodePtr> terms) const {
 // Factor / power inspection
 // ============================================================================
 
-std::optional<UltraSimplifier::PowerFactor> UltraSimplifier::extractPowerFactor(
+std::optional<UltraSimplifier::PowerFactor>
+UltraSimplifier::extractPowerFactor(
     const MathNode& node) const {
-    const auto* binary = dynamic_cast<const BinaryNode*>(&node);
+    const auto* binary =
+        dynamic_cast<const BinaryNode*>(&node);
 
-    if (binary != nullptr && binary->op == BinaryOp::Power) {
-        auto exponent = extractRational(*binary->right);
+    if (binary != nullptr &&
+        binary->op == BinaryOp::Power) {
+        auto exponent =
+            extractRational(*binary->right);
 
         if (!exponent) {
             return std::nullopt;
         }
 
-        return PowerFactor{simplifyNode(*binary->left), *exponent};
+        return PowerFactor{
+            simplifyNode(*binary->left),
+            *exponent};
     }
 
     //
     // Any non-power factor is interpreted as base^1.
     //
-    return PowerFactor{simplifyNode(node), Rational(1)};
+    return PowerFactor{
+        simplifyNode(node),
+        Rational(1)};
 }
 
-MathNodePtr UltraSimplifier::buildPowerFactor(MathNodePtr base,
-                                              const Rational& exponent) const {
+MathNodePtr UltraSimplifier::buildPowerFactor(
+    MathNodePtr base,
+    const Rational& exponent) const {
     if (exponent.isZero()) {
         return std::make_unique<NumberNode>("1");
     }
@@ -671,89 +858,129 @@ MathNodePtr UltraSimplifier::buildPowerFactor(MathNodePtr base,
         return base;
     }
 
-    auto exponentNode = buildRational(exponent);
+    auto exponentNode =
+        buildRational(exponent);
 
-    return std::make_unique<BinaryNode>(BinaryOp::Power, std::move(base),
-                                        std::move(exponentNode));
+    return std::make_unique<BinaryNode>(
+        BinaryOp::Power,
+        std::move(base),
+        std::move(exponentNode));
 }
 
 // ============================================================================
 // Function normalization
 // ============================================================================
 
-MathNodePtr UltraSimplifier::normalizeFunction(const FunctionNode& node) const {
+MathNodePtr UltraSimplifier::normalizeFunction(
+    const FunctionNode& node) const {
     std::vector<MathNodePtr> arguments;
+
     arguments.reserve(node.arguments.size());
 
     for (const auto& argument : node.arguments) {
-        arguments.push_back(simplifyNode(*argument));
+        arguments.push_back(
+            simplifyNode(*argument));
     }
 
     //
     // sqrt(X) -> X^(1/2)
     //
-    if (node.name == "sqrt" && arguments.size() == 1) {
-        return buildPowerFactor(std::move(arguments.front()), Rational(1, 2));
+    if (node.name == "sqrt" &&
+        arguments.size() == 1) {
+        return buildPowerFactor(
+            std::move(arguments.front()),
+            Rational(1, 2));
     }
 
     //
     // cbrt(X) -> X^(1/3)
     //
-    if (node.name == "cbrt" && arguments.size() == 1) {
-        return buildPowerFactor(std::move(arguments.front()), Rational(1, 3));
+    if (node.name == "cbrt" &&
+        arguments.size() == 1) {
+        return buildPowerFactor(
+            std::move(arguments.front()),
+            Rational(1, 3));
     }
 
-    return std::make_unique<FunctionNode>(node.name, std::move(arguments));
+    return std::make_unique<FunctionNode>(
+        node.name,
+        std::move(arguments));
 }
 
 // ============================================================================
 // Structural utilities
 // ============================================================================
 
-bool UltraSimplifier::equivalent(const MathNode& lhs,
-                                 const MathNode& rhs) const {
+bool UltraSimplifier::equivalent(
+    const MathNode& lhs,
+    const MathNode& rhs) const {
     struct EquivalentVisitor {
         const UltraSimplifier* self;
         const MathNode& rhs;
 
-        bool operator()(const NumberNode& left) const {
-            const auto* right = dynamic_cast<const NumberNode*>(&rhs);
+        bool operator()(
+            const NumberNode& left) const {
+            const auto* right =
+                dynamic_cast<const NumberNode*>(&rhs);
 
-            return right != nullptr && left.value == right->value;
+            return right != nullptr &&
+                   left.value == right->value;
         }
 
-        bool operator()(const SymbolNode& left) const {
-            const auto* right = dynamic_cast<const SymbolNode*>(&rhs);
+        bool operator()(
+            const SymbolNode& left) const {
+            const auto* right =
+                dynamic_cast<const SymbolNode*>(&rhs);
 
-            return right != nullptr && left.name == right->name;
+            return right != nullptr &&
+                   left.name == right->name;
         }
 
-        bool operator()(const UnaryNode& left) const {
-            const auto* right = dynamic_cast<const UnaryNode*>(&rhs);
+        bool operator()(
+            const UnaryNode& left) const {
+            const auto* right =
+                dynamic_cast<const UnaryNode*>(&rhs);
 
-            return right != nullptr && left.op == right->op &&
-                   self->equivalent(*left.operand, *right->operand);
+            return right != nullptr &&
+                   left.op == right->op &&
+                   self->equivalent(
+                       *left.operand,
+                       *right->operand);
         }
 
-        bool operator()(const BinaryNode& left) const {
-            const auto* right = dynamic_cast<const BinaryNode*>(&rhs);
+        bool operator()(
+            const BinaryNode& left) const {
+            const auto* right =
+                dynamic_cast<const BinaryNode*>(&rhs);
 
-            return right != nullptr && left.op == right->op &&
-                   self->equivalent(*left.left, *right->left) &&
-                   self->equivalent(*left.right, *right->right);
+            return right != nullptr &&
+                   left.op == right->op &&
+                   self->equivalent(
+                       *left.left,
+                       *right->left) &&
+                   self->equivalent(
+                       *left.right,
+                       *right->right);
         }
 
-        bool operator()(const FunctionNode& left) const {
-            const auto* right = dynamic_cast<const FunctionNode*>(&rhs);
+        bool operator()(
+            const FunctionNode& left) const {
+            const auto* right =
+                dynamic_cast<const FunctionNode*>(&rhs);
 
-            if (right == nullptr || left.name != right->name ||
-                left.arguments.size() != right->arguments.size()) {
+            if (right == nullptr ||
+                left.name != right->name ||
+                left.arguments.size() !=
+                    right->arguments.size()) {
                 return false;
             }
 
-            for (std::size_t i = 0; i < left.arguments.size(); ++i) {
-                if (!self->equivalent(*left.arguments[i],
-                                      *right->arguments[i])) {
+            for (std::size_t i = 0;
+                 i < left.arguments.size();
+                 ++i) {
+                if (!self->equivalent(
+                        *left.arguments[i],
+                        *right->arguments[i])) {
                     return false;
                 }
             }
@@ -762,16 +989,23 @@ bool UltraSimplifier::equivalent(const MathNode& lhs,
         }
     };
 
-    return dispatch::Dispatcher::dispatch(lhs, EquivalentVisitor{this, rhs});
+    return dispatch::Dispatcher::dispatch(
+        lhs,
+        EquivalentVisitor{this, rhs});
 }
 
-bool UltraSimplifier::isZero(const MathNode& node) const {
+bool UltraSimplifier::isZero(
+    const MathNode& node) const {
     return dispatch::Dispatcher::dispatch(
-        node, [](const auto& concreteNode) -> bool {
-            using NodeType = std::decay_t<decltype(concreteNode)>;
+        node,
+        [](const auto& concreteNode) -> bool {
+            using NodeType =
+                std::decay_t<decltype(concreteNode)>;
 
-            if constexpr (std::is_same_v<NodeType, NumberNode>) {
-                return core::Value::parse(concreteNode.value) ==
+            if constexpr (
+                std::is_same_v<NodeType, NumberNode>) {
+                return core::Value::parse(
+                           concreteNode.value) ==
                        core::Value::parse("0");
 
             } else {
@@ -780,13 +1014,18 @@ bool UltraSimplifier::isZero(const MathNode& node) const {
         });
 }
 
-bool UltraSimplifier::isOne(const MathNode& node) const {
+bool UltraSimplifier::isOne(
+    const MathNode& node) const {
     return dispatch::Dispatcher::dispatch(
-        node, [](const auto& concreteNode) -> bool {
-            using NodeType = std::decay_t<decltype(concreteNode)>;
+        node,
+        [](const auto& concreteNode) -> bool {
+            using NodeType =
+                std::decay_t<decltype(concreteNode)>;
 
-            if constexpr (std::is_same_v<NodeType, NumberNode>) {
-                return core::Value::parse(concreteNode.value) ==
+            if constexpr (
+                std::is_same_v<NodeType, NumberNode>) {
+                return core::Value::parse(
+                           concreteNode.value) ==
                        core::Value::parse("1");
 
             } else {
@@ -796,3 +1035,4 @@ bool UltraSimplifier::isOne(const MathNode& node) const {
 }
 
 }  // namespace numathap::symbolic
+
