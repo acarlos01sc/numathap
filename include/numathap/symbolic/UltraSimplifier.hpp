@@ -1,124 +1,286 @@
-/**
- * @file UltraSimplifier.hpp
- * @brief Performs aggressive local algebraic simplifications on Math-ASTs.
- *
- * Unlike Simplifier, UltraSimplifier may apply transformations that can
- * change the global domain of an expression, such as cancelling common
- * factors in a quotient.
- *
- * It is intended for contexts such as Taylor-series construction, where
- * local algebraic equivalence is useful for controlling AST growth.
- */
-
 #pragma once
+
+#include <optional>
+#include <vector>
 
 #include "numathap/math/MathAst.hpp"
 #include "numathap/math/MathNode.hpp"
 
 namespace numathap::symbolic {
 
+using namespace numathap::math;
+
 /**
- * @brief Performs aggressive algebraic simplifications on a Math-AST.
+ * @brief Aggressive symbolic simplifier and expression normalizer.
  *
- * The original Math-AST is never modified. A new Math-AST is returned.
+ * UltraSimplifier performs algebraic transformations intended primarily
+ * to control AST growth during repeated symbolic differentiation.
  *
- * The first implementation focuses on cancellation of structurally
- * equivalent factors between the numerator and denominator.
+ * The normalization target is a sum of products of powers:
  *
- * Examples:
+ *     sum(term)
+ *     term = factor * factor * ...
+ *     factor = base ^ exponent
  *
- *     x / x             -> 1
- *     (x * y) / x       -> y
- *     (x * y) / (x * z) -> y / z
+ * Supported normalizations include:
  *
- * @warning
- * These transformations may change the global domain of the expression.
- * Therefore UltraSimplifier should only be used in contexts where such
- * local algebraic transformations are mathematically acceptable.
+ *     A / B             -> A * B^(-1)
+ *     (A + B) / C       -> A*C^(-1) + B*C^(-1)
+ *     (A - B) / C       -> A*C^(-1) - B*C^(-1)
+ *     A / (B + C)       -> A*(B + C)^(-1)
+ *     sqrt(X)           -> X^(1/2)
+ *     cbrt(X)           -> X^(1/3)
+ *     A^p * A^q         -> A^(p + q)
+ *     A * A^q           -> A^(1 + q)
+ *     A / A^q           -> A^(1 - q)
+ *
+ * Numeric rational exponents are combined exactly.
+ *
+ * The simplifier intentionally does not perform general algebraic
+ * expansion such as:
+ *
+ *     (A + B)(C + D) -> AC + AD + BC + BD
+ *
+ * nor transformations such as:
+ *
+ *     (A^p)^q -> A^(p*q)
+ *
+ * unless explicitly added in a future version.
  */
 class UltraSimplifier {
    public:
     /**
-     * @brief Simplifies a Math-AST using aggressive algebraic rules.
+     * @brief Simplify and normalize an AST.
      *
-     * @param mathAst Source Math-AST.
-     * @return A new simplified Math-AST.
+     * @param ast Input mathematical AST.
+     * @return Simplified and normalized AST.
      */
-    [[nodiscard]]
-    math::MathAst simplify(const math::MathAst& mathAst) const;
+    MathAst simplify(const MathAst& ast) const;
 
    private:
-    /**
-     * @brief Recursively simplifies a node.
-     */
-    [[nodiscard]]
-    math::MathNodePtr simplifyNode(const math::MathNode& node) const;
-
-    [[nodiscard]]
-    math::MathNodePtr simplifyUnary(const math::UnaryNode& node) const;
-
-    [[nodiscard]]
-    math::MathNodePtr simplifyBinary(const math::BinaryNode& node) const;
-
-    [[nodiscard]]
-    math::MathNodePtr simplifyFunction(const math::FunctionNode& node) const;
+    // ---------------------------------------------------------------------
+    // Rational arithmetic
+    // ---------------------------------------------------------------------
 
     /**
-     * @brief Simplifies a binary operation after its children were processed.
-     */
-    [[nodiscard]]
-    math::MathNodePtr simplifyBinaryNode(math::BinaryOp op,
-                                         math::MathNodePtr left,
-                                         math::MathNodePtr right) const;
-
-    /**
-     * @brief Cancels common factors in a quotient.
-     */
-    [[nodiscard]]
-    math::MathNodePtr cancelCommonFactors(math::MathNodePtr numerator,
-                                          math::MathNodePtr denominator) const;
-
-    /**
-     * @brief Extracts multiplicative factors from a node.
+     * @brief Exact rational number used internally for exponents.
      *
-     * For example:
+     * denominator is always positive and the fraction is kept reduced.
+     */
+    struct Rational {
+        long long numerator{0};
+        long long denominator{1};
+
+        Rational() = default;
+
+        explicit Rational(long long value) : numerator(value), denominator(1) {}
+
+        Rational(long long numerator, long long denominator);
+
+        void normalize();
+
+        bool isZero() const noexcept;
+        bool isOne() const noexcept;
+        bool isNegative() const noexcept;
+
+        Rational operator+(const Rational& other) const;
+        Rational operator-(const Rational& other) const;
+        Rational operator-() const;
+
+        bool operator==(const Rational& other) const noexcept;
+    };
+
+    /**
+     * @brief Try to interpret an AST node as an exact rational number.
      *
-     *     A * (B * C)
+     * Recognized forms:
+     *
+     *     Number(n)       -> n/1
+     *     Number(p) /
+     *     Number(q)       -> p/q
+     *
+     * Only numeric numerator and denominator nodes are accepted.
+     */
+    std::optional<Rational> extractRational(const MathNode& node) const;
+
+    /**
+     * @brief Build an AST node representing an exact rational number.
+     *
+     * Examples:
+     *
+     *     2   -> Number(2)
+     *     1/2 -> Binary(/, Number(1), Number(2))
+     *     5/6 -> Binary(/, Number(5), Number(6))
+     */
+    MathNodePtr buildRational(const Rational& value) const;
+
+    // ---------------------------------------------------------------------
+    // Recursive normalization
+    // ---------------------------------------------------------------------
+
+    MathNodePtr simplifyNode(const MathNode& node) const;
+
+    MathNodePtr simplifyBinary(const BinaryNode& node) const;
+
+    MathNodePtr simplifyFunction(const FunctionNode& node) const;
+
+    // ---------------------------------------------------------------------
+    // Addition / subtraction
+    // ---------------------------------------------------------------------
+
+    MathNodePtr normalizeAdd(MathNodePtr lhs, MathNodePtr rhs) const;
+
+    MathNodePtr normalizeSubtract(MathNodePtr lhs, MathNodePtr rhs) const;
+
+    // ---------------------------------------------------------------------
+    // Multiplication / division
+    // ---------------------------------------------------------------------
+
+    MathNodePtr normalizeMultiply(MathNodePtr lhs, MathNodePtr rhs) const;
+
+    MathNodePtr normalizeDivide(MathNodePtr lhs, MathNodePtr rhs) const;
+
+    /**
+     * @brief Normalize division where the numerator is a sum/subtraction.
+     *
+     *     (A + B) / C -> A*C^(-1) + B*C^(-1)
+     *     (A - B) / C -> A*C^(-1) - B*C^(-1)
+     */
+    MathNodePtr distributeDivisionOverNumerator(MathNodePtr numerator,
+                                                MathNodePtr denominator) const;
+
+    /**
+     * @brief Build the multiplicative inverse of a node.
+     *
+     *     X -> X^(-1)
+     */
+    MathNodePtr buildInverse(MathNodePtr node) const;
+
+    // ---------------------------------------------------------------------
+    // Powers
+    // ---------------------------------------------------------------------
+
+    MathNodePtr normalizePower(MathNodePtr base, MathNodePtr exponent) const;
+
+    /**
+     * @brief Combine powers having structurally equivalent bases.
+     *
+     *     A^p * A^q -> A^(p+q)
+     *
+     * Exponents must be exact numeric rationals.
+     */
+    MathNodePtr combinePowers(MathNodePtr lhs, MathNodePtr rhs) const;
+
+    /**
+     * @brief Combine all factors with equivalent bases.
+     *
+     * Example:
+     *
+     *     A^2 * B * A^(1/3) * A^(-1)
      *
      * becomes:
      *
-     *     [A, B, C]
+     *     A^(4/3) * B
      */
-    void collectFactors(const math::MathNode& node,
-                        std::vector<math::MathNodePtr>& factors) const;
+    MathNodePtr combinePowerFactors(std::vector<MathNodePtr> factors) const;
+
+    // ---------------------------------------------------------------------
+    // Factor collection
+    // ---------------------------------------------------------------------
 
     /**
-     * @brief Rebuilds a multiplication tree from a list of factors.
-     */
-    [[nodiscard]]
-    math::MathNodePtr buildProduct(
-        std::vector<math::MathNodePtr> factors) const;
-
-    /**
-     * @brief Tests structural equivalence between two AST nodes.
-     */
-    [[nodiscard]]
-    bool equivalent(const math::MathNode& left,
-                    const math::MathNode& right) const;
-
-    /**
-     * @brief Returns true when the node represents the numeric zero.
+     * @brief Collect multiplicative factors recursively.
      *
-     * Zero is never cancelled as a common factor.
+     *     A * (B * C) -> [A, B, C]
      */
-    [[nodiscard]]
-    bool isZero(const math::MathNode& node) const;
+    void collectFactors(const MathNode& node,
+                        std::vector<MathNodePtr>& factors) const;
 
     /**
-     * @brief Tests whether the node represents the numeric one.
+     * @brief Build a multiplication tree from factors.
      */
-    [[nodiscard]]
-    bool isOne(const math::MathNode& node) const;
+    MathNodePtr buildProduct(std::vector<MathNodePtr> factors) const;
+
+    // ---------------------------------------------------------------------
+    // Sum collection
+    // ---------------------------------------------------------------------
+
+    /**
+     * @brief Collect additive terms recursively.
+     *
+     *     A + (B + C) -> [A, B, C]
+     *
+     * Subtraction is preserved through the sign of the corresponding term.
+     */
+    void collectTerms(const MathNode& node,
+                      std::vector<MathNodePtr>& terms) const;
+
+    /**
+     * @brief Build an addition tree from terms.
+     */
+    MathNodePtr buildSum(std::vector<MathNodePtr> terms) const;
+
+    // ---------------------------------------------------------------------
+    // Factor / power inspection
+    // ---------------------------------------------------------------------
+
+    /**
+     * @brief Extract base and exponent from a factor.
+     *
+     *     A       -> base=A, exponent=1
+     *     A^p     -> base=A, exponent=p
+     *
+     * Returns std::nullopt when the exponent is not a numeric rational.
+     */
+    struct PowerFactor {
+        MathNodePtr base;
+        Rational exponent;
+    };
+
+    std::optional<PowerFactor> extractPowerFactor(const MathNode& node) const;
+
+    /**
+     * @brief Build a power factor.
+     *
+     *     exponent == 0 -> 1
+     *     exponent == 1 -> base
+     *     otherwise      -> base^exponent
+     */
+    MathNodePtr buildPowerFactor(MathNodePtr base,
+                                 const Rational& exponent) const;
+
+    // ---------------------------------------------------------------------
+    // Function normalization
+    // ---------------------------------------------------------------------
+
+    /**
+     * @brief Normalize selected mathematical functions.
+     *
+     *     sqrt(X) -> X^(1/2)
+     *     cbrt(X) -> X^(1/3)
+     *
+     * Other functions are preserved.
+     */
+    MathNodePtr normalizeFunction(const FunctionNode& node) const;
+
+    // ---------------------------------------------------------------------
+    // Structural utilities
+    // ---------------------------------------------------------------------
+
+    /**
+     * @brief Check whether two nodes are structurally equivalent.
+     */
+    bool equivalent(const MathNode& lhs, const MathNode& rhs) const;
+
+    /**
+     * @brief Check whether a node represents numeric zero.
+     */
+    bool isZero(const MathNode& node) const;
+
+    /**
+     * @brief Check whether a node represents numeric one.
+     */
+    bool isOne(const MathNode& node) const;
 };
 
 }  // namespace numathap::symbolic
