@@ -3,6 +3,7 @@
 ## Release v0.1.8
 
 - cloneNode centralized in BackendSupport.
+- New Capabilities inserted via `configure`.
 
 ## Release v0.1.7
 
