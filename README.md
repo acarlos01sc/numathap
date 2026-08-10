@@ -143,6 +143,7 @@ Numathap is under active development.
 - Gauss-Kronrod 15 integration
 - Python bindings
 - Configurable numerical environment
+- Taylor Series
 
 ### Planned
 
