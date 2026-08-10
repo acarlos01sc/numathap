@@ -31,7 +31,6 @@ class _PreparedAst:
         """
         ...
 
-
 class MathEnvironment:
     """
     Controls expression evaluation configuration.
@@ -46,6 +45,9 @@ class MathEnvironment:
 
     @property
     def numeric_type(self) -> NumericType:
+        ...
+
+    def capabilities(self) -> list[Capability]:
         ...
 
 
@@ -311,8 +313,9 @@ class Algorithm(Enum):
 
 
 class Capability(Enum):
+    ConstantFolder = ...
     Simplify = ...
-
+    UltraSimplifier = ...
 
 class MathLibrary(Enum):
     CMath = ...
@@ -321,8 +324,10 @@ class MathLibrary(Enum):
 class NumericType(Enum):
     Double = ...
 
+
 class SeriesType(Enum):
     Taylor = ...
+
 
 class AdaptiveSimpsonConfig:
     tolerance: Value
@@ -333,6 +338,7 @@ class GaussKronrod15Config:
     absoluteTolerance: Value
     relativeTolerance: Value
     maxEvaluations: int
+
 
 class TaylorConfig:
     order: int
