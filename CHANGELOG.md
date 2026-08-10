@@ -4,6 +4,7 @@
 
 - cloneNode centralized in BackendSupport.
 - New Capabilities inserted via `configure`.
+- UltraSimplifier improved.
 - Configurable `prepare` pipeline with new capabilities.
 
 ## Release v0.1.7
