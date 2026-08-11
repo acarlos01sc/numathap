@@ -737,8 +737,15 @@ void UltraSimplifier::collectFactors(
         return;
     }
 
+    /*
+     * The node has already been normalized by simplifyNode().
+     *
+     * Do not simplify it again here.  We still need an owned
+     * MathNodePtr because the caller takes ownership of the
+     * collected factors.
+     */
     factors.push_back(
-        simplifyNode(node));
+        BackendSupport::cloneNode(node));
 }
 
 MathNodePtr UltraSimplifier::buildProduct(
@@ -811,8 +818,15 @@ void UltraSimplifier::collectTerms(
         return;
     }
 
+    /*
+     * The node has already been normalized by simplifyNode().
+     *
+     * Do not simplify it again here.  We still need an owned
+     * MathNodePtr because the caller takes ownership of the
+     * collected term.
+     */
     terms.push_back(
-        simplifyNode(node));
+        BackendSupport::cloneNode(node));
 }
 
 MathNodePtr UltraSimplifier::buildSum(
@@ -948,7 +962,7 @@ MathNodePtr UltraSimplifier::buildSum(
         //
         return LikeTerm{
             Rational(1),
-            simplifyNode(node)};
+            BackendSupport::cloneNode(node)};
     };
 
     /*
@@ -1139,8 +1153,14 @@ UltraSimplifier::extractPowerFactor(
             return std::nullopt;
         }
 
+        /*
+         * The input node is already normalized.
+         *
+         * Do not simplify the base again.  Clone it because
+         * PowerFactor owns its base.
+         */
         return PowerFactor{
-            simplifyNode(*binary->left),
+            BackendSupport::cloneNode(*binary->left),
             *exponent};
     }
 
@@ -1148,7 +1168,7 @@ UltraSimplifier::extractPowerFactor(
     // Any non-power factor is interpreted as base^1.
     //
     return PowerFactor{
-        simplifyNode(node),
+        BackendSupport::cloneNode(node),
         Rational(1)};
 }
 
