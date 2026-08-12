@@ -6,6 +6,7 @@
 - New Capabilities inserted via `configure`.
 - UltraSimplifier improved.
 - Configurable `prepare` pipeline with new capabilities.
+- Created DAG struct.
 
 ## Release v0.1.7
 
