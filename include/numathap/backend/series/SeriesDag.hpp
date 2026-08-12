@@ -8,6 +8,7 @@
  */
 #pragma once
 
+
 #include <cstddef>
 #include <cstdint>
 #include <memory>
@@ -18,13 +19,16 @@
 #include <unordered_map>
 #include <vector>
 
+
 #include "numathap/config/MathEnvironment.hpp"
 #include "numathap/core/Context.hpp"
 #include "numathap/core/Value.hpp"
 #include "numathap/math/MathNode.hpp"
 #include "numathap/math/PreparedAst.hpp"
 
+
 namespace numathap::backend::series {
+
 
 /**
  * @brief Exception thrown when a SeriesDag exceeds its node limit.
@@ -36,14 +40,17 @@ class DagSizeLimitExceeded : public std::runtime_error {
                              std::to_string(maxNodes)),
           maxNodes_(maxNodes) {}
 
+
     [[nodiscard]]
     std::size_t maxNodes() const noexcept {
         return maxNodes_;
     }
 
+
    private:
     std::size_t maxNodes_;
 };
+
 
 /**
  * @brief Directed acyclic graph used internally by the series backend.
@@ -66,7 +73,27 @@ class SeriesDag {
    public:
     using NodeId = std::uint32_t;
 
+
     static constexpr NodeId InvalidNode = static_cast<NodeId>(-1);
+
+
+    /**
+     * @brief Values of successive derivatives evaluated at a point.
+     *
+     * The vector contains derivative values, not Taylor coefficients:
+     *
+     *     values[0] = f(k)
+     *     values[1] = f'(k)
+     *     values[2] = f''(k)
+     *     ...
+     *     values[n] = f^(n)(k)
+     *
+     * Taylor coefficients are obtained separately as
+     *
+     *     values[n] / n!
+     */
+    using DerivativeValues = std::vector<core::Value>;
+
 
     /**
      * @brief Constructs a DAG from a PreparedAst.
@@ -79,13 +106,17 @@ class SeriesDag {
      */
     explicit SeriesDag(const math::PreparedAst& ast, std::size_t maxNodes = 0);
 
+
     SeriesDag(const SeriesDag&) = default;
     SeriesDag(SeriesDag&&) noexcept = default;
+
 
     SeriesDag& operator=(const SeriesDag&) = default;
     SeriesDag& operator=(SeriesDag&&) noexcept = default;
 
+
     ~SeriesDag() = default;
+
 
     /**
      * @brief Calculates the symbolic derivative of this DAG.
@@ -103,6 +134,7 @@ class SeriesDag {
     [[nodiscard]]
     SeriesDag differentiate(std::string_view variable) const;
 
+
     /**
      * @brief Evaluates the expression represented by the DAG.
      *
@@ -119,6 +151,45 @@ class SeriesDag {
     [[nodiscard]]
     core::Value evaluate(const core::Context& context) const;
 
+
+    /**
+     * @brief Evaluates successive derivatives at a point.
+     *
+     * The returned vector contains:
+     *
+     *     result[0] = f(k)
+     *     result[1] = f'(k)
+     *     result[2] = f''(k)
+     *     ...
+     *     result[n] = f^(n)(k)
+     *
+     * where k is the specified center.
+     *
+     * This operation returns derivative values, not Taylor coefficients.
+     * In particular:
+     *
+     *     TaylorCoefficient[n] = result[n] / n!
+     *
+     * The implementation reuses the symbolic differentiation mechanism
+     * already provided by SeriesDag. It does not introduce a separate set
+     * of mathematical differentiation rules.
+     *
+     * @param variable Differentiation variable.
+     * @param center Point at which derivatives are evaluated.
+     * @param order Highest derivative order to calculate.
+     *
+     * @return Values of derivatives from order zero through order.
+     *
+     * @throws DagSizeLimitExceeded if a derivative operation exceeds the
+     *         configured DAG size limit.
+     */
+    [[nodiscard]]
+    DerivativeValues evaluateDerivativesAt(
+        std::string_view variable,
+        const core::Value& center,
+        std::size_t order) const;
+
+
     /**
      * @brief Converts the DAG back into a MathNode tree.
      *
@@ -128,11 +199,13 @@ class SeriesDag {
     [[nodiscard]]
     math::MathNodePtr toMathNode() const;
 
+
     /**
      * @brief Returns the number of distinct nodes reachable from the root.
      */
     [[nodiscard]]
     std::size_t nodeCount() const noexcept;
+
 
     /**
      * @brief Returns the configured maximum DAG size.
@@ -144,6 +217,7 @@ class SeriesDag {
         return maxNodes_;
     }
 
+
     /**
      * @brief Returns whether the DAG has no root.
      */
@@ -151,6 +225,7 @@ class SeriesDag {
     bool empty() const noexcept {
         return root_ == InvalidNode;
     }
+
 
     /**
      * @brief Returns the environment associated with this DAG.
@@ -160,6 +235,7 @@ class SeriesDag {
         return environment_;
     }
 
+
     /**
      * @brief Prints the DAG structure.
      *
@@ -168,18 +244,23 @@ class SeriesDag {
      */
     void print(std::ostream& os) const;
 
+
    private:
     // ---------------------------------------------------------------------
     // Internal representation
     // ---------------------------------------------------------------------
 
+
     enum class NodeKind { Number, Symbol, Unary, Binary, Function };
+
 
     struct Node {
         NodeKind kind{NodeKind::Number};
 
+
         math::UnaryOp unaryOp{math::UnaryOp::Plus};
         math::BinaryOp binaryOp{math::BinaryOp::Add};
+
 
         /*
          * Number:
@@ -192,6 +273,7 @@ class SeriesDag {
          *     function name.
          */
         std::string value;
+
 
         /*
          * Unary:
@@ -207,26 +289,32 @@ class SeriesDag {
         std::vector<NodeId> children;
     };
 
+
     /**
      * @brief Structural key used for hash-consing.
      */
     struct NodeKey {
         NodeKind kind{NodeKind::Number};
 
+
         math::UnaryOp unaryOp{math::UnaryOp::Plus};
         math::BinaryOp binaryOp{math::BinaryOp::Add};
 
+
         std::string value;
         std::vector<NodeId> children;
+
 
         [[nodiscard]]
         bool operator==(const NodeKey& other) const noexcept;
     };
 
+
     struct NodeKeyHash {
         [[nodiscard]]
         std::size_t operator()(const NodeKey& key) const noexcept;
     };
+
 
     /**
      * @brief Shared node storage.
@@ -239,14 +327,19 @@ class SeriesDag {
     struct Storage {
         std::vector<std::shared_ptr<const Node>> nodes;
 
+
         std::unordered_map<NodeKey, NodeId, NodeKeyHash> interned;
     };
 
+
     std::shared_ptr<Storage> storage_;
+
 
     NodeId root_{InvalidNode};
 
+
     std::size_t maxNodes_{0};
+
 
     /*
      * MathEnvironment owns the selected MathAdapter. It is copied when a
@@ -255,50 +348,65 @@ class SeriesDag {
      */
     config::MathEnvironment environment_;
 
+
     // ---------------------------------------------------------------------
     // Import from MathNode
     // ---------------------------------------------------------------------
 
+
     [[nodiscard]]
     NodeId importNode(const math::MathNode& node);
+
 
     [[nodiscard]]
     NodeId importNumber(const math::NumberNode& node);
 
+
     [[nodiscard]]
     NodeId importSymbol(const math::SymbolNode& node);
+
 
     [[nodiscard]]
     NodeId importUnary(const math::UnaryNode& node);
 
+
     [[nodiscard]]
     NodeId importBinary(const math::BinaryNode& node);
 
+
     [[nodiscard]]
     NodeId importFunction(const math::FunctionNode& node);
+
 
     // ---------------------------------------------------------------------
     // DAG node construction / hash-consing
     // ---------------------------------------------------------------------
 
+
     [[nodiscard]]
     NodeId makeNumber(std::string_view value);
+
 
     [[nodiscard]]
     NodeId makeNumber(const core::Value& value);
 
+
     [[nodiscard]]
     NodeId makeSymbol(std::string_view name);
+
 
     [[nodiscard]]
     NodeId makeUnary(math::UnaryOp op, NodeId operand);
 
+
     [[nodiscard]]
     NodeId makeBinary(math::BinaryOp op, NodeId left, NodeId right);
+
 
     [[nodiscard]]
     NodeId makeFunction(std::string_view name,
                         const std::vector<NodeId>& arguments);
+
 
     /**
      * @brief Returns an existing structurally identical node or creates one.
@@ -306,9 +414,11 @@ class SeriesDag {
     [[nodiscard]]
     NodeId intern(NodeKey key);
 
+
     // ---------------------------------------------------------------------
     // Differentiation
     // ---------------------------------------------------------------------
+
 
     /**
      * @brief Differentiates a DAG node.
@@ -319,27 +429,34 @@ class SeriesDag {
     NodeId differentiateNode(NodeId node, std::string_view variable,
                              std::unordered_map<NodeId, NodeId>& memo);
 
+
     [[nodiscard]]
     NodeId differentiateNumber(NodeId node);
 
+
     [[nodiscard]]
     NodeId differentiateSymbol(NodeId node, std::string_view variable);
+
 
     [[nodiscard]]
     NodeId differentiateUnary(NodeId node, std::string_view variable,
                               std::unordered_map<NodeId, NodeId>& memo);
 
+
     [[nodiscard]]
     NodeId differentiateBinary(NodeId node, std::string_view variable,
                                std::unordered_map<NodeId, NodeId>& memo);
+
 
     [[nodiscard]]
     NodeId differentiateFunction(NodeId node, std::string_view variable,
                                  std::unordered_map<NodeId, NodeId>& memo);
 
+
     [[nodiscard]]
     NodeId differentiatePower(NodeId node, std::string_view variable,
                               std::unordered_map<NodeId, NodeId>& memo);
+
 
     /**
      * @brief Delegates a function-specific derivative rule to
@@ -351,6 +468,7 @@ class SeriesDag {
     [[nodiscard]]
     NodeId differentiateWithMathLibrary(NodeId node, NodeId argumentDerivative);
 
+
     /**
      * @brief Delegates the general power rule to CMathDifferentiator.
      *
@@ -361,9 +479,11 @@ class SeriesDag {
     NodeId differentiatePowerWithMathLibrary(NodeId node, NodeId baseDerivative,
                                              NodeId exponentDerivative);
 
+
     // ---------------------------------------------------------------------
     // Constant folding
     // ---------------------------------------------------------------------
+
 
     /**
      * @brief Performs constant folding on a DAG node.
@@ -374,21 +494,27 @@ class SeriesDag {
     [[nodiscard]]
     NodeId constantFold(NodeId node);
 
+
     [[nodiscard]]
     NodeId constantFoldUnary(math::UnaryOp op, NodeId operand);
+
 
     [[nodiscard]]
     NodeId constantFoldBinary(math::BinaryOp op, NodeId left, NodeId right);
 
+
     [[nodiscard]]
     bool isNumber(NodeId node) const noexcept;
+
 
     [[nodiscard]]
     core::Value numberValue(NodeId node) const;
 
+
     // ---------------------------------------------------------------------
     // Simplification
     // ---------------------------------------------------------------------
+
 
     /**
      * @brief Performs local algebraic simplification.
@@ -399,57 +525,72 @@ class SeriesDag {
     [[nodiscard]]
     NodeId simplify(NodeId node);
 
+
     [[nodiscard]]
     NodeId simplifyUnary(math::UnaryOp op, NodeId operand);
+
 
     [[nodiscard]]
     NodeId simplifyBinary(math::BinaryOp op, NodeId left, NodeId right);
 
+
     [[nodiscard]]
     NodeId simplifyFunction(NodeId node);
+
 
     [[nodiscard]]
     bool isZero(NodeId node) const;
 
+
     [[nodiscard]]
     bool isOne(NodeId node) const;
+
 
     [[nodiscard]]
     bool equivalent(NodeId left, NodeId right) const noexcept;
 
+
     // ---------------------------------------------------------------------
     // Evaluation
     // ---------------------------------------------------------------------
+
 
     [[nodiscard]]
     core::Value evaluateNode(
         NodeId node, const core::Context& context,
         std::unordered_map<NodeId, core::Value>& memo) const;
 
+
     [[nodiscard]]
     core::Value evaluateNumber(NodeId node) const;
 
+
     [[nodiscard]]
     core::Value evaluateSymbol(NodeId node, const core::Context& context) const;
+
 
     [[nodiscard]]
     core::Value evaluateUnary(
         NodeId node, const core::Context& context,
         std::unordered_map<NodeId, core::Value>& memo) const;
 
+
     [[nodiscard]]
     core::Value evaluateBinary(
         NodeId node, const core::Context& context,
         std::unordered_map<NodeId, core::Value>& memo) const;
+
 
     [[nodiscard]]
     core::Value evaluateFunction(
         NodeId node, const core::Context& context,
         std::unordered_map<NodeId, core::Value>& memo) const;
 
+
     // ---------------------------------------------------------------------
     // Conversion between DAG and MathNode
     // ---------------------------------------------------------------------
+
 
     /**
      * @brief Builds a MathNode representation of a DAG node.
@@ -459,25 +600,31 @@ class SeriesDag {
     [[nodiscard]]
     math::MathNodePtr buildMathNode(NodeId node) const;
 
+
     /**
      * @brief Imports a MathNode tree into this DAG.
      */
     [[nodiscard]]
     NodeId importMathNode(const math::MathNode& node);
 
+
     [[nodiscard]]
     math::MathNodePtr toMathNode(NodeId node) const;
+
 
     // ---------------------------------------------------------------------
     // DAG statistics
     // ---------------------------------------------------------------------
 
+
     [[nodiscard]]
     std::size_t countReachableNodes() const noexcept;
+
 
     // ---------------------------------------------------------------------
     // Operation-local node limit
     // ---------------------------------------------------------------------
+
 
     /**
      * @brief Checks whether creation of a new node is allowed.
@@ -487,22 +634,28 @@ class SeriesDag {
      */
     void checkNodeLimit() const;
 
+
     /**
      * @brief Returns the number of nodes currently stored.
      */
     [[nodiscard]]
     std::size_t storageNodeCount() const noexcept;
 
+
     void printNode(NodeId node, std::ostream& os) const;
+
 
     [[nodiscard]]
     static const char* nodeKindName(NodeKind kind) noexcept;
 
+
     [[nodiscard]]
     static const char* unaryOpName(math::UnaryOp op) noexcept;
+
 
     [[nodiscard]]
     static const char* binaryOpName(math::BinaryOp op) noexcept;
 };
+
 
 }  // namespace numathap::backend::series
