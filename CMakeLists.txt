@@ -199,6 +199,31 @@ target_link_libraries(ast_analyser
 	PRIVATE numathap
 )
 
+
+
+
+
+#add_executable(test_series_dag
+#	tests/backend/test_series_dag.cpp
+#)
+
+#target_include_directories(test_series_dag
+#	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include
+#)
+
+#target_link_libraries(test_series_dag
+#	PRIVATE numathap
+#)
+
+
+
+
+
+
+
+
+
+
 if(MSVC)
 	target_compile_options(ast_analyser PRIVATE /W4)
 else()
