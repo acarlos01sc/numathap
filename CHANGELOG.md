@@ -7,6 +7,7 @@
 - UltraSimplifier improved.
 - Configurable `prepare` pipeline with new capabilities.
 - Created DAG struct.
+- Fast Derivative method via DAG.
 
 ## Release v0.1.7
 

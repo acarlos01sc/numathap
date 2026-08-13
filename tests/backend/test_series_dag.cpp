@@ -7,7 +7,7 @@
 
 int main() {
     try {
-        const std::string expression = "x/sqrt(1-x^2)";
+        const std::string expression = "((exp(x^2)*sin(x)*log(1+x))/sqrt(1-x^2))+tan(x^2)*sinh(x)";
 
         auto prepared = numathap::prepare(expression);
 
@@ -19,12 +19,12 @@ int main() {
 
         numathap::backend::series::SeriesDag dag(prepared);
 
-        constexpr std::size_t order = 9;
+        constexpr std::size_t order = 10;
 
         const auto center = numathap::core::Value::parse("0");
 
         const auto derivatives =
-            dag.evaluateDerivativesAt("x", center, order);
+            dag.fastEvaluateDerivativesAt("x", center, order);
 
         std::cout << "Derivatives at x = 0:\n";
 
