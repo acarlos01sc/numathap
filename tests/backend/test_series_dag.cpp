@@ -7,7 +7,8 @@
 
 int main() {
     try {
-        const std::string expression = "((exp(x^2)*sin(x)*log(1+x))/sqrt(1-x^2))+tan(x^2)*sinh(x)";
+        //const std::string expression = "((exp(x^2)*sin(x)*log(1+x))/sqrt(1-x^2))+tan(x^2)*sinh(x)";
+        const std::string expression = "x/sqrt(1-x^2)";
 
         auto prepared = numathap::prepare(expression);
 
