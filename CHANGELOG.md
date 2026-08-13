@@ -8,6 +8,7 @@
 - Configurable `prepare` pipeline with new capabilities.
 - Created DAG struct.
 - Fast Derivative method via DAG.
+- Taylor Series using DAG struct.
 
 ## Release v0.1.7
 

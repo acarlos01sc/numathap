@@ -45,19 +45,7 @@ void bindSeries(py::module_& m) {
       int: Number of terms of the expansion (i.e. the highest degree
       retained). Higher values mean a more accurate approximation at
       the cost of more computation.
-      )pbdoc")
-        .def_readwrite(
-            "maxDerivativeNodes",
-            &numathap::backend::series::TaylorConfig::maxDerivativeNodes,
-            R"pbdoc(
-Maximum number of AST nodes allowed in an intermediate derivative.
-
-This limit prevents Taylor series generation from producing
-excessively large intermediate derivative trees. If the limit is
-exceeded, series generation may stop with an exception.
-
-int: Maximum number of nodes in a derivative AST.
-)pbdoc");
+      )pbdoc");
 
     // series(expression, variable, center) — default environment
     m.def(

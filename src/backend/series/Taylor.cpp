@@ -5,22 +5,15 @@
 
 #include "numathap/backend/series/Taylor.hpp"
 
-#include <memory>
 #include <string>
-#include <type_traits>
-#include <utility>
 #include <vector>
 
+#include "numathap/backend/series/SeriesDag.hpp"
 #include "numathap/backend/BackendSupport.hpp"
-#include "numathap/backend/differentiate/differentiate.hpp"
-#include "numathap/backend/evaluate.hpp"
-#include "numathap/core/Context.hpp"
 #include "numathap/core/Value.hpp"
-#include "numathap/dispatch/Dispatcher.hpp"
 #include "numathap/math/MathNode.hpp"
 #include "numathap/math/PreparedAst.hpp"
 #include "numathap/symbolic/Simplifier.hpp"
-#include "numathap/symbolic/UltraSimplifier.hpp"
 
 namespace numathap::backend::series {
 
@@ -29,19 +22,17 @@ namespace {
 using math::BinaryNode;
 using math::BinaryOp;
 using math::FunctionNode;
-using math::MathNode;
 using math::MathNodePtr;
 using math::NumberNode;
 using math::SymbolNode;
-using math::UnaryNode;
-using namespace math;
 
 /**
  * @brief Builds the shared "(variable - center)" node used by every term
  *        of degree >= 1.
  */
-MathNodePtr buildOffsetNode(const std::string& variable,
-                            const core::Value& center) {
+MathNodePtr buildOffsetNode(
+    const std::string& variable,
+    const core::Value& center) {
     return std::make_unique<BinaryNode>(
         BinaryOp::Subtract,
         std::make_unique<SymbolNode>(variable),
@@ -51,18 +42,17 @@ MathNodePtr buildOffsetNode(const std::string& variable,
 /**
  * @brief Builds the factorial node for a given degree.
  *
- * The factorial is deliberately kept as a FunctionNode instead of being
- * evaluated numerically. This preserves the mathematical structure
- * f^(n)(a) / n! in the resulting AST.
+ * The factorial is deliberately kept as a FunctionNode so that the
+ * generated Taylor expression explicitly represents
  *
- * @param degree Degree of the Taylor term.
- *
- * @return MathNode representing factorial(degree).
+ *     f^(n)(a) / n!
  */
 MathNodePtr buildFactorialNode(std::size_t degree) {
     std::vector<MathNodePtr> arguments;
+
     arguments.push_back(
-        std::make_unique<NumberNode>(std::to_string(degree)));
+        std::make_unique<NumberNode>(
+            std::to_string(degree)));
 
     return std::make_unique<FunctionNode>(
         "factorial",
@@ -70,44 +60,36 @@ MathNodePtr buildFactorialNode(std::size_t degree) {
 }
 
 /**
- * @brief Builds the k-th term of the Taylor expansion:
+ * @brief Builds the k-th Taylor term:
  *
- * (f^(k)(center) / k!) * (x - center)^k
+ *     (f^(k)(center) / k!) * (x - center)^k
  *
- * For degree == 0 the term is simply f(center).
- * For degree == 1 the redundant exponent is omitted.
- *
- * The derivative value is already evaluated numerically at the expansion
- * center, but the factorial remains explicitly represented as a
- * factorial(...) FunctionNode in the AST.
- *
- * @param derivativeAtCenter Numeric value of f^(degree)(center).
- * @param variable Name of the expansion variable.
- * @param center Expansion center.
- * @param degree Degree of this term (0-based).
- *
- * @return The MathNode tree for this term.
+ * For k == 0 the term is simply f(center).
  */
-MathNodePtr buildTerm(const core::Value& derivativeAtCenter,
-                      const std::string& variable,
-                      const core::Value& center,
-                      std::size_t degree) {
-    MathNodePtr derivativeNode =
-        std::make_unique<NumberNode>(derivativeAtCenter.str());
+MathNodePtr buildTerm(
+    const core::Value& derivativeAtCenter,
+    const std::string& variable,
+    const core::Value& center,
+    std::size_t degree) {
+    auto derivativeNode =
+        std::make_unique<NumberNode>(
+            derivativeAtCenter.str());
 
     if (degree == 0) {
         return derivativeNode;
     }
 
-    MathNodePtr factorialNode = buildFactorialNode(degree);
+    auto factorialNode =
+        buildFactorialNode(degree);
 
-    MathNodePtr coefficientNode =
+    auto coefficientNode =
         std::make_unique<BinaryNode>(
             BinaryOp::Divide,
             std::move(derivativeNode),
             std::move(factorialNode));
 
-    MathNodePtr offset = buildOffsetNode(variable, center);
+    auto offset =
+        buildOffsetNode(variable, center);
 
     MathNodePtr powerNode;
 
@@ -128,159 +110,76 @@ MathNodePtr buildTerm(const core::Value& derivativeAtCenter,
         std::move(powerNode));
 }
 
-/**
- * @brief Counts the number of nodes in a MathNode tree.
- *
- * Every MathNode contributes one node to the count, including the root.
- *
- * @param node Root of the tree to count.
- *
- * @return Total number of nodes in the tree.
- */
-std::size_t countNodes(const MathNode& node) {
-    return dispatch::Dispatcher::dispatch(
-        node,
-        [](const auto& concreteNode) -> std::size_t {
-            using NodeType = std::decay_t<decltype(concreteNode)>;
-
-            if constexpr (std::is_same_v<NodeType, NumberNode>) {
-                return 1;
-
-            } else if constexpr (std::is_same_v<NodeType, SymbolNode>) {
-                return 1;
-
-            } else if constexpr (std::is_same_v<NodeType, UnaryNode>) {
-                return 1 + countNodes(*concreteNode.operand);
-
-            } else if constexpr (std::is_same_v<NodeType, BinaryNode>) {
-                return 1 + countNodes(*concreteNode.left) +
-                       countNodes(*concreteNode.right);
-
-            } else if constexpr (std::is_same_v<NodeType, FunctionNode>) {
-                std::size_t count = 1;
-
-                for (const auto& argument : concreteNode.arguments) {
-                    count += countNodes(*argument);
-                }
-
-                return count;
-
-            } else {
-                static_assert(
-                    std::is_same_v<NodeType, void>,
-                    "Taylor: unsupported MathNode type.");
-            }
-        });
-}
-
 }  // namespace
 
-math::PreparedAst Taylor::series(const math::PreparedAst& prepared,
-                                 const std::string& variable,
-                                 const core::Value& center,
-                                 const TaylorConfig& config) {
-    // A single-symbol context: derivatives of `prepared` are evaluated at
-    // `variable = center` to obtain the numerical value of each derivative.
-    core::Context context;
-    context.setValue(variable, center.str());
-
-    // f(center) — the degree-0 term.
-    core::Value valueAtCenter =
-        numathap::backend::evaluate(prepared, context);
-
-    MathNodePtr expansion =
-        buildTerm(valueAtCenter, variable, center, 0);
-
-    if (config.order > 0) {
-        //
-        // First derivative.
-        //
-        math::PreparedAst derivative =
-            numathap::backend::differentiate::differentiate(
-                prepared, variable);
-
-        symbolic::UltraSimplifier ultraSimplifier;
-
-        for (std::size_t degree = 1;
-             degree <= config.order;
-             ++degree) {
-            //
-            // Convert PreparedAst -> MathAst so that UltraSimplifier
-            // can simplify the symbolic derivative tree.
-            //
-            math::MathAst derivativeAst(
-                derivative.expression(),
-                BackendSupport::cloneNode(*derivative.root()));
-
-            //
-            // Reduce the current derivative before:
-            //
-            // 1. counting its nodes;
-            // 2. evaluating it at the expansion center;
-            // 3. generating the next derivative.
-            //
-            auto simplifiedDerivativeAst =
-                ultraSimplifier.simplify(derivativeAst);
-
-            //
-            // Convert MathAst -> PreparedAst.
-            //
-            derivative = math::PreparedAst(
-                simplifiedDerivativeAst.expression(),
-                BackendSupport::cloneNode(
-                    *simplifiedDerivativeAst.root()),
-                derivative.environment());
-
-            //
-            // Count the nodes of the SIMPLIFIED symbolic derivative.
-            //
-            const std::size_t derivativeNodes =
-                countNodes(*derivative.root());
-
-            //
-            // Evaluate f^(degree)(center).
-            //
-            core::Value derivativeAtCenter =
-                numathap::backend::evaluate(
-                    derivative,
-                    context);
-
-            //
-            // Add the current Taylor term.
-            //
-            expansion =
-                std::make_unique<BinaryNode>(
-                    BinaryOp::Add,
-                    std::move(expansion),
-                    buildTerm(
-                        derivativeAtCenter,
-                        variable,
-                        center,
-                        degree));
-
-            //
-            // The current derivative has already been used.
-            //
-            // Do not generate the next derivative if the number of
-            // nodes of the simplified derivative has reached the limit.
-            //
-            if (derivativeNodes >= config.maxDerivativeNodes) {
-                break;
-            }
-
-            //
-            // Generate the next derivative from the simplified tree.
-            //
-            derivative =
-                numathap::backend::differentiate::differentiate(
-                    derivative,
-                    variable);
-        }
+math::PreparedAst Taylor::series(
+    const math::PreparedAst& prepared,
+    const std::string& variable,
+    const core::Value& center,
+    const TaylorConfig& config) {
+    if (variable.empty()) {
+        throw std::invalid_argument(
+            "Taylor: expansion variable cannot be empty.");
     }
 
-    //
-    // Final simplification of the generated Taylor expression.
-    //
+    /*
+     * Build the DAG once.
+     *
+     * All derivatives will subsequently be evaluated directly on
+     * this DAG. No symbolic derivative DAGs are constructed.
+     */
+    SeriesDag dag(prepared);
+
+    /*
+     * Calculate all derivatives simultaneously:
+     *
+     *     [f(a), f'(a), ..., f^(N)(a)]
+     *
+     * The values are derivative values, not Taylor coefficients.
+     */
+    const SeriesDag::DerivativeValues derivatives =
+        dag.fastEvaluateDerivativesAt(
+            variable,
+            center,
+            config.order);
+
+    /*
+     * Degree-zero term:
+     *
+     *     f(a)
+     */
+    MathNodePtr expansion =
+        buildTerm(
+            derivatives[0],
+            variable,
+            center,
+            0);
+
+    /*
+     * Add the remaining Taylor terms:
+     *
+     *     f^(k)(a) / k! * (x-a)^k
+     */
+    for (std::size_t degree = 1;
+         degree <= config.order;
+         ++degree) {
+        expansion =
+            std::make_unique<BinaryNode>(
+                BinaryOp::Add,
+                std::move(expansion),
+                buildTerm(
+                    derivatives[degree],
+                    variable,
+                    center,
+                    degree));
+    }
+
+    /*
+     * Simplify the generated Taylor expression.
+     *
+     * This is performed only on the final Taylor expression.
+     * No symbolic differentiation is involved.
+     */
     math::MathAst expansionAst(
         prepared.expression(),
         std::move(expansion));
@@ -290,16 +189,22 @@ math::PreparedAst Taylor::series(const math::PreparedAst& prepared,
     auto simplifiedAst =
         simplifier.simplify(expansionAst);
 
-    //
-    // Clone the simplified tree because MathAst owns its root.
-    //
     auto preparedRoot =
-        BackendSupport::cloneNode(*simplifiedAst.root());
+        math::MathNodePtr(
+            simplifiedAst.root()
+                ? BackendSupport::cloneNode(*simplifiedAst.root())
+                : nullptr);
 
     std::string expression =
-        "taylor(" + prepared.expression() + ", " +
-        variable + ", " + center.str() + ", " +
-        std::to_string(config.order) + ")";
+        "taylor(" +
+        prepared.expression() +
+        ", " +
+        variable +
+        ", " +
+        center.str() +
+        ", " +
+        std::to_string(config.order) +
+        ")";
 
     return math::PreparedAst(
         std::move(expression),
@@ -308,4 +213,3 @@ math::PreparedAst Taylor::series(const math::PreparedAst& prepared,
 }
 
 }  // namespace numathap::backend::series
-

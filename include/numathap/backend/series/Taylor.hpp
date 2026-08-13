@@ -19,16 +19,13 @@ namespace numathap::backend::series {
 
 /**
  * @brief Configuration parameters for the Taylor Series.
- *
  */
 struct TaylorConfig {
     std::size_t order = 10;
-    std::size_t maxDerivativeNodes = 150;
 };
 
 /**
  * @brief Implements the Taylor Series.
- *
  */
 class Taylor {
    public:
@@ -43,10 +40,11 @@ class Taylor {
      * @return Prepared expression containing the Taylor expansion.
      */
     [[nodiscard]]
-    static math::PreparedAst series(const math::PreparedAst& prepared,
-                                    const std::string& variable,
-                                    const core::Value& center,
-                                    const TaylorConfig& config);
+    static math::PreparedAst series(
+        const math::PreparedAst& prepared,
+        const std::string& variable,
+        const core::Value& center,
+        const TaylorConfig& config);
 };
 
 }  // namespace numathap::backend::series
