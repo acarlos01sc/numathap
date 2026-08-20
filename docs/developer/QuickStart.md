@@ -78,4 +78,6 @@ print("Differentiate at point pi/2: ",np.evaluate(expr_diff,ctx))
 taylor = np.series(expr,"x","pi/2")
 print("Calculus via Taylor series: ",np.evaluate(taylor,ctx))
 
+# To view AST struct
+print(taylor.print())
 ```
