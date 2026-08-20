@@ -12,8 +12,8 @@ A numerical computation typically consists of the following stages:
 - **Context** – Defines the numerical context, including variable values and integration intervals.
 - **Computation** – Executes the desired numerical operation. Currently, the library provides:
   - **evaluate()** – Evaluates an expression.
-  - **integrate()** – Computes a definite integral.
-  - **differentiate()** - Builds a symbolic derivative AST. Default algorithm is Adaptive Simpson.
+  - **integrate()** – Computes a definite integral. Default algorithm is Adaptive Simpson.
+  - **differentiate()** - Builds a symbolic derivative AST.
   - **series()** - Builds a symbolic series AST. The default is Taylor series type.
 
 # Simple Examples

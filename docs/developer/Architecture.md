@@ -2,7 +2,7 @@
 
 ## Introduction
 
-**numathap** is a modern C++ library for symbolic preparation and numerical computation of mathematical expressions. It provides a unified framework capable of parsing expressions, transforming them into an optimized internal representation, and executing specialized numerical algorithms such as expression evaluation, numerical integration, limit computation, and future mathematical backends.
+**numathap** is a modern C++ library for symbolic preparation and numerical computation of mathematical expressions. It provides a unified framework capable of parsing expressions, transforming them into an optimized internal representation, and executing specialized numerical algorithms such as expression evaluation, numerical integration, differentiation, and future mathematical backends.
 
 The library is designed around a clear separation of responsibilities. Parsing, symbolic processing, execution dispatching, and numerical algorithms are implemented as independent components that communicate through well-defined interfaces. This modular architecture allows new symbolic transformations and numerical backends to be introduced with minimal impact on existing code.
 
