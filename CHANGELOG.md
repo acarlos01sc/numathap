@@ -1,5 +1,9 @@
 # Changelog
 
+## Release v0.1.9
+
+- Created Complex numeric type
+
 ## Release v0.1.8
 
 - cloneNode centralized in BackendSupport.
