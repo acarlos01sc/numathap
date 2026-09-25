@@ -34,6 +34,16 @@ class MathEnvironment {
     /** @brief Constructs a default environment with standard settings. */
     MathEnvironment();
 
+    /**
+     * @brief Constructs an environment using the specified math adapter.
+     *
+     * This constructor allows an evaluation backend to explicitly select
+     * the mathematical adapter used by the environment.
+     *
+     * @param adapter Mathematical adapter to use.
+     */
+    explicit MathEnvironment(std::unique_ptr<MathAdapter> adapter);
+
     /** @name Copy/Move Semantics */
     ///@{
     MathEnvironment(const MathEnvironment&);
@@ -159,7 +169,8 @@ class MathEnvironment {
     std::unique_ptr<MathAdapter>
         adapter_;  ///< Unique pointer to the current adapter.
 
-    std::vector<Capability> capabilities_;    ///< Enabled processing capabilities in configuration order.
+    std::vector<Capability>
+        capabilities_;  ///< Enabled processing capabilities in configuration order.
 
     backend::integrate::Algorithm integration_algorithm_{
         backend::integrate::Algorithm::AdaptiveSimpson};
@@ -175,3 +186,4 @@ class MathEnvironment {
 };
 
 }  // namespace numathap::config
+
