@@ -99,11 +99,11 @@ core::Value BackendSupport::evaluateConstant_cx(
 
     return backend::evaluate_cx(prepared, context);
 
-  } catch (...) {
+  } catch (const std::exception& ex) {
 
     throw std::invalid_argument(
-        "Invalid numeric value or constant expression: \"" + expression +
-        "\"");
+        "Complex constant expression: \"" + expression +
+        "\" failed: " + ex.what());
   }
 }
 

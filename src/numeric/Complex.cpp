@@ -70,7 +70,9 @@ Complex Complex::operator/(const Complex& other) const {
 }
 
 Complex Complex::operator-() const noexcept {
-    return Complex(-real_, -imaginary_);
+    return Complex(
+        -real_,
+        imaginary_.value() == 0.0 ? Real(0.0) : -imaginary_);
 }
 
 bool Complex::operator==(const Complex& other) const noexcept {

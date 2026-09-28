@@ -368,7 +368,7 @@ core::Value ComplexDoubleAdapter::callFunction(
 core::Value ComplexDoubleAdapter::resolveConstant(
     std::string_view constant) const
 {
-    if (constant == "i") {
+    if (constant == "i" || constant == "j") {
         return core::Value(
             numeric::Complex(
                 numeric::Real(0.0),

@@ -321,6 +321,25 @@ add_test(
 	COMMAND TEST_Complex
 )
 
+add_executable(TEST_evaluate_cx
+	tests/backend/TEST_evaluate_cx.cpp
+)
+
+target_include_directories(TEST_evaluate_cx
+	PRIVATE
+		${CMAKE_CURRENT_SOURCE_DIR}/tests/utils/viewer/include
+		${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(TEST_evaluate_cx
+	PRIVATE numathap
+)
+
+add_test(
+	NAME TEST_evaluate_cx
+	COMMAND TEST_evaluate_cx
+)
+
 #----------------------------------------------------------
 # Installation (SDK)
 #----------------------------------------------------------

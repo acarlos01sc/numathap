@@ -4,6 +4,8 @@
 
 - Created Complex numeric type
 - Implemented ComplexDoubleAdapter
+- Euler representation 
+- i and j recognized as imaginary unit
 
 ## Release v0.1.8
 
