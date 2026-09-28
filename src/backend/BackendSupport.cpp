@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "numathap/backend/evaluate.hpp"
+#include "numathap/backend/evaluate_cx.hpp"
 #include "numathap/dispatch/Dispatcher.hpp"
 #include "numathap/math/prepare.hpp"
 #include "numathap/numeric/Real.hpp"
@@ -51,6 +52,59 @@ core::Value BackendSupport::evaluateConstant(
             "Invalid numeric value or constant expression: \"" + expression +
             "\"");
     }
+}
+
+core::Value BackendSupport::evaluateConstant_cx(
+    const std::string& expression, const core::Context& context,
+    const config::MathEnvironment& environment) {
+
+  //
+  // 1. Numeric literal
+  //
+
+  try {
+
+    std::size_t pos = 0;
+
+    const auto value = std::stod(expression, &pos);
+
+    if (pos == expression.size()) {
+
+      return core::Value(
+          numeric::Complex(numeric::Real(value), numeric::Real(0.0)));
+
+    }
+
+  } catch (...) {
+  }
+
+  //
+  // 2. Mathematical constant
+  //
+
+  try {
+
+    return environment.mathAdapter().resolveConstant(expression);
+
+  } catch (...) {
+  }
+
+  //
+  // 3. Constant expression
+  //
+
+  try {
+
+    auto prepared = math::prepare(expression, environment);
+
+    return backend::evaluate_cx(prepared, context);
+
+  } catch (...) {
+
+    throw std::invalid_argument(
+        "Invalid numeric value or constant expression: \"" + expression +
+        "\"");
+  }
 }
 
 math::MathNodePtr BackendSupport::cloneNode(const math::MathNode& node) {

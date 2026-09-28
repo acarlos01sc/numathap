@@ -55,6 +55,30 @@ class BackendSupport {
         const config::MathEnvironment& environment);
 
     /**
+     * @brief Evaluates a constant expression in the complex domain.
+     *
+     * The expression may be:
+     * - a numeric literal;
+     * - a mathematical constant (for example @c pi or @c e);
+     * - a complex constant mathematical expression (for example @c 2+i or
+     * @c sqrt(-1));
+     * - a symbol defined in the supplied context.
+     *
+     * @param expression Constant expression to evaluate.
+     * @param context Context used to resolve symbols.
+     * @param environment Mathematical environment used during evaluation.
+     *
+     * @return Evaluated numerical value.
+     *
+     * @throw std::invalid_argument If the expression cannot be evaluated.
+     */
+    [[nodiscard]]
+    static core::Value evaluateConstant_cx(
+        const std::string& expression,
+        const core::Context& context,
+        const config::MathEnvironment& environment);
+
+    /**
      * @brief Creates a deep copy of a MathNode tree.
      *
      * Recursively clones every supported node type (NumberNode, SymbolNode,

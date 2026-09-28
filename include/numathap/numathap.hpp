@@ -1,6 +1,7 @@
 #pragma once
 
 #include "numathap/backend/evaluate.hpp"
+#include "numathap/backend/evaluate_cx.hpp"
 #include "numathap/config/MathEnvironment.hpp"
 #include "numathap/core/Context.hpp"
 #include "numathap/core/Value.hpp"
@@ -14,6 +15,7 @@
 namespace numathap {
 
 using backend::evaluate;
+using backend::evaluate_cx;
 using math::prepare;
 using config::configure;
 using backend::integrate::integrate;
