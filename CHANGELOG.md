@@ -6,6 +6,7 @@
 - Implemented ComplexDoubleAdapter
 - Euler representation 
 - i and j recognized as imaginary unit
+- evaluate_cx exposed to Python
 
 ## Release v0.1.8
 
