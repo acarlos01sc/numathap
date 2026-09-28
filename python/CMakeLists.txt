@@ -22,6 +22,7 @@ pybind11_add_module(
     # Expression processing
     bindings/prepare.cpp
     bindings/evaluate.cpp
+    bindings/evaluate_cx.cpp
 
     # Numerical integration
     bindings/Algorithm.cpp

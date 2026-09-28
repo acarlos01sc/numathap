@@ -164,6 +164,14 @@ def evaluate(
     """
     ...
 
+def evaluate_cx(
+    expression: _PreparedAst,
+    context: Context
+) -> Value:
+    """
+    Evaluate a prepared expression in the complex domain.
+    """
+    ...
 
 @overload
 def integrate(
