@@ -2,7 +2,7 @@
 
 #include "numathap/numathap.hpp"
 #include "test_framework2.hpp"
-#include "numathap/config/ComplexDoubleAdapter.hpp"
+//#include "numathap/config/ComplexDoubleAdapter.hpp"
 #include <iostream>
 
 using namespace numathap;
@@ -49,8 +49,9 @@ void expectComplexNear(
 
 MathEnvironment complexEnvironment()
 {
-    return MathEnvironment(
-        std::make_unique<config::ComplexDoubleAdapter>());
+    //return MathEnvironment(
+    //    std::make_unique<config::ComplexDoubleAdapter>());
+    return MathEnvironment(std::make_unique<config::ComplexDoubleAdapter>()); 
 }
 
 } // namespace
