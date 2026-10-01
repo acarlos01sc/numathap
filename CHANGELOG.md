@@ -1,5 +1,13 @@
 # Changelog
 
+## Release v0.1.9
+
+- Created Complex numeric type
+- Implemented ComplexDoubleAdapter
+- Euler representation 
+- i and j recognized as imaginary unit
+- evaluate_cx exposed to Python
+
 ## Release v0.1.8
 
 - cloneNode centralized in BackendSupport.

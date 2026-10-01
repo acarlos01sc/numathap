@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 
 #include "numathap/config/CMathDoubleAdapter.hpp"
@@ -10,6 +11,14 @@ namespace numathap::config {
 
 MathEnvironment::MathEnvironment()
     : adapter_(std::make_unique<CMathDoubleAdapter>()) {}
+
+MathEnvironment::MathEnvironment(std::unique_ptr<MathAdapter> adapter)
+    : adapter_(std::move(adapter)) {
+    if (!adapter_) {
+        throw std::invalid_argument(
+            "MathEnvironment requires a non-null MathAdapter.");
+    }
+}
 
 MathEnvironment::MathEnvironment(const MathEnvironment& other)
     : math_library_(other.math_library_),

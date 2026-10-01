@@ -15,6 +15,7 @@ A numerical computation typically consists of the following stages:
   - **integrate()** – Computes a definite integral. Default algorithm is Adaptive Simpson.
   - **differentiate()** - Builds a symbolic derivative AST.
   - **series()** - Builds a symbolic series AST. The default is Taylor series type.
+  - **evaluate_cx()** - Evaluates a complex expression.
 
 # Simple Examples
 
@@ -22,6 +23,7 @@ A numerical computation typically consists of the following stages:
 
 ```cpp
 #include <iostream>
+#include <memory>
 #include <numathap/numathap.hpp>
 
 int main()
@@ -49,7 +51,14 @@ int main()
     // Calculating via Taylor series
     auto taylor = series(expr,"x","pi/2");
     auto taylor_v = evaluate(taylor,ctx);
-    std::cout << "Calculus via Taylor series: " << taylor_v << 'n';
+    std::cout << "Calculus via Taylor series: " << taylor_v << '\n';
+
+    // Complex
+    auto env_cx = MathEnvironment(std::make_unique<config::ComplexDoubleAdapter>());
+    auto expr_cx = prepare("sin(z)",env_cx);
+    ctx.setValue("z","i*pi");
+    res_cx = evaluate_cx(expr_cx,ctx);
+    std::cout << "sin(z) = " << res_cx << '\n';
 
     return 0;
 }
@@ -80,4 +89,12 @@ print("Calculus via Taylor series: ",np.evaluate(taylor,ctx))
 
 # To view AST struct
 print(taylor.print())
+
+
+# Complex
+env = np.MathEnvironment.complex()
+expr_cx = np.prepare("sin(z)",env)
+ctx.set_value("z","i*pi")
+print(np.evaluate_cx(expr_cx,ctx))
+
 ```

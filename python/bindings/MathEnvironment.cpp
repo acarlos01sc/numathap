@@ -1,6 +1,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-
+#include "numathap/config/ComplexDoubleAdapter.hpp"
 #include <numathap/numathap.hpp>
 
 namespace py = pybind11;
@@ -49,6 +49,14 @@ void bindMathEnvironment(py::module_& m) {
       Create a MathEnvironment with default settings (equivalent
       to calling :func:`configure` with no arguments).
       )pbdoc")
+        .def_static(
+            "complex",
+            [] {
+                return numathap::MathEnvironment(
+                    std::make_unique<numathap::config::ComplexDoubleAdapter>());
+            },
+            R"pbdoc( Create a MathEnvironment configured for complex arithmetic. The environment uses ComplexDoubleAdapter as its mathematical backend. )pbdoc")
+
         .def_property_readonly("math_library",
                                &numathap::MathEnvironment::mathLibrary,
                                R"pbdoc(

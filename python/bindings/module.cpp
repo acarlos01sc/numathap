@@ -9,6 +9,7 @@ void bindValue(py::module_& m);
 void bindContext(py::module_& m);
 void bindPrepare(py::module_& m);
 void bindEvaluate(py::module_& m);
+void bindEvaluateCx(py::module_& m);
 void bindCapability(py::module_& m);
 void bindConfigure(py::module_& m);
 // Integration
@@ -34,6 +35,7 @@ PYBIND11_MODULE(_numathap, m) {
     // Expression processing
     numathap::python::bindPrepare(m);
     numathap::python::bindEvaluate(m);
+    numathap::python::bindEvaluateCx(m);
 
     // Numerical integration
     numathap::python::bindAlgorithm(m);
