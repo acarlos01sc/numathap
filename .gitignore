@@ -71,6 +71,9 @@ Testing/
 # Python venv
 .venv/
 
+# VSCode
+.vscode/
+
 # Execute
 build/
 
