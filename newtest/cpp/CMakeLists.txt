@@ -1,6 +1,8 @@
 add_executable(
     numathap_public_api_test
     test_public_api.cpp
+    test_math_env.cpp
+    test_evaluate.cpp
 )
 
 target_link_libraries(
