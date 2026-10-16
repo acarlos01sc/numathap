@@ -4,6 +4,7 @@ add_executable(
     test_math_env.cpp
     test_evaluate.cpp
     test_integrate.cpp
+    test_series.cpp
 )
 
 target_link_libraries(
