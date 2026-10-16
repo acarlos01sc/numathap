@@ -3,6 +3,7 @@ add_executable(
     test_public_api.cpp
     test_math_env.cpp
     test_evaluate.cpp
+    test_integrate.cpp
 )
 
 target_link_libraries(
