@@ -126,19 +126,11 @@ TEST(NumathapSeries, TaylorXSqrt20Terms) {
 }
 
 TEST(NumathapSeries, TaylorRationalTrig10Terms) {
-    runTestWithTimeout(
-        "1/(1+cos(x)+sin(x))",
-        10,
-        0.47736397734527186
-    );
+    runTestWithTimeout("1/(1+cos(x)+sin(x))", 10, 0.47736397734527186);
 }
 
 TEST(NumathapSeries, TaylorRationalTrig20Terms) {
-    runTestWithTimeout(
-        "1/(1+cos(x)+sin(x))",
-        20,
-        0.47736397734527186
-    );
+    runTestWithTimeout("1/(1+cos(x)+sin(x))", 20, 0.47736397734527186);
 }
 
 }  // namespace
