@@ -90,3 +90,17 @@ def test_integrate_expression_with_parameter(integration_environment):
     )
 
     assert result.real() == pytest.approx(7.0 / 3.0, abs=1e-8)
+
+
+def test_integrate_improper_gaussian(integration_environment):
+    result = integrate_expression(
+        "exp(-x^2)/sqrt(pi)",
+        "-inf",
+        "inf",
+        integration_environment,
+    )
+
+    assert result.real() == pytest.approx(
+        1.0,
+        abs=1e-8,
+    )
