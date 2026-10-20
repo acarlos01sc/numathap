@@ -8,7 +8,7 @@ using namespace numathap::math;
 
 
 // ============================================================
-// Auxiliar para verificar o tipo de um nó.
+// To verify node type
 // ============================================================
 
 template <typename T>
@@ -19,7 +19,7 @@ const T* as_node(const MathNode* node)
 
 
 // ============================================================
-// Testes básicos
+// Basic tests
 // ============================================================
 
 TEST(NumathapPublicApi, PrepareException)
@@ -58,7 +58,7 @@ TEST(NumathapPublicApi, PrepareExpression)
 
 
 // ============================================================
-// Teste 1: sin(x^2)
+// Test 1: sin(x^2)
 // ============================================================
 
 TEST(NumathapPublicApi, PrepareNestedPowerFunction)
@@ -100,7 +100,7 @@ TEST(NumathapPublicApi, PrepareNestedPowerFunction)
 
 
 // ============================================================
-// Teste 2: sqrt(x)/tan(log(x))
+// Test 2: sqrt(x)/tan(log(x))
 // ============================================================
 
 TEST(NumathapPublicApi, PrepareNestedFunctionsAndDivision)
@@ -167,7 +167,7 @@ TEST(NumathapPublicApi, PrepareComplexExpression)
     ASSERT_NE(ast.root(), nullptr);
 
     // ========================================================
-    // Raiz: divisão
+    // Root: division
     // ========================================================
 
     const auto* division = as_node<BinaryNode>(ast.root());
@@ -179,9 +179,9 @@ TEST(NumathapPublicApi, PrepareComplexExpression)
     ASSERT_NE(division->right, nullptr);
 
     // ========================================================
-    // Numerador: tanh(x) + sin(log(x)) + x^(3/2)
+    // Numerator: tanh(x) + sin(log(x)) + x^(3/2)
     //
-    // Estrutura esperada:
+    // Waited struct:
     //
     //              Add
     //             /   \
@@ -204,7 +204,7 @@ TEST(NumathapPublicApi, PrepareComplexExpression)
     ASSERT_NE(numerator->right, nullptr);
 
     // --------------------------------------------------------
-    // Parcela: x^(3/2)
+    // Expression: x^(3/2)
     // --------------------------------------------------------
 
     const auto* fractional_power =
@@ -223,7 +223,7 @@ TEST(NumathapPublicApi, PrepareComplexExpression)
     ASSERT_NE(power_base, nullptr);
     EXPECT_EQ(power_base->name, "x");
 
-    // Expoente: 3/2
+    // Expoent: 3/2
     const auto* power_exponent =
         as_node<BinaryNode>(fractional_power->right.get());
 
@@ -246,7 +246,7 @@ TEST(NumathapPublicApi, PrepareComplexExpression)
     EXPECT_EQ(exponent_denominator->value, "2");
 
     // --------------------------------------------------------
-    // Soma: tanh(x) + sin(log(x))
+    // Sum: tanh(x) + sin(log(x))
     // --------------------------------------------------------
 
     const auto* numerator_sum =
@@ -298,7 +298,7 @@ TEST(NumathapPublicApi, PrepareComplexExpression)
     EXPECT_EQ(log_argument->name, "x");
 
     // ========================================================
-    // Denominador: tan(x^2) + 20*pi
+    // Denominator: tan(x^2) + 20*pi
     // ========================================================
 
     const auto* denominator =
@@ -311,7 +311,7 @@ TEST(NumathapPublicApi, PrepareComplexExpression)
     ASSERT_NE(denominator->right, nullptr);
 
     // --------------------------------------------------------
-    // Parcela: tan(x^2)
+    // Expression: tan(x^2)
     // --------------------------------------------------------
 
     const auto* tan_node =
@@ -344,7 +344,7 @@ TEST(NumathapPublicApi, PrepareComplexExpression)
     EXPECT_EQ(denominator_exponent->value, "2");
 
     // --------------------------------------------------------
-    // Parcela: 20*pi
+    // Espression: 20*pi
     // --------------------------------------------------------
 
     const auto* product =

@@ -17,11 +17,11 @@ namespace {
 
 constexpr auto kEvaluationTimeout = std::chrono::seconds(60);
 
-// Executado exclusivamente pelo processo filho.
-// Código de saída:
-//   0 = avaliação correta
-//   1 = resultado incorreto
-//   2 = exceção durante a avaliação
+// Executed exclusively by the child process
+// Output code:
+//   0 = Passed
+//   1 = Error
+//   2 = Exception
 void evaluateExpression()
 {
     try {
@@ -51,7 +51,7 @@ TEST(Evaluate, ComputesExpressionWithinOneMinute)
     const pid_t child = fork();
 
     ASSERT_NE(child, -1)
-        << "Não foi possível criar o processo filho.";
+        << "Can't create child process.";
 
     if (child == 0) {
         evaluateExpression();
@@ -67,10 +67,10 @@ TEST(Evaluate, ComputesExpressionWithinOneMinute)
 
         if (result == child) {
             ASSERT_TRUE(WIFEXITED(status))
-                << "O processo filho terminou de forma anormal.";
+                << "The child process terminated abnormally.";
 
             ASSERT_EQ(WEXITSTATUS(status), 0)
-                << "A avaliação falhou ou produziu um resultado incorreto.";
+                << "Incorrect result.";
 
             SUCCEED();
             return;
@@ -81,7 +81,7 @@ TEST(Evaluate, ComputesExpressionWithinOneMinute)
                 continue;
             }
 
-            FAIL() << "Erro ao aguardar o processo filho.";
+            FAIL() << "Error while waiting for the child process.";
             return;
         }
 
@@ -92,15 +92,15 @@ TEST(Evaluate, ComputesExpressionWithinOneMinute)
 
     // O prazo expirou: interrompe e recolhe o processo filho.
     if (kill(child, SIGKILL) == -1 && errno != ESRCH) {
-        FAIL() << "O timeout expirou e não foi possível encerrar "
-                  "o processo filho.";
+        FAIL() << "The timeout expired and it was not possible to terminate "
+                  "child process.";
         return;
     }
 
     while (waitpid(child, &status, 0) == -1 && errno == EINTR) {
     }
 
-    FAIL() << "A avaliação não terminou dentro de 60 segundos.";
+    FAIL() << "The evaluation did not finish within 60 seconds.";
 }
 
 TEST(Evaluate, MultipleVariables)
