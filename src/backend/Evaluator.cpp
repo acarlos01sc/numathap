@@ -23,6 +23,11 @@ Evaluator::Evaluator(const math::PreparedAst& prepared,
                      const std::unordered_map<std::string, core::Value>& values)
     : prepared_(prepared), context_(emptyContext), values_(&values) {}
 
+Evaluator::Evaluator(const math::PreparedAst& prepared,
+                     const core::Context& context,
+                     const std::unordered_map<std::string, core::Value>& values)
+    : prepared_(prepared), context_(context), values_(&values) {}
+
 core::Value Evaluator::evaluate(const math::PreparedAst& prepared,
                                 const core::Context& context) {
     Evaluator evaluator(prepared, context);
@@ -34,6 +39,14 @@ core::Value Evaluator::evaluateAt(
     const math::PreparedAst& prepared,
     const std::unordered_map<std::string, core::Value>& values) {
     Evaluator evaluator(prepared, values);
+
+    return dispatch::Dispatcher::dispatch(prepared, evaluator);
+}
+
+core::Value Evaluator::evaluateAt(
+    const math::PreparedAst& prepared, const core::Context& context,
+    const std::unordered_map<std::string, core::Value>& values) {
+    Evaluator evaluator(prepared, context, values);
 
     return dispatch::Dispatcher::dispatch(prepared, evaluator);
 }

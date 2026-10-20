@@ -17,6 +17,7 @@
 
 namespace numathap::backend::integrate {
 
+using core::Context;
 using core::Value;
 using math::PreparedAst;
 using Storage = numeric::Real::Storage;
@@ -57,10 +58,11 @@ const Value wg2{numeric::Real("0.279705391489276667901467771423780")};
 const Value wg3{numeric::Real("0.381830050505118944950369775488975")};
 const Value wg4{numeric::Real("0.417959183673469387755102040810034")};
 
-Value evaluateAt(const PreparedAst& prepared, const std::string& variable,
-                 const Value& x) {
+Value evaluateAt(const PreparedAst& prepared, const Context& context,
+                 const std::string& variable, const Value& x) {
     return backend::Evaluator::evaluateAt(
-        prepared, std::unordered_map<std::string, Value>{{variable, x}});
+        prepared, context,
+        std::unordered_map<std::string, Value>{{variable, x}});
 }
 
 struct QuadratureResult {
@@ -72,7 +74,7 @@ struct QuadratureResult {
 /**
  * @brief Evaluates the embedded Gauss 7 / Kronrod 15 rules on one interval.
  */
-QuadratureResult quadrature(const PreparedAst& prepared,
+QuadratureResult quadrature(const PreparedAst& prepared, const Context& context,
                             const std::string& variable, const Value& lower,
                             const Value& upper, std::size_t& evaluations,
                             std::size_t maxEvaluations) {
@@ -92,7 +94,7 @@ QuadratureResult quadrature(const PreparedAst& prepared,
         }
 
         ++evaluations;
-        return evaluateAt(prepared, variable, point);
+        return evaluateAt(prepared, context, variable, point);
     };
 
     const Value fCenter = evaluate(center);
@@ -130,12 +132,13 @@ QuadratureResult quadrature(const PreparedAst& prepared,
     return QuadratureResult{kronrod, gauss, error};
 }
 
-Value adaptiveIntegrate(const PreparedAst& prepared,
+Value adaptiveIntegrate(const PreparedAst& prepared, const Context& context,
                         const std::string& variable, const Value& lower,
                         const Value& upper, const GaussKronrod15Config& config,
                         std::size_t& evaluations) {
-    const QuadratureResult result = quadrature(
-        prepared, variable, lower, upper, evaluations, config.maxEvaluations);
+    const QuadratureResult result =
+        quadrature(prepared, context, variable, lower, upper, evaluations,
+                   config.maxEvaluations);
 
     const Storage magnitude = std::abs(result.kronrod.real().value());
 
@@ -151,15 +154,16 @@ Value adaptiveIntegrate(const PreparedAst& prepared,
 
     const Value middle = (lower + upper) / Value(2.0);
 
-    return adaptiveIntegrate(prepared, variable, lower, middle, config,
+    return adaptiveIntegrate(prepared, context, variable, lower, middle, config,
                              evaluations) +
-           adaptiveIntegrate(prepared, variable, middle, upper, config,
+           adaptiveIntegrate(prepared, context, variable, middle, upper, config,
                              evaluations);
 }
 
 }  // namespace
 
 Value GaussKronrod15::integrate(const PreparedAst& prepared,
+                                const Context& context,
                                 const std::string& variable, const Value& lower,
                                 const Value& upper,
                                 const GaussKronrod15Config& config) {
@@ -187,14 +191,13 @@ Value GaussKronrod15::integrate(const PreparedAst& prepared,
     }
 
     if (lower.real().value() > upper.real().value()) {
-        return -integrate(prepared, variable, upper, lower, config);
+        return -integrate(prepared, context, variable, upper, lower, config);
     }
 
     std::size_t evaluations = 0;
 
-    return adaptiveIntegrate(prepared, variable, lower, upper, config,
+    return adaptiveIntegrate(prepared, context, variable, lower, upper, config,
                              evaluations);
 }
 
 }  // namespace numathap::backend::integrate
-

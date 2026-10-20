@@ -9,6 +9,7 @@
 #include <cstddef>
 #include <string>
 
+#include "numathap/core/Context.hpp"
 #include "numathap/core/Value.hpp"
 
 namespace numathap::math {
@@ -43,6 +44,7 @@ class AdaptiveSimpson {
      * @brief Integrates a prepared mathematical expression.
      *
      * @param prepared Prepared mathematical expression.
+     * @param context Context containing definitions of additional variables.
      * @param variable Name of the integration variable.
      * @param lower Lower integration limit.
      * @param upper Upper integration limit.
@@ -54,6 +56,7 @@ class AdaptiveSimpson {
      */
     [[nodiscard]]
     static core::Value integrate(const math::PreparedAst& prepared,
+                                 const core::Context& context,
                                  const std::string& variable,
                                  const core::Value& lower,
                                  const core::Value& upper,

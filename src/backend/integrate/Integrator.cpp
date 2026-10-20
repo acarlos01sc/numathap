@@ -27,15 +27,17 @@ Value Integrator::integrate(const PreparedAst& prepared,
 }
 
 Value Integrator::integrate(const PreparedAst& prepared,
-                            const std::string& variable, const Context& context,
+                            const std::string& variable,
+                            const Context& context,
                             const MathEnvironment& environment) const {
     IntegrationInterval interval = resolveInterval(variable, context);
 
     if (isInfinite(interval.lower) || isInfinite(interval.upper)) {
-        return integrateImproper(prepared, variable, interval, environment);
+        return integrateImproper(prepared, variable, context, interval,
+                                 environment);
     }
 
-    return integrateFinite(prepared, variable, interval, environment);
+    return integrateFinite(prepared, variable, context, interval, environment);
 }
 
 Integrator::IntegrationInterval Integrator::resolveInterval(
@@ -57,6 +59,7 @@ bool Integrator::isInfinite(const std::string& bound) const {
 
 Value Integrator::integrateFinite(const PreparedAst& prepared,
                                   const std::string& variable,
+                                  const Context& context,
                                   const IntegrationInterval& interval,
                                   const MathEnvironment& environment) const {
     const auto resolveBound = [](const std::string& expression) -> Value {
@@ -73,16 +76,16 @@ Value Integrator::integrateFinite(const PreparedAst& prepared,
             const auto& config = std::get<AdaptiveSimpsonConfig>(
                 environment.integrationAlgorithmConfig());
 
-            return AdaptiveSimpson::integrate(prepared, variable, lower, upper,
-                                              config);
+            return AdaptiveSimpson::integrate(prepared, context, variable,
+                                              lower, upper, config);
         }
 
         case Algorithm::GaussKronrod15: {
             const auto& config = std::get<GaussKronrod15Config>(
                 environment.integrationAlgorithmConfig());
 
-            return GaussKronrod15::integrate(prepared, variable, lower, upper,
-                                             config);
+            return GaussKronrod15::integrate(prepared, context, variable,
+                                             lower, upper, config);
         }
     }
 
@@ -91,6 +94,7 @@ Value Integrator::integrateFinite(const PreparedAst& prepared,
 
 Value Integrator::integrateImproper(const PreparedAst& prepared,
                                     const std::string& variable,
+                                    const Context& context,
                                     const IntegrationInterval& interval,
                                     const MathEnvironment& environment) const {
     const bool lowerInfinite = isInfinite(interval.lower);
@@ -140,7 +144,7 @@ Value Integrator::integrateImproper(const PreparedAst& prepared,
     }
 
     return integrateFinite(transformed.prepared, transformed.variable,
-                           transformedInterval, environment);
+                           context, transformedInterval, environment);
 }
 
 }  // namespace numathap::backend::integrate

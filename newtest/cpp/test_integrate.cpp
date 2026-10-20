@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include "numathap/backend/integrate/GaussKronrod15.hpp"
 #include "numathap/numathap.hpp"
 
 namespace {
@@ -93,5 +94,40 @@ TEST(NumathapIntegrate, GaussKronrod15SincSingularity) {
 
     EXPECT_NEAR(result.real().value(), kExpectedResult, kTolerance);
 }
+
+TEST(NumathapIntegrate, AdaptiveSimpsonWithParameter) {
+    const auto expression = prepare("x^2 + y");
+
+    Context context;
+    context.setInterval("x", "0", "1");
+    context.setValue("y", "2");
+
+    const auto environment =
+        configure(backend::integrate::AdaptiveSimpsonConfig{});
+
+    const Value result = integrate(expression, "x", context, environment);
+
+    ASSERT_TRUE(result.isReal());
+
+    EXPECT_NEAR(result.real().value(), 7.0 / 3.0, kTolerance);
+}
+
+TEST(NumathapIntegrate, GaussKronrod15WithParameter) {
+    const auto expression = prepare("x^2 + y");
+
+    Context context;
+    context.setInterval("x", "0", "1");
+    context.setValue("y", "2");
+
+    const auto environment =
+        configure(backend::integrate::GaussKronrod15Config{});
+
+    const Value result = integrate(expression, "x", context, environment);
+
+    ASSERT_TRUE(result.isReal());
+
+    EXPECT_NEAR(result.real().value(), 7.0 / 3.0, kTolerance);
+}
+
 
 }  // namespace

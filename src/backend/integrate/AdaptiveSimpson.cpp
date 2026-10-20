@@ -13,15 +13,17 @@
 
 namespace numathap::backend::integrate {
 
+using core::Context;
 using core::Value;
 using math::PreparedAst;
 
 namespace {
 
-Value evaluateAt(const PreparedAst& prepared, const std::string& variable,
-                 const Value& x) {
+Value evaluateAt(const PreparedAst& prepared, const Context& context,
+                 const std::string& variable, const Value& x) {
     return backend::Evaluator::evaluateAt(
-        prepared, std::unordered_map<std::string, Value>{{variable, x}});
+        prepared, context,
+        std::unordered_map<std::string, Value>{{variable, x}});
 }
 
 Value simpson(const Value& lower, const Value& upper, const Value& fLower,
@@ -31,20 +33,21 @@ Value simpson(const Value& lower, const Value& upper, const Value& fLower,
     return (width / Value(6.0)) * (fLower + Value(4.0) * fMiddle + fUpper);
 }
 
-Value adaptiveSimpson(const PreparedAst& prepared, const std::string& variable,
-                      const Value& lower, const Value& upper,
-                      const Value& fLower, const Value& fMiddle,
-                      const Value& fUpper, const Value& whole,
-                      const Value& tolerance, std::size_t depth) {
+Value adaptiveSimpson(const PreparedAst& prepared, const Context& context,
+                      const std::string& variable, const Value& lower,
+                      const Value& upper, const Value& fLower,
+                      const Value& fMiddle, const Value& fUpper,
+                      const Value& whole, const Value& tolerance,
+                      std::size_t depth) {
     const Value middle = (lower + upper) / Value(2.0);
 
     const Value leftMiddle = (lower + middle) / Value(2.0);
 
     const Value rightMiddle = (middle + upper) / Value(2.0);
 
-    const Value fLeftMiddle = evaluateAt(prepared, variable, leftMiddle);
+    const Value fLeftMiddle = evaluateAt(prepared, context, variable, leftMiddle);
 
-    const Value fRightMiddle = evaluateAt(prepared, variable, rightMiddle);
+    const Value fRightMiddle = evaluateAt(prepared, context, variable, rightMiddle);
 
     const Value left = simpson(lower, middle, fLower, fLeftMiddle, fMiddle);
 
@@ -66,10 +69,10 @@ Value adaptiveSimpson(const PreparedAst& prepared, const std::string& variable,
 
     const Value halfTolerance = tolerance / Value(2.0);
 
-    return adaptiveSimpson(prepared, variable, lower, middle, fLower,
+    return adaptiveSimpson(prepared, context, variable, lower, middle, fLower,
                            fLeftMiddle, fMiddle, left, halfTolerance,
                            depth - 1) +
-           adaptiveSimpson(prepared, variable, middle, upper, fMiddle,
+           adaptiveSimpson(prepared, context, variable, middle, upper, fMiddle,
                            fRightMiddle, fUpper, right, halfTolerance,
                            depth - 1);
 }
@@ -77,6 +80,7 @@ Value adaptiveSimpson(const PreparedAst& prepared, const std::string& variable,
 }  // namespace
 
 Value AdaptiveSimpson::integrate(const PreparedAst& prepared,
+                                 const Context& context,
                                  const std::string& variable,
                                  const Value& lower, const Value& upper,
                                  const AdaptiveSimpsonConfig& config) {
@@ -97,20 +101,20 @@ Value AdaptiveSimpson::integrate(const PreparedAst& prepared,
     }
 
     if (lower > upper) {
-        return -integrate(prepared, variable, upper, lower, config);
+        return -integrate(prepared, context, variable, upper, lower, config);
     }
 
     const Value middle = (lower + upper) / Value(2.0);
 
-    const Value fLower = evaluateAt(prepared, variable, lower);
+    const Value fLower = evaluateAt(prepared, context, variable, lower);
 
-    const Value fMiddle = evaluateAt(prepared, variable, middle);
+    const Value fMiddle = evaluateAt(prepared, context, variable, middle);
 
-    const Value fUpper = evaluateAt(prepared, variable, upper);
+    const Value fUpper = evaluateAt(prepared, context, variable, upper);
 
     const Value whole = simpson(lower, upper, fLower, fMiddle, fUpper);
 
-    return adaptiveSimpson(prepared, variable, lower, upper, fLower, fMiddle,
+    return adaptiveSimpson(prepared, context, variable, lower, upper, fLower, fMiddle,
                            fUpper, whole, tolerance, config.maxDepth);
 }
 

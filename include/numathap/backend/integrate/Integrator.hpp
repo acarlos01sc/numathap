@@ -72,7 +72,7 @@ class Integrator {
      */
     core::Value integrateFinite(
         const math::PreparedAst& prepared, const std::string& variable,
-        const IntegrationInterval& interval,
+        const core::Context& context, const IntegrationInterval& interval,
         const config::MathEnvironment& environment) const;
 
     /**
@@ -83,7 +83,7 @@ class Integrator {
      */
     core::Value integrateImproper(
         const math::PreparedAst& prepared, const std::string& variable,
-        const IntegrationInterval& interval,
+        const core::Context& context, const IntegrationInterval& interval,
         const config::MathEnvironment& environment) const;
 };
 

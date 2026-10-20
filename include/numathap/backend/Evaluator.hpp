@@ -51,6 +51,11 @@ class Evaluator {
         const math::PreparedAst& prepared,
         const std::unordered_map<std::string, core::Value>& values);
 
+    [[nodiscard]]
+    static core::Value evaluateAt(
+        const math::PreparedAst& prepared, const core::Context& context,
+        const std::unordered_map<std::string, core::Value>& values);
+
     /** @name Dispatcher Visitors
      *  Overloaded operators that process specific MathNode types.
      */
@@ -77,6 +82,9 @@ class Evaluator {
      * @brief Private constructor used by the static evaluateAt() method.
      */
     Evaluator(const math::PreparedAst& prepared,
+              const std::unordered_map<std::string, core::Value>& values);
+
+    Evaluator(const math::PreparedAst& prepared, const core::Context& context,
               const std::unordered_map<std::string, core::Value>& values);
 
     /** @brief Dispatches a node to the appropriate visitor overload. */
