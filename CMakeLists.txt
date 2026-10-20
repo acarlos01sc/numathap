@@ -6,8 +6,8 @@ cmake_minimum_required(VERSION 3.20)
 
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" NUMATHAP_VERSION_FILE)
 
-string(
-	REGEX MATCH
+string(REGEX
+	MATCH
 	"VERSION[ \t]*=[ \t]*\"([0-9]+\.[0-9]+\.[0-9]+)\""
 	_
 	"${NUMATHAP_VERSION_FILE}"
@@ -51,7 +51,10 @@ option(NUMATHAP_INSTALL_CPP
 # Definição modular
 file(GLOB SOURCES_BACKEND CONFIGURE_DEPENDS "src/backend/*.cpp")
 file(GLOB SOURCES_INTEGRATE CONFIGURE_DEPENDS "src/backend/integrate/*.cpp")
-file(GLOB SOURCES_DIFFERENTIATE CONFIGURE_DEPENDS "src/backend/differentiate/*.cpp")
+file(GLOB SOURCES_DIFFERENTIATE
+	CONFIGURE_DEPENDS
+	"src/backend/differentiate/*.cpp"
+)
 file(GLOB SOURCES_SERIES CONFIGURE_DEPENDS "src/backend/series/*.cpp")
 file(GLOB SOURCES_CONFIG CONFIGURE_DEPENDS "src/config/*.cpp")
 file(GLOB SOURCES_CORE CONFIGURE_DEPENDS "src/core/*.cpp")
@@ -120,20 +123,19 @@ else()
 	target_compile_options(numathap PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
+option(NUMATHAP_BUILD_PYTHON "Build Python bindings" ON)
 
 if(NUMATHAP_BUILD_PYTHON)
 	add_subdirectory(python)
 endif()
 
-option(
-    NUMATHAP_BUILD_NEW_TESTS
-    "Build new GoogleTest-based tests"
-    OFF
+option(NUMATHAP_BUILD_NEW_TESTS
+	"Build new GoogleTest-based tests"
+	ON
 )
 
 if(NUMATHAP_BUILD_NEW_TESTS)
-    add_subdirectory(newtest)
+	add_subdirectory(newtest)
 endif()
 
 #----------------------------------------------------------
@@ -181,4 +183,3 @@ if(NUMATHAP_INSTALL_CPP)
 	)
 
 endif()
-
