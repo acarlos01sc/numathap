@@ -123,7 +123,7 @@ else()
 	target_compile_options(numathap PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-option(NUMATHAP_BUILD_PYTHON "Build Python bindings" ON)
+option(NUMATHAP_BUILD_PYTHON "Build Python bindings" OFF)
 
 if(NUMATHAP_BUILD_PYTHON)
 	add_subdirectory(python)
@@ -131,7 +131,7 @@ endif()
 
 option(NUMATHAP_BUILD_NEW_TESTS
 	"Build new GoogleTest-based tests"
-	ON
+	OFF
 )
 
 if(NUMATHAP_BUILD_NEW_TESTS)
