@@ -27,8 +27,7 @@ constexpr double TWO_PI = 2.0 * std::numbers::pi_v<double>;
 /**
  * @brief Converts a numathap Complex value to std::complex<double>.
  */
-NativeComplex toNative(const core::Value& value)
-{
+NativeComplex toNative(const core::Value& value) {
     if (!value.isComplex()) {
         throw std::invalid_argument(
             "ComplexDoubleAdapter expects a complex argument.");
@@ -36,35 +35,28 @@ NativeComplex toNative(const core::Value& value)
 
     const numeric::Complex& value_complex = value.complex();
 
-    return NativeComplex(
-        value_complex.real().value(),
-        value_complex.imaginary().value());
+    return NativeComplex(value_complex.real().value(),
+                         value_complex.imaginary().value());
 }
 
 /**
  * @brief Converts a std::complex<double> to a numathap Complex value.
  */
-core::Value fromNative(const NativeComplex& value)
-{
-    return core::Value(
-        numeric::Complex(
-            numeric::Real(value.real()),
-            numeric::Real(value.imag())));
+core::Value fromNative(const NativeComplex& value) {
+    return core::Value(numeric::Complex(numeric::Real(value.real()),
+                                        numeric::Real(value.imag())));
 }
 
 /**
  * @brief Checks the number of arguments passed to a function.
  */
-void expectArguments(
-    std::string_view function,
-    std::span<const core::Value> arguments,
-    std::size_t expected)
-{
+void expectArguments(std::string_view function,
+                     std::span<const core::Value> arguments,
+                     std::size_t expected) {
     if (arguments.size() != expected) {
-        throw std::invalid_argument(
-            "Function '" + std::string(function) +
-            "' expects " + std::to_string(expected) +
-            " argument(s).");
+        throw std::invalid_argument("Function '" + std::string(function) +
+                                    "' expects " + std::to_string(expected) +
+                                    " argument(s).");
     }
 }
 
@@ -73,32 +65,37 @@ void expectArguments(
  *
  * The branch index must be a finite integer.
  */
-int branchIndex(
-    std::string_view function,
-    const core::Value& value)
-{
-    if (!value.isReal()) {
-        throw std::invalid_argument(
-            "Branch index k of function '" +
-            std::string(function) +
-            "' must be real.");
+int branchIndex(std::string_view function, const core::Value& value) {
+    double k = 0.0;
+
+    if (value.isReal()) {
+        k = value.real().value();
+    } else if (value.isComplex()) {
+        const auto& complex = value.complex();
+
+        if (complex.imaginary().value() != 0.0) {
+            throw std::invalid_argument("Branch index k of function '" +
+                                        std::string(function) +
+                                        "' must be real.");
+        }
+
+        k = complex.real().value();
+    } else {
+        throw std::invalid_argument("Branch index k of function '" +
+                                    std::string(function) + "' must be real.");
     }
 
-    const double k = value.real().value();
-
     if (!std::isfinite(k) || std::floor(k) != k) {
-        throw std::invalid_argument(
-            "Branch index k of function '" +
-            std::string(function) +
-            "' must be a finite integer.");
+        throw std::invalid_argument("Branch index k of function '" +
+                                    std::string(function) +
+                                    "' must be a finite integer.");
     }
 
     if (k < static_cast<double>(std::numeric_limits<int>::min()) ||
         k > static_cast<double>(std::numeric_limits<int>::max())) {
-        throw std::invalid_argument(
-            "Branch index k of function '" +
-            std::string(function) +
-            "' is outside the supported range.");
+        throw std::invalid_argument("Branch index k of function '" +
+                                    std::string(function) +
+                                    "' is outside the supported range.");
     }
 
     return static_cast<int>(k);
@@ -109,12 +106,8 @@ int branchIndex(
  *
  * log_k(z) = Log(z) + 2*pi*i*k
  */
-NativeComplex logarithm(
-    const NativeComplex& z,
-    int k)
-{
-    return std::log(z) +
-           NativeComplex(0.0, TWO_PI * static_cast<double>(k));
+NativeComplex logarithm(const NativeComplex& z, int k) {
+    return std::log(z) + NativeComplex(0.0, TWO_PI * static_cast<double>(k));
 }
 
 /**
@@ -122,10 +115,7 @@ NativeComplex logarithm(
  *
  * sqrt_k(z) alternates between the two square-root branches.
  */
-NativeComplex squareRoot(
-    const NativeComplex& z,
-    int k)
-{
+NativeComplex squareRoot(const NativeComplex& z, int k) {
     NativeComplex result = std::sqrt(z);
 
     if (k % 2 != 0) {
@@ -140,26 +130,19 @@ NativeComplex squareRoot(
  *
  * z^w = exp(w * (Log(z) + 2*pi*i*k))
  */
-NativeComplex power(
-    const NativeComplex& base,
-    const NativeComplex& exponent,
-    int k)
-{
-    return std::exp(
-        exponent * logarithm(base, k));
+NativeComplex power(const NativeComplex& base, const NativeComplex& exponent,
+                    int k) {
+    return std::exp(exponent * logarithm(base, k));
 }
 
-} // namespace
+}  // namespace
 
-std::string_view ComplexDoubleAdapter::name() const noexcept
-{
+std::string_view ComplexDoubleAdapter::name() const noexcept {
     return "complex-double";
 }
 
 core::Value ComplexDoubleAdapter::callFunction(
-    std::string_view function,
-    std::span<const core::Value> arguments) const
-{
+    std::string_view function, std::span<const core::Value> arguments) const {
     /*
      * Elementary functions.
      *
@@ -173,15 +156,13 @@ core::Value ComplexDoubleAdapter::callFunction(
 
     if (function == "log") {
         if (arguments.size() == 1) {
-            return fromNative(
-                logarithm(toNative(arguments[0]), 0));
+            return fromNative(logarithm(toNative(arguments[0]), 0));
         }
 
         if (arguments.size() == 2) {
             const int k = branchIndex(function, arguments[1]);
 
-            return fromNative(
-                logarithm(toNative(arguments[0]), k));
+            return fromNative(logarithm(toNative(arguments[0]), k));
         }
 
         throw std::invalid_argument(
@@ -190,22 +171,18 @@ core::Value ComplexDoubleAdapter::callFunction(
 
     if (function == "log10") {
         expectArguments(function, arguments, 1);
-        return fromNative(
-            std::log(toNative(arguments[0])) /
-            std::log(10.0));
+        return fromNative(std::log(toNative(arguments[0])) / std::log(10.0));
     }
 
     if (function == "sqrt") {
         if (arguments.size() == 1) {
-            return fromNative(
-                squareRoot(toNative(arguments[0]), 0));
+            return fromNative(squareRoot(toNative(arguments[0]), 0));
         }
 
         if (arguments.size() == 2) {
             const int k = branchIndex(function, arguments[1]);
 
-            return fromNative(
-                squareRoot(toNative(arguments[0]), k));
+            return fromNative(squareRoot(toNative(arguments[0]), k));
         }
 
         throw std::invalid_argument(
@@ -223,20 +200,14 @@ core::Value ComplexDoubleAdapter::callFunction(
     if (function == "pow") {
         if (arguments.size() == 2) {
             return fromNative(
-                power(
-                    toNative(arguments[0]),
-                    toNative(arguments[1]),
-                    0));
+                power(toNative(arguments[0]), toNative(arguments[1]), 0));
         }
 
         if (arguments.size() == 3) {
             const int k = branchIndex(function, arguments[2]);
 
             return fromNative(
-                power(
-                    toNative(arguments[0]),
-                    toNative(arguments[1]),
-                    k));
+                power(toNative(arguments[0]), toNative(arguments[1]), k));
         }
 
         throw std::invalid_argument(
@@ -317,82 +288,63 @@ core::Value ComplexDoubleAdapter::callFunction(
     if (function == "abs") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(
-            numeric::Real(
-                std::abs(toNative(arguments[0]))));
+        return core::Value(numeric::Real(std::abs(toNative(arguments[0]))));
     }
 
     if (function == "arg") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(
-            numeric::Real(
-                std::arg(toNative(arguments[0]))));
+        return core::Value(numeric::Real(std::arg(toNative(arguments[0]))));
     }
 
     if (function == "norm") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(
-            numeric::Real(
-                std::norm(toNative(arguments[0]))));
+        return core::Value(numeric::Real(std::norm(toNative(arguments[0]))));
     }
 
     if (function == "conj") {
         expectArguments(function, arguments, 1);
-        return fromNative(
-            std::conj(toNative(arguments[0])));
+        return fromNative(std::conj(toNative(arguments[0])));
     }
 
     if (function == "real") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(
-            numeric::Real(
-                toNative(arguments[0]).real()));
+        return core::Value(numeric::Real(toNative(arguments[0]).real()));
     }
 
     if (function == "imag") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(
-            numeric::Real(
-                toNative(arguments[0]).imag()));
+        return core::Value(numeric::Real(toNative(arguments[0]).imag()));
     }
 
-    throw std::invalid_argument(
-        "Function '" + std::string(function) +
-        "' is not supported by ComplexDoubleAdapter.");
+    throw std::invalid_argument("Function '" + std::string(function) +
+                                "' is not supported by ComplexDoubleAdapter.");
 }
 
 core::Value ComplexDoubleAdapter::resolveConstant(
-    std::string_view constant) const
-{
+    std::string_view constant) const {
     if (constant == "i" || constant == "j") {
         return core::Value(
-            numeric::Complex(
-                numeric::Real(0.0),
-                numeric::Real(1.0)));
+            numeric::Complex(numeric::Real(0.0), numeric::Real(1.0)));
     }
 
     if (constant == "pi") {
-        return core::Value(
-            numeric::Real(std::numbers::pi_v<double>));
+        return core::Value(numeric::Real(std::numbers::pi_v<double>));
     }
 
     if (constant == "e") {
-        return core::Value(
-            numeric::Real(std::numbers::e_v<double>));
+        return core::Value(numeric::Real(std::numbers::e_v<double>));
     }
 
-    throw std::invalid_argument(
-        "Constant '" + std::string(constant) +
-        "' is not supported by ComplexDoubleAdapter.");
+    throw std::invalid_argument("Constant '" + std::string(constant) +
+                                "' is not supported by ComplexDoubleAdapter.");
 }
 
-std::unique_ptr<MathAdapter> ComplexDoubleAdapter::clone() const
-{
+std::unique_ptr<MathAdapter> ComplexDoubleAdapter::clone() const {
     return std::make_unique<ComplexDoubleAdapter>(*this);
 }
 
-} // namespace numathap::config
+}  // namespace numathap::config

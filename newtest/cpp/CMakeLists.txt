@@ -6,6 +6,7 @@ add_executable(
     test_integrate.cpp
     test_series.cpp
     test_differentiate.cpp
+    test_evaluate_cx.cpp
 )
 
 target_link_libraries(
