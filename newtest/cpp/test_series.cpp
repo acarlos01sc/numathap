@@ -17,10 +17,10 @@ using namespace numathap;
 
 constexpr auto kTestTimeout = std::chrono::seconds(60);
 
-constexpr double kTolerance = 1e-8;
+constexpr auto kTolerance = 1e-8;
 
 void runTaylorTest(const char* expressionText, std::size_t order,
-                   double expectedResult) {
+                   auto expectedResult) {
     const auto expression = prepare(expressionText);
 
     const auto environment =
@@ -37,7 +37,7 @@ void runTaylorTest(const char* expressionText, std::size_t order,
         _exit(1);
     }
 
-    const double actualResult = result.real().value();
+    const auto actualResult = result.real().value();
 
     if (actualResult < expectedResult - kTolerance ||
         actualResult > expectedResult + kTolerance) {
@@ -48,7 +48,7 @@ void runTaylorTest(const char* expressionText, std::size_t order,
 }
 
 void runTestWithTimeout(const char* expressionText, std::size_t order,
-                        double expectedResult) {
+                        auto expectedResult) {
     const pid_t child = fork();
 
     ASSERT_NE(child, -1) << "Failed to create child process.";

@@ -9,8 +9,8 @@ namespace {
 
 using namespace numathap;
 
-constexpr double kExpectedResult = 22.1406926327793;
-constexpr double kTolerance = 1e-8;
+constexpr auto kExpectedResult = 22.1406926327793;
+constexpr auto kTolerance = 1e-8;
 
 TEST(NumathapIntegrate, AdaptiveSimpson) {
     const auto expression = prepare("e^x");
@@ -89,8 +89,8 @@ TEST(NumathapIntegrate, GaussKronrod15SincSingularity) {
 
     ASSERT_TRUE(result.isReal());
 
-    constexpr double kExpectedResult = 1.892166140734366;
-    constexpr double kTolerance = 1e-10;
+    constexpr auto kExpectedResult = 1.892166140734366;
+    constexpr auto kTolerance = 1e-10;
 
     EXPECT_NEAR(result.real().value(), kExpectedResult, kTolerance);
 }

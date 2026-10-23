@@ -1,17 +1,14 @@
 #include <gtest/gtest.h>
-
-#include <numathap/numathap.hpp>
-
-#include <chrono>
-#include <cmath>
-#include <cerrno>
-#include <thread>
-#include <stdexcept>
-
-#include <csignal>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
+#include <cerrno>
+#include <chrono>
+#include <csignal>
+#include <numathap/numathap.hpp>
+#include <stdexcept>
+#include <thread>
 
 namespace {
 
@@ -22,8 +19,7 @@ constexpr auto kEvaluationTimeout = std::chrono::seconds(60);
 //   0 = Passed
 //   1 = Error
 //   2 = Exception
-void evaluateExpression()
-{
+void evaluateExpression() {
     try {
         auto ast = numathap::prepare("x^2 + 2*x + 1 + cos(pi)");
 
@@ -31,34 +27,30 @@ void evaluateExpression()
         context.setValue("x", "2");
 
         const auto result = numathap::evaluate(ast, context);
-        const double value = result.real().value();
+        const auto value = result.real().value();
 
-        if (std::abs(value - 8.0) < 1e-12) {
+        if (value >= 8.0 - 1e-12 && value <= 8.0 + 1e-12) {
             _exit(0);
         }
 
         _exit(1);
-    }
-    catch (...) {
+    } catch (...) {
         _exit(2);
     }
 }
 
 }  // namespace
 
-TEST(Evaluate, ComputesExpressionWithinOneMinute)
-{
+TEST(Evaluate, ComputesExpressionWithinOneMinute) {
     const pid_t child = fork();
 
-    ASSERT_NE(child, -1)
-        << "Can't create child process.";
+    ASSERT_NE(child, -1) << "Can't create child process.";
 
     if (child == 0) {
         evaluateExpression();
     }
 
-    const auto deadline =
-        std::chrono::steady_clock::now() + kEvaluationTimeout;
+    const auto deadline = std::chrono::steady_clock::now() + kEvaluationTimeout;
 
     int status = 0;
 
@@ -69,8 +61,7 @@ TEST(Evaluate, ComputesExpressionWithinOneMinute)
             ASSERT_TRUE(WIFEXITED(status))
                 << "The child process terminated abnormally.";
 
-            ASSERT_EQ(WEXITSTATUS(status), 0)
-                << "Incorrect result.";
+            ASSERT_EQ(WEXITSTATUS(status), 0) << "Incorrect result.";
 
             SUCCEED();
             return;
@@ -85,9 +76,7 @@ TEST(Evaluate, ComputesExpressionWithinOneMinute)
             return;
         }
 
-        std::this_thread::sleep_for(
-            std::chrono::milliseconds(10)
-        );
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     // O prazo expirou: interrompe e recolhe o processo filho.
@@ -103,8 +92,7 @@ TEST(Evaluate, ComputesExpressionWithinOneMinute)
     FAIL() << "The evaluation did not finish within 60 seconds.";
 }
 
-TEST(Evaluate, MultipleVariables)
-{
+TEST(Evaluate, MultipleVariables) {
     auto ast = numathap::prepare("2*x + y + z");
 
     numathap::Context context;
@@ -113,13 +101,12 @@ TEST(Evaluate, MultipleVariables)
     context.setValue("z", "5");
 
     const auto result = numathap::evaluate(ast, context);
-    const double value = result.real().value();
+    const auto value = result.real().value();
 
     EXPECT_NEAR(value, 15.0, 1e-12);
 }
 
-TEST(EvaluateErrors, UndefinedVariable)
-{
+TEST(EvaluateErrors, UndefinedVariable) {
     auto ast = numathap::prepare("2*x + y + z");
 
     numathap::Context context;
@@ -131,21 +118,15 @@ TEST(EvaluateErrors, UndefinedVariable)
             auto result = numathap::evaluate(ast, context);
             (void)result;
         },
-        std::invalid_argument
-    );
+        std::invalid_argument);
 }
 
-TEST(Evaluate, CustomMathEnvironment)
-{
-    const auto environment = numathap::configure(
-        numathap::config::Capability::ConstantFolder,
-        numathap::config::Capability::Simplify
-    );
+TEST(Evaluate, CustomMathEnvironment) {
+    const auto environment =
+        numathap::configure(numathap::config::Capability::ConstantFolder,
+                            numathap::config::Capability::Simplify);
 
-    auto ast = numathap::prepare(
-        "x + (2 + 3) + 0",
-        environment
-    );
+    auto ast = numathap::prepare("x + (2 + 3) + 0", environment);
 
     numathap::Context context;
     context.setValue("x", "7");
@@ -155,8 +136,7 @@ TEST(Evaluate, CustomMathEnvironment)
     EXPECT_NEAR(result.real().value(), 12.0, 1e-12);
 }
 
-TEST(Evaluate, DivisionAndLogarithm)
-{
+TEST(Evaluate, DivisionAndLogarithm) {
     auto ast = numathap::prepare("(x + y) / 2 + log(z)");
 
     numathap::Context context;
