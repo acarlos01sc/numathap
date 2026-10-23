@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <cmath>
+#include <numbers>
 #include <memory>
 #include <string>
 
@@ -10,14 +10,14 @@ namespace {
 
 using namespace numathap;
 
-constexpr double kTolerance = 1e-8;
+constexpr auto kTolerance = 1e-8;
 
 MathEnvironment makeComplexEnvironment() {
     return MathEnvironment(std::make_unique<ComplexDoubleAdapter>());
 }
 
-void expectComplexNear(const Value& result, double expectedReal,
-                       double expectedImaginary) {
+void expectComplexNear(const Value& result, auto expectedReal,
+                       auto expectedImaginary) {
     ASSERT_TRUE(result.isComplex())
         << "Expected a complex result, got: " << result;
 
@@ -48,7 +48,7 @@ TEST(NumathapEvaluateComplex, SineOfImaginaryArgument) {
 
     const auto result = evaluate_cx(expression, context);
 
-    expectComplexNear(result, 0.0, std::sinh(std::acos(-1.0)));
+    expectComplexNear(result, 0.0, 11.548739357257748);
 }
 
 TEST(NumathapEvaluateComplex, ComplexPower) {
@@ -103,7 +103,7 @@ TEST(NumathapEvaluateComplex, MultipleComplexVariables) {
 TEST(NumathapEvaluateComplex, ComplexLogarithmPrincipalBranch) {
     const auto result = evaluateComplexExpression("log(z)", "z", "i");
 
-    expectComplexNear(result, 0.0, std::acos(-1.0) / 2.0);
+    expectComplexNear(result, 0.0, std::numbers::pi / 2.0);
 }
 
 class ComplexLogarithmBranchTest : public ::testing::TestWithParam<int> {};
@@ -114,8 +114,8 @@ TEST_P(ComplexLogarithmBranchTest, SelectsRequestedBranch) {
     const auto result = evaluateComplexExpression(
         ("log(z, " + std::to_string(branch) + ")").c_str(), "z", "i");
 
-    const double expectedImaginary =
-        std::acos(-1.0) / 2.0 + 2.0 * std::acos(-1.0) * branch;
+    const auto expectedImaginary =
+        std::numbers::pi / 2.0 + 2.0 * std::numbers::pi * branch;
 
     expectComplexNear(result, 0.0, expectedImaginary);
 }
@@ -137,7 +137,7 @@ TEST_P(ComplexSquareRootBranchTest, SelectsRequestedBranch) {
     const auto result = evaluateComplexExpression(
         ("sqrt(z, " + std::to_string(branch) + ")").c_str(), "z", "-1");
 
-    const double expectedImaginary = (branch % 2 == 0) ? 1.0 : -1.0;
+    const auto expectedImaginary = (branch % 2 == 0) ? 1.0 : -1.0;
 
     expectComplexNear(result, 0.0, expectedImaginary);
 }
@@ -174,7 +174,7 @@ TEST_P(ComplexPowerBranchTest, SelectsRequestedBranch) {
 
     const auto result = evaluate_cx(expression, context);
 
-    const double expectedImaginary = (branch % 2 == 0) ? 1.0 : -1.0;
+    const auto expectedImaginary = (branch % 2 == 0) ? 1.0 : -1.0;
 
     expectComplexNear(result, 0.0, expectedImaginary);
 }
