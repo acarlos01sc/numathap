@@ -1,7 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <cmath>
-
 #include "numathap/backend/integrate/GaussKronrod15.hpp"
 #include "numathap/numathap.hpp"
 
@@ -128,6 +126,5 @@ TEST(NumathapIntegrate, GaussKronrod15WithParameter) {
 
     EXPECT_NEAR(result.real().value(), 7.0 / 3.0, kTolerance);
 }
-
 
 }  // namespace
