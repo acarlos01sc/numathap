@@ -127,4 +127,21 @@ TEST(NumathapIntegrate, GaussKronrod15WithParameter) {
     EXPECT_NEAR(result.real().value(), 7.0 / 3.0, kTolerance);
 }
 
+//TEST(NumathapIntegrate, GaussKronrod15OscillatoryImproperIntegral) {
+//    const auto expression = prepare("cos(x)/(x^2 + 1)");
+//
+//    Context context;
+//    context.setInterval("x", "-inf", "inf");
+//
+//    const auto environment =
+//        configure(backend::integrate::GaussKronrod15Config{});
+//
+//    const Value result = integrate(expression, "x", context, environment);
+//
+//    ASSERT_TRUE(result.isReal());
+//
+//    constexpr auto expectedResult = 1.1557273497909217;
+//    EXPECT_NEAR(result.real().value(), expectedResult, kTolerance);
+//}
+
 }  // namespace
