@@ -1,5 +1,9 @@
 # Changelog
 
+## Release v0.1.10
+
+- Fixed incorrect Taylor series expansions for inverse trigonometric functions (`asin`, `acos`, and `atan`) caused by an error in derivative computation.
+
 ## Release v0.1.9
 
 - Created Complex numeric type

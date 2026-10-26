@@ -7,7 +7,6 @@
 
 #include <algorithm>
 #include <array>
-// #include <cmath>
 #include <functional>
 #include <limits>
 #include <span>
@@ -899,39 +898,39 @@ core::Value SeriesDag::evaluate(const core::Context& context) const {
     return evaluateNode(root_, context, memo);
 }
 
-//SeriesDag::DerivativeValues SeriesDag::evaluateDerivativesAt(
-//    std::string_view variable, const core::Value& center,
-//    std::size_t order) const {
-//    if (root_ == InvalidNode) {
-//        throw std::runtime_error(
-//            "SeriesDag: cannot evaluate derivatives of an empty DAG.");
-//    }
+// SeriesDag::DerivativeValues SeriesDag::evaluateDerivativesAt(
+//     std::string_view variable, const core::Value& center,
+//     std::size_t order) const {
+//     if (root_ == InvalidNode) {
+//         throw std::runtime_error(
+//             "SeriesDag: cannot evaluate derivatives of an empty DAG.");
+//     }
 //
-//    if (variable.empty()) {
-//        throw std::invalid_argument(
-//            "SeriesDag: differentiation variable cannot be empty.");
-//    }
+//     if (variable.empty()) {
+//         throw std::invalid_argument(
+//             "SeriesDag: differentiation variable cannot be empty.");
+//     }
 //
-//    core::Context context;
+//     core::Context context;
 //
-//    context.setValue(std::string(variable), center.str());
+//     context.setValue(std::string(variable), center.str());
 //
-//    DerivativeValues values;
+//     DerivativeValues values;
 //
-//    values.reserve(order + 1);
+//     values.reserve(order + 1);
 //
-//    SeriesDag current(*this);
+//     SeriesDag current(*this);
 //
-//    values.push_back(current.evaluate(context));
+//     values.push_back(current.evaluate(context));
 //
-//    for (std::size_t n = 1; n <= order; ++n) {
-//        current = current.differentiate(variable);
+//     for (std::size_t n = 1; n <= order; ++n) {
+//         current = current.differentiate(variable);
 //
-//        values.push_back(current.evaluate(context));
-//    }
+//         values.push_back(current.evaluate(context));
+//     }
 //
-//    return values;
-//}
+//     return values;
+// }
 
 core::Value SeriesDag::evaluateNode(
     NodeId node, const core::Context& context,
@@ -1776,11 +1775,26 @@ SeriesDag::DerivativeVector SeriesDag::functionDerivative(
 
     if (name == "asin" || name == "acos") {
         /*
-         * y' = u' / sqrt(1-u²)
+         * y' =  u' / sqrt(1-u²)  for asin
+         * y' = -u' / sqrt(1-u²)  for acos
          *
-         * The derivative vector of sqrt(1-u²) is obtained directly through
-         * the same DAG-vector machinery.
+         * argument contains:
+         *     [u, u', u'', ..., u^(N)]
+         *
+         * argumentDerivative contains:
+         *     [u', u'', ..., u^(N), 0]
+         *
+         * The final zero preserves the vector size. Only the first
+         * N entries of the derivative vector are needed to construct
+         * the derivatives of y up to order N.
          */
+        DerivativeVector argumentDerivative(argument.size(),
+                                            core::Value::parse("0"));
+
+        for (std::size_t i = 0; i + 1 < argument.size(); ++i) {
+            argumentDerivative[i] = argument[i + 1];
+        }
+
         DerivativeVector uSquared = leibnizProduct(argument, argument);
 
         DerivativeVector oneMinus = uSquared;
@@ -1794,7 +1808,8 @@ SeriesDag::DerivativeVector SeriesDag::functionDerivative(
         DerivativeVector inverseSqrt =
             powerConstant(oneMinus, core::Value::parse("-0.5"));
 
-        DerivativeVector derivative = leibnizProduct(argument, inverseSqrt);
+        DerivativeVector derivative =
+            leibnizProduct(argumentDerivative, inverseSqrt);
 
         DerivativeVector result(argument.size(), core::Value::parse("0"));
 
@@ -1814,12 +1829,23 @@ SeriesDag::DerivativeVector SeriesDag::functionDerivative(
     if (name == "atan") {
         /*
          * y' = u' / (1 + u²)
+         *
+         * argument contains:
+         *     [u, u', u'', ..., u^(N)]
          */
+        DerivativeVector argumentDerivative(argument.size(),
+                                            core::Value::parse("0"));
+
+        for (std::size_t i = 0; i + 1 < argument.size(); ++i) {
+            argumentDerivative[i] = argument[i + 1];
+        }
+
         DerivativeVector uSquared = leibnizProduct(argument, argument);
 
-        uSquared[0] = core::Value(1.0) + uSquared[0];
+        uSquared[0] = core::Value::parse("1") + uSquared[0];
 
-        DerivativeVector derivative = divideDerivatives(argument, uSquared);
+        DerivativeVector derivative =
+            divideDerivatives(argumentDerivative, uSquared);
 
         DerivativeVector result(argument.size(), core::Value::parse("0"));
 
@@ -1831,7 +1857,6 @@ SeriesDag::DerivativeVector SeriesDag::functionDerivative(
 
         return result;
     }
-
     /*
      * sqrt/cbrt should normally never arrive here because they are
      * canonicalized to Power during DAG construction.

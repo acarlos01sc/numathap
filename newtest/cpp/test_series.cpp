@@ -7,6 +7,8 @@
 #include <chrono>
 #include <csignal>
 #include <cstddef>
+#include <exception>
+#include <iostream>
 #include <thread>
 
 #include "numathap/numathap.hpp"
@@ -54,9 +56,21 @@ void runTestWithTimeout(const char* expressionText, std::size_t order,
     ASSERT_NE(child, -1) << "Failed to create child process.";
 
     if (child == 0) {
+        //        try {
+        //            runTaylorTest(expressionText, order, expectedResult);
+        //        } catch (...) {
+        //            _exit(2);
+        //        }
         try {
             runTaylorTest(expressionText, order, expectedResult);
+        } catch (const std::exception& e) {
+            std::cerr << "Taylor test failed for expression '" << expressionText
+                      << "': " << e.what() << '\n';
+            _exit(2);
         } catch (...) {
+            std::cerr << "Taylor test failed with an unknown exception for "
+                         "expression '"
+                      << expressionText << "'.\n";
             _exit(2);
         }
     }
@@ -131,6 +145,30 @@ TEST(NumathapSeries, TaylorRationalTrig10Terms) {
 
 TEST(NumathapSeries, TaylorRationalTrig20Terms) {
     runTestWithTimeout("1/(1+cos(x)+sin(x))", 20, 0.47736397734527186);
+}
+
+TEST(NumathapSeries, TaylorAsin10Terms) {
+    runTestWithTimeout("asin(x)", 10, 0.1001674211615598);
+}
+
+TEST(NumathapSeries, TaylorAsin20Terms) {
+    runTestWithTimeout("asin(x)", 20, 0.1001674211615598);
+}
+
+TEST(NumathapSeries, TaylorAtan10Terms) {
+    runTestWithTimeout("atan(x)", 10, 0.09966865249116204);
+}
+
+TEST(NumathapSeries, TaylorAtan20Terms) {
+    runTestWithTimeout("atan(x)", 20, 0.09966865249116204);
+}
+
+TEST(NumathapSeries, TaylorAcos10Terms) {
+    runTestWithTimeout("acos(x)", 10, 1.4706289056333368);
+}
+
+TEST(NumathapSeries, TaylorAcos20Terms) {
+    runTestWithTimeout("acos(x)", 20, 1.4706289056333368);
 }
 
 }  // namespace
