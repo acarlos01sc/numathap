@@ -7,6 +7,7 @@ add_executable(
     test_series.cpp
     test_differentiate.cpp
     test_evaluate_cx.cpp
+    test_limit.cpp
 )
 
 target_link_libraries(

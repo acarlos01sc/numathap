@@ -55,6 +55,7 @@ file(GLOB SOURCES_DIFFERENTIATE
 	CONFIGURE_DEPENDS
 	"src/backend/differentiate/*.cpp"
 )
+file(GLOB SOURCES_LIMIT CONFIGURE_DEPENDS "src/backend/limit/*.cpp")
 file(GLOB SOURCES_SERIES CONFIGURE_DEPENDS "src/backend/series/*.cpp")
 file(GLOB SOURCES_CONFIG CONFIGURE_DEPENDS "src/config/*.cpp")
 file(GLOB SOURCES_CORE CONFIGURE_DEPENDS "src/core/*.cpp")
@@ -99,6 +100,9 @@ add_library(numathap
 
 	# differentiate
 	${SOURCES_DIFFERENTIATE}
+
+	# limit
+	${SOURCES_LIMIT}
 
 	# series
 	${SOURCES_SERIES}

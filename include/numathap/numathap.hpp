@@ -5,6 +5,7 @@
 #include "numathap/backend/evaluate_cx.hpp"
 #include "numathap/backend/integrate/integrate.hpp"
 #include "numathap/backend/series/series.hpp"
+#include "numathap/backend/limit/limit.hpp"
 #include "numathap/config/CMathDoubleAdapter.hpp"
 #include "numathap/config/ComplexDoubleAdapter.hpp"
 #include "numathap/config/MathEnvironment.hpp"
@@ -21,6 +22,7 @@ using backend::evaluate_cx;
 using backend::differentiate::differentiate;
 using backend::integrate::integrate;
 using backend::series::series;
+using backend::limit::limit;
 using config::configure;
 using math::prepare;
 using PreparedAst = math::PreparedAst;
