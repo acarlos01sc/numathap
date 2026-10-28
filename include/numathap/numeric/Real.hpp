@@ -113,6 +113,11 @@ class Real {
     [[nodiscard]]
     bool operator!=(const Real&) const noexcept;
 
+    /**
+     * @brief Checks if the number is finite.
+     */
+    [[nodiscard]] bool isFinite() const noexcept;
+
    private:
     /// @brief Internal storage for the floating-point value.
     Storage value_{0.0};

@@ -1,6 +1,7 @@
 #include "numathap/numeric/Real.hpp"
 
 #include <cstdlib>
+#include <limits>
 #include <stdexcept>
 
 namespace numathap::numeric {
@@ -48,6 +49,14 @@ bool Real::operator==(const Real& other) const noexcept {
 
 bool Real::operator!=(const Real& other) const noexcept {
     return !(*this == other);
+}
+
+bool Real::isFinite() const noexcept {
+    const auto v = value();
+
+    const auto limit = std::numeric_limits<Storage>::max();
+
+    return v >= -limit && v <= limit;
 }
 
 }  // namespace numathap::numeric
