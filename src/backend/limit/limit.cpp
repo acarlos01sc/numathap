@@ -16,32 +16,21 @@ namespace {
 
 using Storage = numeric::Real::Storage;
 
-//[[nodiscard]]
-//Storage absolute(Storage value) noexcept {
-//    return value < Storage{0} ? -value : value;
-//}
+[[nodiscard]]
+LimitResult calculateDirectSubstitution(const math::PreparedAst& expression,
+                                        const std::string& variable,
+                                        const core::Value& point,
+                                        core::Context& context) {
+    context.setValue(variable, point.str());
 
-//[[nodiscard]]
-//bool approximatelyEqual(Storage lhs, Storage rhs) noexcept {
-//    constexpr Storage toleranceFactor = Storage{100};
-//
-//    const Storage epsilon = numeric::Real::epsilon();
-//    const Storage absoluteTolerance = toleranceFactor * epsilon;
-//    const Storage relativeTolerance = toleranceFactor * epsilon;
-//
-//    const Storage difference = absolute(lhs - rhs);
-//
-//    const Storage lhsMagnitude = absolute(lhs);
-//    const Storage rhsMagnitude = absolute(rhs);
-//    const Storage scale =
-//        lhsMagnitude > rhsMagnitude ? lhsMagnitude : rhsMagnitude;
-//
-//    const Storage tolerance = absoluteTolerance > relativeTolerance * scale
-//                                  ? absoluteTolerance
-//                                  : relativeTolerance * scale;
-//
-//    return difference <= tolerance;
-//}
+    const core::Value value = backend::evaluate(expression, context);
+
+    if (value.isReal() && !value.real().isFinite()) {
+        return LimitResult{};
+    }
+
+    return LimitResult{value, LimitStatus::Finite};
+}
 
 }  // namespace
 
@@ -94,17 +83,8 @@ LimitResult limit(const math::PreparedAst& expression,
             BackendSupport::cloneNode(*workingTree.root()),
             expression.environment());
 
-        // Inserir o ponto no contexto recebido.
-        context.setValue(variable, pointValue.str());
-
-        // Avaliar a expressão normalizada.
-        const core::Value value = backend::evaluate(normalized, context);
-
-        if (value.isReal() && !value.real().isFinite()) {
-            return LimitResult{};
-        }
-
-        return LimitResult{value, LimitStatus::Finite};
+        return calculateDirectSubstitution(normalized, variable, pointValue,
+                                           context);
 
     } catch (const std::exception&) {
         return LimitResult{};
