@@ -118,6 +118,14 @@ class Real {
      */
     [[nodiscard]] bool isFinite() const noexcept;
 
+    /**
+     * @brief Returns the machine epsilon for the underlying storage type.
+     *
+     * The machine epsilon is the difference between 1 and the smallest
+     * representable value greater than 1 for the storage type.
+     */
+    [[nodiscard]] static Storage epsilon() noexcept;
+
    private:
     /// @brief Internal storage for the floating-point value.
     Storage value_{0.0};

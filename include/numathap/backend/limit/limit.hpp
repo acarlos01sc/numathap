@@ -75,6 +75,6 @@ LimitResult limit(const math::PreparedAst& expression,
 [[nodiscard]]
 LimitResult limit(const math::PreparedAst& expression,
                   const std::string& variable, const std::string& point,
-                  const core::Context& context);
+                  core::Context& context);
 
 }  // namespace numathap::backend::limit

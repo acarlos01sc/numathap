@@ -59,4 +59,8 @@ bool Real::isFinite() const noexcept {
     return v >= -limit && v <= limit;
 }
 
+Real::Storage Real::epsilon() noexcept {
+    return std::numeric_limits<Storage>::epsilon();
+}
+
 }  // namespace numathap::numeric

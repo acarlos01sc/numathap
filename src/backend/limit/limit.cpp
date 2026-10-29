@@ -1,5 +1,7 @@
 #include "numathap/backend/limit/limit.hpp"
 
+#include <exception>
+
 #include "numathap/backend/BackendSupport.hpp"
 #include "numathap/backend/evaluate.hpp"
 #include "numathap/core/Context.hpp"
@@ -8,99 +10,103 @@
 #include "numathap/symbolic/Simplifier.hpp"
 #include "numathap/symbolic/UltraSimplifier.hpp"
 
-#include <exception>
-
 namespace numathap::backend::limit {
 
 namespace {
 
-[[nodiscard]]
-math::MathAst normalize(const math::PreparedAst& expression) {
-    math::MathAst workingAst(
-        expression.expression(),
-        BackendSupport::cloneNode(*expression.root())
-    );
+using Storage = numeric::Real::Storage;
 
-    const symbolic::ConstantFolder constantFolder;
-    workingAst = constantFolder.fold(workingAst);
+//[[nodiscard]]
+//Storage absolute(Storage value) noexcept {
+//    return value < Storage{0} ? -value : value;
+//}
 
-    const symbolic::Simplifier simplifier;
-    workingAst = simplifier.simplify(workingAst);
-
-    const symbolic::UltraSimplifier ultraSimplifier;
-    workingAst = ultraSimplifier.simplify(workingAst);
-
-    return workingAst;
-}
+//[[nodiscard]]
+//bool approximatelyEqual(Storage lhs, Storage rhs) noexcept {
+//    constexpr Storage toleranceFactor = Storage{100};
+//
+//    const Storage epsilon = numeric::Real::epsilon();
+//    const Storage absoluteTolerance = toleranceFactor * epsilon;
+//    const Storage relativeTolerance = toleranceFactor * epsilon;
+//
+//    const Storage difference = absolute(lhs - rhs);
+//
+//    const Storage lhsMagnitude = absolute(lhs);
+//    const Storage rhsMagnitude = absolute(rhs);
+//    const Storage scale =
+//        lhsMagnitude > rhsMagnitude ? lhsMagnitude : rhsMagnitude;
+//
+//    const Storage tolerance = absoluteTolerance > relativeTolerance * scale
+//                                  ? absoluteTolerance
+//                                  : relativeTolerance * scale;
+//
+//    return difference <= tolerance;
+//}
 
 }  // namespace
 
-LimitResult limit(
-    const math::PreparedAst& expression,
-    const std::string& variable,
-    const std::string& point
-) {
-    const core::Context context;
+LimitResult limit(const math::PreparedAst& expression,
+                  const std::string& variable, const std::string& point) {
+    core::Context context;
     return limit(expression, variable, point, context);
 }
 
-LimitResult limit(
-    const math::PreparedAst& expression,
-    const std::string& variable,
-    const std::string& point,
-    const core::Context& context
-) {
+LimitResult limit(const math::PreparedAst& expression,
+                  const std::string& variable, const std::string& point,
+                  core::Context& context) {
     try {
-        // Esta etapa aceita somente pontos reais finitos.
-        const core::Value pointValue = core::Value::parse(point);
+        // Rejeitar pontos ainda não suportados.
+        if (point.empty() || point == "+inf" || point == "-inf" ||
+            point.back() == '+' || point.back() == '-') {
+            return LimitResult{};
+        }
+
+        // Validar o ponto de aproximação.
+        const core::Value pointValue = BackendSupport::evaluateConstant(
+            point, context, expression.environment());
 
         if (!pointValue.isReal() || !pointValue.real().isFinite()) {
             return LimitResult{};
         }
 
-        if (expression.empty() || expression.root() == nullptr) {
+        // Criar a árvore de trabalho.
+        math::MathAst workingTree(
+            expression.expression(),
+            BackendSupport::cloneNode(*expression.root()));
+
+        // Normalizar a árvore de trabalho.
+        const symbolic::ConstantFolder constantFolder;
+        workingTree = constantFolder.fold(workingTree);
+
+        const symbolic::Simplifier simplifier;
+        workingTree = simplifier.simplify(workingTree);
+
+        const symbolic::UltraSimplifier ultraSimplifier;
+        workingTree = ultraSimplifier.simplify(workingTree);
+
+        if (workingTree.empty()) {
             return LimitResult{};
         }
 
-        // Normaliza uma cópia independente da AST original.
-        auto normalizedAst = normalize(expression);
+        // Preparar a árvore normalizada para avaliação.
+        math::PreparedAst normalized(
+            workingTree.expression(),
+            BackendSupport::cloneNode(*workingTree.root()),
+            expression.environment());
 
-        if (normalizedAst.empty() || normalizedAst.root() == nullptr) {
+        // Inserir o ponto no contexto recebido.
+        context.setValue(variable, pointValue.str());
+
+        // Avaliar a expressão normalizada.
+        const core::Value value = backend::evaluate(normalized, context);
+
+        if (value.isReal() && !value.real().isFinite()) {
             return LimitResult{};
         }
 
-        // A árvore já está normalizada; não reaplicamos as capacidades
-        // do ambiente original.
-        math::PreparedAst normalizedExpression(
-            normalizedAst.expression(),
-            BackendSupport::cloneNode(*normalizedAst.root()),
-            expression.environment()
-        );
+        return LimitResult{value, LimitStatus::Finite};
 
-        // Preserva o contexto original, mas define a variável de limite
-        // para o ponto em que estamos avaliando.
-        core::Context evaluationContext = context;
-        evaluationContext.setValue(variable, point);
-
-        // Reutiliza o avaliador público da biblioteca.
-        const core::Value value =
-            numathap::backend::evaluate(
-                normalizedExpression,
-                evaluationContext
-            );
-
-        // Só classificamos como finito um resultado real finito.
-        if (!value.isReal() || !value.real().isFinite()) {
-            return LimitResult{};
-        }
-
-        return LimitResult{
-            value,
-            LimitStatus::Finite
-        };
     } catch (const std::exception&) {
-        // Uma falha de parsing ou avaliação não prova que o limite
-        // não existe.
         return LimitResult{};
     }
 }
