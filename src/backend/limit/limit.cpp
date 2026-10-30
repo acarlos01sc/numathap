@@ -3,10 +3,10 @@
 #include <exception>
 #include <string>
 
+#include "limit_internal.hpp"
 #include "numathap/backend/BackendSupport.hpp"
 #include "numathap/backend/evaluate.hpp"
 #include "numathap/core/Context.hpp"
-#include "numathap/core/Value.hpp"
 #include "numathap/symbolic/ConstantFolder.hpp"
 #include "numathap/symbolic/Simplifier.hpp"
 #include "numathap/symbolic/UltraSimplifier.hpp"
@@ -15,15 +15,10 @@ namespace numathap::backend::limit {
 
 namespace {
 
-enum class Approach {
-    Bilateral,
-    FromRight,
-    FromLeft
-};
 
 struct ParsedPoint {
     std::string value;
-    Approach approach{Approach::Bilateral};
+    internal::Approach approach{internal::Approach::Bilateral};
 };
 
 // Interpretar o ponto e identificar a lateralidade.
@@ -33,27 +28,25 @@ bool parsePoint(const std::string& point, ParsedPoint& parsed) {
     }
 
     parsed.value = point;
-    parsed.approach = Approach::Bilateral;
+    parsed.approach = internal::Approach::Bilateral;
 
     if (parsed.value.back() == '+') {
         parsed.value.pop_back();
-        parsed.approach = Approach::FromRight;
+        parsed.approach = internal::Approach::FromRight;
     } else if (parsed.value.back() == '-') {
         parsed.value.pop_back();
-        parsed.approach = Approach::FromLeft;
+        parsed.approach = internal::Approach::FromLeft;
     }
 
     return !parsed.value.empty();
 }
 
 // Primeira estratégia: substituição direta.
-LimitResult calculateDirectSubstitution(
-    const math::PreparedAst& normalized,
-    const std::string& variable,
-    const core::Value& pointValue,
-    Approach /*approach*/,
-    core::Context& context) {
-
+LimitResult calculateDirectSubstitution(const math::PreparedAst& normalized,
+                                        const std::string& variable,
+                                        const core::Value& pointValue,
+                                        internal::Approach /*approach*/,
+                                        core::Context& context) {
     try {
         context.setValue(variable, pointValue.str());
 
@@ -70,18 +63,18 @@ LimitResult calculateDirectSubstitution(
     }
 }
 
+
+
 }  // namespace
 
 LimitResult limit(const math::PreparedAst& expression,
-                  const std::string& variable,
-                  const std::string& point) {
+                  const std::string& variable, const std::string& point) {
     core::Context context;
     return limit(expression, variable, point, context);
 }
 
 LimitResult limit(const math::PreparedAst& expression,
-                  const std::string& variable,
-                  const std::string& point,
+                  const std::string& variable, const std::string& point,
                   core::Context& context) {
     try {
         // Interpretar o ponto e identificar a lateralidade.
@@ -128,20 +121,21 @@ LimitResult limit(const math::PreparedAst& expression,
 
         // 1. Substituição direta.
         LimitResult result = calculateDirectSubstitution(
-            normalized,
-            variable,
-            pointValue,
-            parsedPoint.approach,
-            context);
+            normalized, variable, pointValue, parsedPoint.approach, context);
 
         if (result.status != LimitStatus::Failed) {
             return result;
         }
 
-        // 2. Futuras estratégias de resolução algébrica.
+        // 2. Resolução algébrica de singularidades.
+        result = internal::calculateAlgebraicSingularity(normalized, variable, pointValue,
+                                               parsedPoint.approach, context);
+
+        if (result.status != LimitStatus::Failed) {
+            return result;
+        }
 
         // 3. Futuras estratégias de resolução numérica.
-
         return LimitResult{};
 
     } catch (const std::exception&) {

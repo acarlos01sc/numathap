@@ -152,3 +152,11 @@ TEST(NumathapPublicApi, LimitScaledInverseSquareWithFiniteTerm) {
 
     EXPECT_EQ(result.status, backend::limit::LimitStatus::PositiveInfinity);
 }
+
+TEST(NumathapPublicApi, LimitScaledReciprocalFromRight) {
+    auto expression = math::prepare("1/(3*x+6)");
+
+    const auto result = backend::limit::limit(expression, "x", "-2+");
+
+    EXPECT_EQ(result.status, backend::limit::LimitStatus::PositiveInfinity);
+}
