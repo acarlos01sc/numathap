@@ -126,6 +126,21 @@ class Real {
      */
     [[nodiscard]] static Storage epsilon() noexcept;
 
+    /**
+     * @brief Returns the sign of the real number.
+     *
+     * @return -1 if negative, 0 if zero, or 1 if positive.
+     * @throws std::domain_error if the value is not finite.
+     */
+    [[nodiscard]] int sign() const;
+
+    /**
+     * @brief Checks whether the real number represents an integer.
+     *
+     * @return true if the value is finite and has no fractional part.
+     */
+    [[nodiscard]] bool isInteger() const noexcept;
+
    private:
     /// @brief Internal storage for the floating-point value.
     Storage value_{0.0};

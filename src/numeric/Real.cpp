@@ -1,5 +1,6 @@
 #include "numathap/numeric/Real.hpp"
 
+#include <cmath>
 #include <cstdlib>
 #include <limits>
 #include <stdexcept>
@@ -61,6 +62,27 @@ bool Real::isFinite() const noexcept {
 
 Real::Storage Real::epsilon() noexcept {
     return std::numeric_limits<Storage>::epsilon();
+}
+
+int Real::sign() const {
+    if (!std::isfinite(value_)) {
+        throw std::domain_error(
+            "Real: sign is undefined for non-finite values.");
+    }
+
+    if (value_ > 0.0) {
+        return 1;
+    }
+
+    if (value_ < 0.0) {
+        return -1;
+    }
+
+    return 0;
+}
+
+bool Real::isInteger() const noexcept {
+    return std::isfinite(value_) && std::trunc(value_) == value_;
 }
 
 }  // namespace numathap::numeric
