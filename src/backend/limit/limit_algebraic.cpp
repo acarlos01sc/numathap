@@ -44,7 +44,7 @@ bool extractAffineExpression(const math::MathNode& node,
                              AffineExpression& result) {
     using numeric::Real;
 
-    // Número: representa uma constante (0*x + b).
+    // A number represents a constant affine expression (0*x + b).
     if (const auto* number = dynamic_cast<const math::NumberNode*>(&node)) {
         try {
             const Real value(number->value.c_str());
@@ -61,7 +61,7 @@ bool extractAffineExpression(const math::MathNode& node,
         }
     }
 
-    // Símbolo: somente a variável procurada é aceita.
+    // Accept only the variable whose limit is being computed.
     if (const auto* symbol = dynamic_cast<const math::SymbolNode*>(&node)) {
         if (symbol->name != variable) {
             return false;
@@ -71,7 +71,7 @@ bool extractAffineExpression(const math::MathNode& node,
         return true;
     }
 
-    // Operações unárias.
+    // Handle unary operations.
     if (const auto* unary = dynamic_cast<const math::UnaryNode*>(&node)) {
         AffineExpression operand;
 
@@ -88,7 +88,7 @@ bool extractAffineExpression(const math::MathNode& node,
         return true;
     }
 
-    // Operações binárias.
+    // Handle binary operations.
     if (const auto* binary = dynamic_cast<const math::BinaryNode*>(&node)) {
         AffineExpression lhs;
         AffineExpression rhs;
@@ -141,7 +141,7 @@ bool extractAffineExpression(const math::MathNode& node,
         }
     }
 
-    // FunctionNode e qualquer outro nó não são expressões afins.
+    // FunctionNode and all other node types are not affine expressions.
     return false;
 }
 
@@ -154,7 +154,7 @@ bool extractNegativeIntegerExponent(const math::MathNode& node,
         return false;
     }
 
-    // O expoente precisa ser uma constante.
+    // The exponent must be constant.
     if (expression.coefficient != numeric::Real(0.0)) {
         return false;
     }
@@ -165,7 +165,7 @@ bool extractNegativeIntegerExponent(const math::MathNode& node,
         return false;
     }
 
-    // Converter o módulo do expoente para unsigned int.
+    // Convert the absolute value of the exponent to unsigned int.
     const auto magnitude = -value.value();
 
     const auto maxExponent = static_cast<numeric::Real::Storage>(
@@ -185,12 +185,12 @@ bool collectSingularFactors(const math::MathNode& node,
                             bool& foundSingular) {
     using numeric::Real;
 
-    // Inicializar o resultado local.
+    // Initialize the local result.
     result = SingularTerm{Real(1.0), AffineExpression{Real(0.0), Real(0.0)}, 0};
 
     foundSingular = false;
 
-    // Tratar operações unárias.
+    // Handle unary operations.
     if (const auto* unary = dynamic_cast<const math::UnaryNode*>(&node)) {
         SingularTerm operand;
         bool operandHasSingular = false;
@@ -210,7 +210,7 @@ bool collectSingularFactors(const math::MathNode& node,
         return result.coefficient.isFinite();
     }
 
-    // Tratar produtos recursivamente.
+    // Recursively process products.
     if (const auto* binary = dynamic_cast<const math::BinaryNode*>(&node)) {
         if (binary->op == math::BinaryOp::Multiply) {
             SingularTerm lhs;
@@ -226,7 +226,7 @@ bool collectSingularFactors(const math::MathNode& node,
                 return false;
             }
 
-            // Nesta etapa, aceitamos apenas uma potência singular.
+            // This stage supports at most one singular power.
             if (lhsHasSingular && rhsHasSingular) {
                 return false;
             }
@@ -246,7 +246,7 @@ bool collectSingularFactors(const math::MathNode& node,
             return result.coefficient.isFinite();
         }
 
-        // Identificar uma potência com expoente negativo inteiro.
+        // Identify a power with a negative integer exponent.
         if (binary->op == math::BinaryOp::Power) {
             AffineExpression base;
             unsigned int exponent{};
@@ -272,7 +272,7 @@ bool collectSingularFactors(const math::MathNode& node,
         }
     }
 
-    // Qualquer outro fator precisa ser uma constante.
+    // Any other factor must be constant.
     AffineExpression factor;
 
     if (!extractAffineExpression(node, variable, factor)) {
@@ -306,7 +306,7 @@ bool extractSingularTerm(const math::MathNode& node,
 
 bool collectExpressionTerms(const math::MathNode& node, int sign,
                             std::vector<ExpressionTerm>& terms) {
-    // Sinal unário.
+    // Handle unary signs.
     if (const auto* unary = dynamic_cast<const math::UnaryNode*>(&node)) {
         const int operandSign =
             unary->op == math::UnaryOp::Minus ? -sign : sign;
@@ -314,7 +314,7 @@ bool collectExpressionTerms(const math::MathNode& node, int sign,
         return collectExpressionTerms(*unary->operand, operandSign, terms);
     }
 
-    // Soma e subtração.
+    // Handle addition and subtraction.
     if (const auto* binary = dynamic_cast<const math::BinaryNode*>(&node)) {
         if (binary->op == math::BinaryOp::Add) {
             return collectExpressionTerms(*binary->left, sign, terms) &&
@@ -346,7 +346,7 @@ bool extractSingularExpression(const math::MathNode& node,
         SingularTerm singular;
 
         if (extractSingularTerm(*term.node, variable, singular)) {
-            // Nesta etapa, aceitamos somente uma parcela singular.
+            // This stage supports at most one singular term.
             if (foundSingular) {
                 return false;
             }
@@ -370,6 +370,24 @@ bool extractSingularExpression(const math::MathNode& node,
 
 }
 
+/**
+ * @brief Determine a limit by analyzing a supported algebraic singularity.
+ *
+ * @param normalized Normalized expression to analyze.
+ * @param variable Name of the variable approaching the point.
+ * @param pointValue Finite real approach point.
+ * @param approach Direction from which the point is approached.
+ * @param context Evaluation context used for the regular terms.
+ * @return A positive- or negative-infinity result when the supported
+ *         singularity diverges; a does-not-exist result for an odd-power
+ *         bilateral singularity; or a failed result when the expression is
+ *         outside the supported form.
+ *
+ * @details The current analysis recognizes a single singular term consisting
+ * of a non-zero constant coefficient multiplied by an affine base raised to
+ * a negative integer exponent. The remaining additive terms must be
+ * evaluable as finite real values at the approach point.
+ */
 LimitResult calculateAlgebraicSingularity(const math::PreparedAst& normalized,
                                           const std::string& variable,
                                           const core::Value& pointValue,
@@ -379,14 +397,14 @@ LimitResult calculateAlgebraicSingularity(const math::PreparedAst& normalized,
 
     SingularExpression expression;
 
-    // Separar a parcela singular das parcelas regulares.
+    // Separate the singular term from the regular terms.
     if (!extractSingularExpression(*normalized.root(), variable, expression)) {
         return LimitResult{};
     }
 
     const SingularTerm& singular = expression.singular;
 
-    // O ponto precisa zerar a base da potência singular.
+    // The approach point must make the singular power's base equal to zero.
     const Real baseAtPoint =
         singular.base.coefficient * pointValue.real() + singular.base.constant;
 
@@ -394,7 +412,7 @@ LimitResult calculateAlgebraicSingularity(const math::PreparedAst& normalized,
         return LimitResult{};
     }
 
-    // Avaliar as parcelas regulares no ponto.
+    // Evaluate the regular terms at the approach point.
     context.setValue(variable, pointValue.str());
 
     core::Value regularValue(Real(0.0));
@@ -412,8 +430,8 @@ LimitResult calculateAlgebraicSingularity(const math::PreparedAst& normalized,
             return LimitResult{};
         }
 
-        // Nesta primeira versão, a parte regular precisa
-        // produzir valores reais e finitos.
+        // In this implementation, the regular part must
+        // evaluate to finite real values.
         if (!termValue.isReal() || !termValue.real().isFinite()) {
             return LimitResult{};
         }
@@ -429,11 +447,11 @@ LimitResult calculateAlgebraicSingularity(const math::PreparedAst& normalized,
         }
     }
 
-    // Determinar o sinal da divergência.
+    // Determine the sign of the divergence.
     int divergenceSign = singular.coefficient.sign();
 
-    // Para expoente ímpar, o sinal depende do lado
-    // pelo qual a base se aproxima de zero.
+    // For an odd exponent, the sign depends on the side
+    // from which the base approaches zero.
     if (singular.exponent % 2 != 0) {
         if (approach == Approach::Bilateral) {
             return LimitResult{core::Value{}, LimitStatus::DoesNotExist};

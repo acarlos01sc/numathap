@@ -1,0 +1,92 @@
+/**
+@page limit_backend Limit Backend
+
+@section limit_backend_overview Overview
+
+The limit backend computes limits of prepared mathematical expressions with
+respect to a named variable and a specified approach point.
+
+The approach point is supplied as a string. A point without a suffix requests
+a two-sided limit. A trailing `+` requests a right-hand limit, while a trailing
+`-` requests a left-hand limit.
+
+@section limit_backend_pipeline Calculation Pipeline
+
+The backend processes a request in the following order:
+
+1. Parse the point and extract the requested direction of approach.
+2. Evaluate the point expression in the supplied context.
+3. Require the resulting point to be a finite real value.
+4. Clone and normalize the expression using constant folding, simplification,
+   and ultra-simplification.
+5. Attempt direct substitution.
+6. If direct substitution fails, attempt algebraic singularity analysis.
+7. If neither available strategy succeeds, return a failed result.
+
+The overload that does not receive a context creates a local context and
+delegates to the context-taking overload.
+
+@section limit_backend_direct Direct Substitution
+
+The first strategy assigns the approach-point value to the target variable
+and evaluates the normalized expression.
+
+A finite result is reported with `LimitStatus::Finite`. Evaluation exceptions
+and non-finite real results cause this strategy to fail, allowing the next
+strategy to be attempted.
+
+@section limit_backend_algebraic Algebraic Singularity Analysis
+
+The algebraic strategy separates an expression into additive terms and looks
+for exactly one supported singular term. The remaining terms are treated as
+the regular part and are evaluated at the approach point.
+
+The supported singular term has the form
+
+\f[
+    C\,(a x+b)^{-n},
+\f]
+
+where:
+
+- \f$C\f$ is a non-zero finite real coefficient;
+- \f$ax+b\f$ is an affine expression in the target variable, with
+  \f$a\ne 0\f$;
+- \f$n\f$ is a positive integer.
+
+The approach point must make the affine base equal to zero. The regular terms
+must each evaluate to finite real values at that point.
+
+For an even exponent, the sign of the divergence is determined by the
+coefficient. For an odd exponent, the direction of approach and the sign of
+the affine coefficient also determine the sign. Consequently, an odd-power
+singularity does not have a two-sided limit, while a one-sided limit can
+diverge to positive or negative infinity.
+
+@section limit_backend_scope Current Scope and Limitations
+
+The current implementation has the following scope:
+
+- Only finite real approach points are accepted.
+- The strings `+inf` and `-inf` are rejected as approach points.
+- Direct substitution is attempted before algebraic analysis.
+- Algebraic analysis supports at most one singular term.
+- The singular base must be affine in the target variable.
+- The singular exponent must be a negative integer in the expression.
+- The regular terms must evaluate to finite real values at the approach point.
+- Expressions outside these supported forms return a failed result when no
+  earlier strategy can determine the limit.
+
+@section limit_backend_design Design Notes
+
+The input prepared expression is not modified. The backend creates a working
+copy before applying symbolic normalization.
+
+The internal `Approach` enumeration represents bilateral, right-hand, and
+left-hand approaches. The algebraic analysis is an internal strategy and is
+not part of the public API.
+
+Additional strategies, including numerical approaches, may be introduced in
+the future without changing the ordering principle: a strategy that cannot
+determine the result returns a failed status so that the next strategy can run.
+*/
