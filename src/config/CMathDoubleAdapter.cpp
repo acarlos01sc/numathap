@@ -107,6 +107,11 @@ Value CMathDoubleAdapter::callFunction(std::string_view function,
         return makeValue(std::log(toDouble(arguments[0])));
     }
 
+    if (function == "log1p") {
+        expectArguments(function, arguments, 1);
+        return makeValue(std::log1p(toDouble(arguments[0])));
+    }
+
     if (function == "log2") {
         expectArguments(function, arguments, 1);
         return makeValue(std::log2(toDouble(arguments[0])));

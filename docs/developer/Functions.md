@@ -78,6 +78,7 @@ auto ast = prepare("cosh(x)");
 | ---------- | --------: | --------------------------- |
 | `exp(x)`   |         1 | Exponential function (*e*ˣ) |
 | `log(x)`   |         1 | Natural logarithm           |
+| `log1p(x)` |         1 | Natural log(1 + x)          |
 | `log10(x)` |         1 | Base-10 logarithm           |
 | `log2(x)`  | 1         | Base-2 logarithm            |
 
