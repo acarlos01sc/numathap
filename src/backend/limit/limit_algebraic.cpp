@@ -39,6 +39,7 @@ struct SingularExpression {
     std::vector<ExpressionTerm> regularTerms;
 };
 
+
 bool extractAffineExpression(const math::MathNode& node,
                              const std::string& variable,
                              AffineExpression& result) {
@@ -143,6 +144,18 @@ bool extractAffineExpression(const math::MathNode& node,
 
     // FunctionNode and all other node types are not affine expressions.
     return false;
+}
+
+bool isKnownRegularTerm(const math::MathNode& node,
+                        const std::string& variable) {
+    AffineExpression expression;
+
+    if (!extractAffineExpression(node, variable, expression)) {
+        return false;
+    }
+
+    return expression.coefficient.isFinite() &&
+           expression.constant.isFinite();
 }
 
 bool extractNegativeIntegerExponent(const math::MathNode& node,
@@ -358,8 +371,11 @@ bool extractSingularExpression(const math::MathNode& node,
             result.singular = singular;
             foundSingular = true;
 
-        } else {
+        } else if (isKnownRegularTerm(*term.node, variable)) {
             result.regularTerms.push_back(term);
+        } else {
+            // The term can not be classified safely.
+            return false;
         }
     }
 
