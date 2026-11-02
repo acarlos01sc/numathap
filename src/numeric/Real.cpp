@@ -60,6 +60,10 @@ bool Real::isFinite() const noexcept {
     return v >= -limit && v <= limit;
 }
 
+bool Real::isInfinite() const noexcept { return !isFinite() && !isNaN(); }
+
+bool Real::isNaN() const noexcept { return std::isnan(value_); }
+
 Real::Storage Real::epsilon() noexcept {
     return std::numeric_limits<Storage>::epsilon();
 }

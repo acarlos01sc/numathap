@@ -22,12 +22,20 @@ struct ParsedPoint {
 
 // Parse the approach point and determine the requested direction.
 bool parsePoint(const std::string& point, ParsedPoint& parsed) {
-    if (point.empty() || point == "+inf" || point == "-inf") {
+    if (point.empty()) {
         return false;
     }
 
     parsed.value = point;
     parsed.approach = internal::Approach::Bilateral;
+
+    if (point == "+inf" || point == "-inf") {
+        return true;
+    }
+
+    if (point.find("inf") != std::string::npos) {
+        return false;
+    }
 
     if (parsed.value.back() == '+') {
         parsed.value.pop_back();
@@ -62,8 +70,25 @@ LimitResult calculateDirectSubstitution(const math::PreparedAst& normalized,
 
         const core::Value value = backend::evaluate(normalized, context);
 
-        if (value.isReal() && !value.real().isFinite()) {
-            return LimitResult{};
+        if (value.isReal()) {
+            const auto& real = value.real();
+
+            if (real.isNaN()) {
+                return LimitResult{};
+            }
+
+            if (real.isInfinite()) {
+                // At finite approach points, an infinite evaluation may
+                // indicate an algebraic singularity that requires further
+                // analysis.
+                if (!pointValue.real().isInfinite()) {
+                    return LimitResult{};
+                }
+
+                return LimitResult{value, real.value() > 0.0
+                                              ? LimitStatus::PositiveInfinity
+                                              : LimitStatus::NegativeInfinity};
+            }
         }
 
         return LimitResult{value, LimitStatus::Finite};
@@ -102,16 +127,16 @@ LimitResult limit(const math::PreparedAst& expression,
  * @param point Approach point. Append `+` for a right-hand limit or `-` for a
  *        left-hand limit; omit the suffix for a two-sided limit.
  * @param context Context used to evaluate the approach point and expression.
- * @return A `LimitResult` describing the finite value, divergence, nonexistence,
- *         or failure to determine the limit.
+ * @return A `LimitResult` describing the finite value, divergence,
+ * nonexistence, or failure to determine the limit.
  *
  * @details The expression is cloned and normalized before the available
  * strategies are attempted. Strategies are executed in order: direct
  * substitution, followed by algebraic singularity analysis. A failed strategy
  * allows the next strategy to run.
  *
- * @note The current implementation accepts finite real approach points.
- * Infinite approach points are not handled by this backend.
+ * @note Infinite approach points (`+inf` and `-inf`) are supported.
+ *       One-sided approach notation is only applicable to finite points.
  */
 LimitResult limit(const math::PreparedAst& expression,
                   const std::string& variable, const std::string& point,
@@ -128,7 +153,7 @@ LimitResult limit(const math::PreparedAst& expression,
         const core::Value pointValue = BackendSupport::evaluateConstant(
             parsedPoint.value, context, expression.environment());
 
-        if (!pointValue.isReal() || !pointValue.real().isFinite()) {
+        if (!pointValue.isReal() || pointValue.real().isNaN()) {
             return LimitResult{};
         }
 

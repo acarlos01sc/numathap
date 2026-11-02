@@ -119,6 +119,17 @@ class Real {
     [[nodiscard]] bool isFinite() const noexcept;
 
     /**
+     * @brief Checks whether the number represents NaN.
+     */
+    [[nodiscard]] bool isNaN() const noexcept;
+
+    /**
+     * @brief Checks whether the number represents positive or negative
+     * infinity.
+     */
+    [[nodiscard]] bool isInfinite() const noexcept;
+
+    /**
      * @brief Returns the machine epsilon for the underlying storage type.
      *
      * The machine epsilon is the difference between 1 and the smallest
