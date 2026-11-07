@@ -30,7 +30,7 @@ Value simpson(const Value& lower, const Value& upper, const Value& fLower,
               const Value& fMiddle, const Value& fUpper) {
     const Value width = upper - lower;
 
-    return (width / Value(6.0)) * (fLower + Value(4.0) * fMiddle + fUpper);
+    return (width / Value(numeric::Real2(6.0))) * (fLower + Value(numeric::Real2(4.0)) * fMiddle + fUpper);
 }
 
 Value adaptiveSimpson(const PreparedAst& prepared, const Context& context,
@@ -39,11 +39,11 @@ Value adaptiveSimpson(const PreparedAst& prepared, const Context& context,
                       const Value& fMiddle, const Value& fUpper,
                       const Value& whole, const Value& tolerance,
                       std::size_t depth) {
-    const Value middle = (lower + upper) / Value(2.0);
+    const Value middle = (lower + upper) / Value(numeric::Real2(2.0));
 
-    const Value leftMiddle = (lower + middle) / Value(2.0);
+    const Value leftMiddle = (lower + middle) / Value(numeric::Real2(2.0));
 
-    const Value rightMiddle = (middle + upper) / Value(2.0);
+    const Value rightMiddle = (middle + upper) / Value(numeric::Real2(2.0));
 
     const Value fLeftMiddle = evaluateAt(prepared, context, variable, leftMiddle);
 
@@ -61,13 +61,13 @@ Value adaptiveSimpson(const PreparedAst& prepared, const Context& context,
         error = -error;
     }
 
-    const Value allowed = Value(15.0) * tolerance;
+    const Value allowed = Value(numeric::Real2(15.0)) * tolerance;
 
     if (depth == 0 || error <= allowed) {
-        return refined + (refined - whole) / Value(15.0);
+        return refined + (refined - whole) / Value(numeric::Real2(15.0));
     }
 
-    const Value halfTolerance = tolerance / Value(2.0);
+    const Value halfTolerance = tolerance / Value(numeric::Real2(2.0));
 
     return adaptiveSimpson(prepared, context, variable, lower, middle, fLower,
                            fLeftMiddle, fMiddle, left, halfTolerance,
@@ -104,7 +104,7 @@ Value AdaptiveSimpson::integrate(const PreparedAst& prepared,
         return -integrate(prepared, context, variable, upper, lower, config);
     }
 
-    const Value middle = (lower + upper) / Value(2.0);
+    const Value middle = (lower + upper) / Value(numeric::Real2(2.0));
 
     const Value fLower = evaluateAt(prepared, context, variable, lower);
 

@@ -23,7 +23,7 @@ TEST(NumathapIntegrate, AdaptiveSimpson) {
 
     ASSERT_TRUE(result.isReal());
 
-    EXPECT_NEAR(result.real().value(), kExpectedResult, kTolerance);
+    EXPECT_NEAR(result.real().nativeValue(), kExpectedResult, kTolerance);
 }
 
 TEST(NumathapIntegrate, GaussKronrod15) {
@@ -39,7 +39,7 @@ TEST(NumathapIntegrate, GaussKronrod15) {
 
     ASSERT_TRUE(result.isReal());
 
-    EXPECT_NEAR(result.real().value(), kExpectedResult, kTolerance);
+    EXPECT_NEAR(result.real().nativeValue(), kExpectedResult, kTolerance);
 }
 
 TEST(NumathapIntegrate, AdaptiveSimpsonGaussian) {
@@ -55,7 +55,7 @@ TEST(NumathapIntegrate, AdaptiveSimpsonGaussian) {
 
     ASSERT_TRUE(result.isReal());
 
-    EXPECT_NEAR(result.real().value(), 1.772453850905516, kTolerance);
+    EXPECT_NEAR(result.real().nativeValue(), 1.772453850905516, kTolerance);
 }
 
 TEST(NumathapIntegrate, GaussKronrod15Gaussian) {
@@ -71,7 +71,7 @@ TEST(NumathapIntegrate, GaussKronrod15Gaussian) {
 
     ASSERT_TRUE(result.isReal());
 
-    EXPECT_NEAR(result.real().value(), 1.772453850905516, kTolerance);
+    EXPECT_NEAR(result.real().nativeValue(), 1.772453850905516, kTolerance);
 }
 
 TEST(NumathapIntegrate, GaussKronrod15SincSingularity) {
@@ -90,7 +90,7 @@ TEST(NumathapIntegrate, GaussKronrod15SincSingularity) {
     constexpr auto kExpectedResult = 1.892166140734366;
     constexpr auto kTolerance = 1e-10;
 
-    EXPECT_NEAR(result.real().value(), kExpectedResult, kTolerance);
+    EXPECT_NEAR(result.real().nativeValue(), kExpectedResult, kTolerance);
 }
 
 TEST(NumathapIntegrate, AdaptiveSimpsonWithParameter) {
@@ -107,7 +107,7 @@ TEST(NumathapIntegrate, AdaptiveSimpsonWithParameter) {
 
     ASSERT_TRUE(result.isReal());
 
-    EXPECT_NEAR(result.real().value(), 7.0 / 3.0, kTolerance);
+    EXPECT_NEAR(result.real().nativeValue(), 7.0 / 3.0, kTolerance);
 }
 
 TEST(NumathapIntegrate, GaussKronrod15WithParameter) {
@@ -124,7 +124,7 @@ TEST(NumathapIntegrate, GaussKronrod15WithParameter) {
 
     ASSERT_TRUE(result.isReal());
 
-    EXPECT_NEAR(result.real().value(), 7.0 / 3.0, kTolerance);
+    EXPECT_NEAR(result.real().nativeValue(), 7.0 / 3.0, kTolerance);
 }
 
 //TEST(NumathapIntegrate, GaussKronrod15OscillatoryImproperIntegral) {

@@ -15,7 +15,7 @@
 #include "numathap/backend/evaluate_cx.hpp"
 #include "numathap/dispatch/Dispatcher.hpp"
 #include "numathap/math/prepare.hpp"
-#include "numathap/numeric/Real.hpp"
+#include "numathap/numeric/Real2.hpp"
 
 namespace numathap::backend {
 
@@ -26,11 +26,8 @@ core::Value BackendSupport::evaluateConstant(
     // 1. Numeric literal
     //
     try {
-        std::size_t pos = 0;
-        const auto value = std::stod(expression, &pos);
-        if (pos == expression.size()) {
-            return core::Value(numeric::Real::Storage(value));
-        }
+        numeric::Real2 value(expression);
+        return core::Value(value);
     } catch (...) {
     }
 
@@ -63,14 +60,9 @@ core::Value BackendSupport::evaluateConstant_cx(
     //
 
     try {
-        std::size_t pos = 0;
+        const numeric::Real2 value(expression);
 
-        const auto value = std::stod(expression, &pos);
-
-        if (pos == expression.size()) {
-            return core::Value(numeric::Complex(
-                numeric::Real2(std::to_string(value)), numeric::Real2(0.0)));
-        }
+        return core::Value(numeric::Complex(value, numeric::Real2(0)));
 
     } catch (...) {
     }

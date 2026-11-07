@@ -82,7 +82,7 @@ int branchIndex(std::string_view function, const core::Value& value) {
     double k = 0.0;
 
     if (value.isReal()) {
-        k = value.real().value();
+        k = value.real().nativeValue();
     } else if (value.isComplex()) {
         const auto& complex = value.complex();
 
@@ -301,19 +301,19 @@ core::Value ComplexDoubleAdapter::callFunction(
     if (function == "abs") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(numeric::Real(std::abs(toNative(arguments[0]))));
+        return core::Value(numeric::Real2(std::abs(toNative(arguments[0]))));
     }
 
     if (function == "arg") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(numeric::Real(std::arg(toNative(arguments[0]))));
+        return core::Value(numeric::Real2(std::arg(toNative(arguments[0]))));
     }
 
     if (function == "norm") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(numeric::Real(std::norm(toNative(arguments[0]))));
+        return core::Value(numeric::Real2(std::norm(toNative(arguments[0]))));
     }
 
     if (function == "conj") {
@@ -324,13 +324,13 @@ core::Value ComplexDoubleAdapter::callFunction(
     if (function == "real") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(numeric::Real(toNative(arguments[0]).real()));
+        return core::Value(numeric::Real2(toNative(arguments[0]).real()));
     }
 
     if (function == "imag") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(numeric::Real(toNative(arguments[0]).imag()));
+        return core::Value(numeric::Real2(toNative(arguments[0]).imag()));
     }
 
     throw std::invalid_argument("Function '" + std::string(function) +
@@ -345,11 +345,11 @@ core::Value ComplexDoubleAdapter::resolveConstant(
     }
 
     if (constant == "pi") {
-        return core::Value(numeric::Real(std::numbers::pi_v<double>));
+        return core::Value(numeric::Real2(std::numbers::pi_v<double>));
     }
 
     if (constant == "e") {
-        return core::Value(numeric::Real(std::numbers::e_v<double>));
+        return core::Value(numeric::Real2(std::numbers::e_v<double>));
     }
 
     throw std::invalid_argument("Constant '" + std::string(constant) +

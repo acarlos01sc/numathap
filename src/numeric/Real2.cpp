@@ -47,6 +47,8 @@ Real2::Real2(std::string_view value) {
     value_ = parsed;
 }
 
+Real2::Real2(Representation value) noexcept : value_(value) {}
+
 Real2 Real2::operator+(const Real2& other) const noexcept {
     Real2 result;
     result.value_ = value_ + other.value_;
@@ -150,7 +152,7 @@ bool Real2::isInteger() const noexcept {
 
 Real2 Real2::sqrt() const {
 #if defined(NUMATHAP_REAL_TYPE_DOUBLE)
-    return Real2(std::sqrt(value_),RawTag{});
+    return Real2(std::sqrt(value_), RawTag{});
 #else
 #error "sqrt() is not implemented for this numeric representation."
 #endif
@@ -173,7 +175,10 @@ std::string Real2::toString() const {
     return stream.str();
 }
 
-Real2::Real2(Representation value, RawTag) noexcept
-    : value_(value) {}
+detail::Real2Representation Real2::nativeValue() const noexcept {
+    return value_;
+}
+
+Real2::Real2(Representation value, RawTag) noexcept : value_(value) {}
 
 }  // namespace numathap::numeric

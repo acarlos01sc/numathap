@@ -46,6 +46,12 @@ class Real2 {
     explicit Real2(std::string_view value);
 
     /**
+     * @brief Constructs a Real2 from the selected native representation.
+     * @param value Initial numeric value.
+     */
+    explicit Real2(detail::Real2Representation value) noexcept;
+
+    /**
      * @brief Adds another real number.
      */
     [[nodiscard]]
@@ -154,6 +160,14 @@ class Real2 {
      */
     [[nodiscard]]
     std::string toString() const;
+
+    /**
+     * @brief Returns the underlying numeric representation.
+     *
+     * @return The value using the numeric type selected at compile time.
+     */
+    [[nodiscard]]
+    detail::Real2Representation nativeValue() const noexcept;
 
    private:
     using Representation = detail::Real2Representation;

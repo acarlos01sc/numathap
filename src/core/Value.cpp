@@ -5,33 +5,28 @@
 
 #include "numathap/core/Value.hpp"
 
-#include <iomanip>
-#include <limits>
 #include <sstream>
 #include <stdexcept>
 #include <type_traits>
 
 namespace numathap::core {
 
-Value::Value() noexcept : value_(numeric::Real{}) {}
+Value::Value() noexcept : value_(numeric::Real2{}) {}
 
-Value::Value(const numeric::Real& value) noexcept : value_(value) {}
+Value::Value(const numeric::Real2& value) noexcept : value_(value) {}
 
 Value::Value(const numeric::Complex& value) noexcept : value_(value) {}
 
-Value::Value(numeric::Real::Storage value) noexcept
-    : value_(numeric::Real(value)) {}
-
 bool Value::isReal() const noexcept {
-    return std::holds_alternative<numeric::Real>(value_);
+    return std::holds_alternative<numeric::Real2>(value_);
 }
 
 bool Value::isComplex() const noexcept {
     return std::holds_alternative<numeric::Complex>(value_);
 }
 
-const numeric::Real& Value::real() const {
-    return std::get<numeric::Real>(value_);
+const numeric::Real2& Value::real() const {
+    return std::get<numeric::Real2>(value_);
 }
 
 const numeric::Complex& Value::complex() const {
@@ -46,19 +41,11 @@ Value Value::operator+(const Value& other) const noexcept {
             using Lhs = std::decay_t<decltype(lhs)>;
             using Rhs = std::decay_t<decltype(rhs)>;
 
-            if constexpr (std::is_same_v<Lhs, numeric::Real> &&
-                          std::is_same_v<Rhs, numeric::Real>) {
+            if constexpr (std::is_same_v<Lhs, numeric::Real2> &&
+                          std::is_same_v<Rhs, numeric::Real2>) {
                 return Value(lhs + rhs);
-            } else if constexpr (std::is_same_v<Lhs, numeric::Real> &&
-                                 std::is_same_v<Rhs, numeric::Complex>) {
-                return Value(numeric::Complex(numeric::Real2(lhs.value())) +
-                             rhs);
-            } else if constexpr (std::is_same_v<Lhs, numeric::Complex> &&
-                                 std::is_same_v<Rhs, numeric::Real>) {
-                return Value(lhs +
-                             numeric::Complex(numeric::Real2(rhs.value())));
             } else {
-                return Value(lhs + rhs);
+                return Value(numeric::Complex(lhs) + numeric::Complex(rhs));
             }
         },
         value_, other.value_);
@@ -70,19 +57,11 @@ Value Value::operator-(const Value& other) const noexcept {
             using Lhs = std::decay_t<decltype(lhs)>;
             using Rhs = std::decay_t<decltype(rhs)>;
 
-            if constexpr (std::is_same_v<Lhs, numeric::Real> &&
-                          std::is_same_v<Rhs, numeric::Real>) {
+            if constexpr (std::is_same_v<Lhs, numeric::Real2> &&
+                          std::is_same_v<Rhs, numeric::Real2>) {
                 return Value(lhs - rhs);
-            } else if constexpr (std::is_same_v<Lhs, numeric::Real> &&
-                                 std::is_same_v<Rhs, numeric::Complex>) {
-                return Value(numeric::Complex(numeric::Real2(lhs.value())) -
-                             rhs);
-            } else if constexpr (std::is_same_v<Lhs, numeric::Complex> &&
-                                 std::is_same_v<Rhs, numeric::Real>) {
-                return Value(lhs -
-                             numeric::Complex(numeric::Real2(rhs.value())));
             } else {
-                return Value(lhs - rhs);
+                return Value(numeric::Complex(lhs) - numeric::Complex(rhs));
             }
         },
         value_, other.value_);
@@ -94,19 +73,11 @@ Value Value::operator*(const Value& other) const noexcept {
             using Lhs = std::decay_t<decltype(lhs)>;
             using Rhs = std::decay_t<decltype(rhs)>;
 
-            if constexpr (std::is_same_v<Lhs, numeric::Real> &&
-                          std::is_same_v<Rhs, numeric::Real>) {
+            if constexpr (std::is_same_v<Lhs, numeric::Real2> &&
+                          std::is_same_v<Rhs, numeric::Real2>) {
                 return Value(lhs * rhs);
-            } else if constexpr (std::is_same_v<Lhs, numeric::Real> &&
-                                 std::is_same_v<Rhs, numeric::Complex>) {
-                return Value(numeric::Complex(numeric::Real2(lhs.value())) *
-                             rhs);
-            } else if constexpr (std::is_same_v<Lhs, numeric::Complex> &&
-                                 std::is_same_v<Rhs, numeric::Real>) {
-                return Value(lhs *
-                             numeric::Complex(numeric::Real2(rhs.value())));
             } else {
-                return Value(lhs * rhs);
+                return Value(numeric::Complex(lhs) * numeric::Complex(rhs));
             }
         },
         value_, other.value_);
@@ -118,19 +89,11 @@ Value Value::operator/(const Value& other) const {
             using Lhs = std::decay_t<decltype(lhs)>;
             using Rhs = std::decay_t<decltype(rhs)>;
 
-            if constexpr (std::is_same_v<Lhs, numeric::Real> &&
-                          std::is_same_v<Rhs, numeric::Real>) {
+            if constexpr (std::is_same_v<Lhs, numeric::Real2> &&
+                          std::is_same_v<Rhs, numeric::Real2>) {
                 return Value(lhs / rhs);
-            } else if constexpr (std::is_same_v<Lhs, numeric::Real> &&
-                                 std::is_same_v<Rhs, numeric::Complex>) {
-                return Value(numeric::Complex(numeric::Real2(lhs.value())) /
-                             rhs);
-            } else if constexpr (std::is_same_v<Lhs, numeric::Complex> &&
-                                 std::is_same_v<Rhs, numeric::Real>) {
-                return Value(lhs /
-                             numeric::Complex(numeric::Real2(rhs.value())));
             } else {
-                return Value(lhs / rhs);
+                return Value(numeric::Complex(lhs) / numeric::Complex(rhs));
             }
         },
         value_, other.value_);
@@ -149,17 +112,11 @@ bool Value::operator==(const Value& other) const {
             using Lhs = std::decay_t<decltype(lhs)>;
             using Rhs = std::decay_t<decltype(rhs)>;
 
-            if constexpr (std::is_same_v<Lhs, numeric::Real> &&
-                          std::is_same_v<Rhs, numeric::Real>) {
+            if constexpr (std::is_same_v<Lhs, numeric::Real2> &&
+                          std::is_same_v<Rhs, numeric::Real2>) {
                 return lhs == rhs;
-            } else if constexpr (std::is_same_v<Lhs, numeric::Real> &&
-                                 std::is_same_v<Rhs, numeric::Complex>) {
-                return numeric::Complex(numeric::Real2(lhs.value())) == rhs;
-            } else if constexpr (std::is_same_v<Lhs, numeric::Complex> &&
-                                 std::is_same_v<Rhs, numeric::Real>) {
-                return lhs == numeric::Complex(numeric::Real2(rhs.value()));
             } else {
-                return lhs == rhs;
+                return numeric::Complex(lhs) == numeric::Complex(rhs);
             }
         },
         value_, other.value_);
@@ -173,7 +130,7 @@ bool Value::operator<(const Value& other) const {
             "Value: ordering is only defined for real values.");
     }
 
-    return real().value() < other.real().value();
+    return real() < other.real();
 }
 
 bool Value::operator<=(const Value& other) const {
@@ -182,7 +139,7 @@ bool Value::operator<=(const Value& other) const {
             "Value: ordering is only defined for real values.");
     }
 
-    return real().value() <= other.real().value();
+    return real() <= other.real();
 }
 
 bool Value::operator>(const Value& other) const {
@@ -191,7 +148,7 @@ bool Value::operator>(const Value& other) const {
             "Value: ordering is only defined for real values.");
     }
 
-    return real().value() > other.real().value();
+    return real() > other.real();
 }
 
 bool Value::operator>=(const Value& other) const {
@@ -200,38 +157,31 @@ bool Value::operator>=(const Value& other) const {
             "Value: ordering is only defined for real values.");
     }
 
-    return real().value() >= other.real().value();
+    return real() >= other.real();
 }
 
 Value Value::parse(std::string_view value) {
-    return Value(std::stod(std::string(value)));
+    return Value(numeric::Real2(value));
 }
 
 std::string Value::str() const {
-    std::ostringstream os;
-
     if (isReal()) {
-        os << std::setprecision(
-                  std::numeric_limits<numeric::Real::Storage>::max_digits10)
-           << real().value();
-
-        return os.str();
+        return real().toString();
     }
 
-    const auto& complex = this->complex();
+    const auto& value = complex();
+    std::ostringstream os;
 
-    os << std::setprecision(
-              std::numeric_limits<numeric::Real::Storage>::max_digits10)
-       << complex.real().toString();
+    os << value.real().toString();
 
-    const auto& imaginary = complex.imaginary();
+    const auto& imaginary = value.imaginary();
 
-    if (imaginary != numeric::Real2(0.0)) {
-        if (imaginary == numeric::Real2(-1.0)) {
+    if (imaginary != numeric::Real2(0)) {
+        if (imaginary == numeric::Real2(-1)) {
             os << "-i";
-        } else if (imaginary == numeric::Real2(1.0)) {
+        } else if (imaginary == numeric::Real2(1)) {
             os << "+i";
-        } else if (imaginary < numeric::Real2(0.0)) {
+        } else if (imaginary < numeric::Real2(0)) {
             os << imaginary.toString() << "i";
         } else {
             os << "+" << imaginary.toString() << "i";

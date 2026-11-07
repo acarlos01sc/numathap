@@ -14,6 +14,7 @@
 #include <utility>
 
 #include "numathap/backend/differentiate/CMathDifferentiator.hpp"
+#include "numathap/core/Value.hpp"
 
 namespace numathap::backend::series {
 
@@ -1261,7 +1262,7 @@ SeriesDag::DerivativeVector SeriesDag::leibnizProduct(
     DerivativeVector result(order + 1, core::Value::parse("0"));
 
     for (std::size_t n = 0; n <= order; ++n) {
-        core::Value sum(0.0);
+        core::Value sum = core::Value::parse("0");
 
         for (std::size_t k = 0; k <= n; ++k) {
             sum = sum + binomial(n, k) * left[k] * right[n - k];
@@ -1287,7 +1288,7 @@ SeriesDag::DerivativeVector SeriesDag::reciprocal(
 
     const std::size_t order = value.size() - 1;
 
-    DerivativeVector result(order + 1, core::Value(0.0));
+    DerivativeVector result(order + 1, core::Value::parse("0"));
 
     result[0] = core::Value::parse("1") / value[0];
 
@@ -1303,7 +1304,7 @@ SeriesDag::DerivativeVector SeriesDag::reciprocal(
      * for n > 0.
      */
     for (std::size_t n = 1; n <= order; ++n) {
-        core::Value sum(0.0);
+        core::Value sum = core::Value::parse("0");
 
         for (std::size_t k = 1; k <= n; ++k) {
             sum = sum + binomial(n, k) * value[k] * result[n - k];
@@ -1389,7 +1390,7 @@ SeriesDag::DerivativeVector SeriesDag::exponential(
      *     C(n-1,k) y^(k) u^(n-k)
      */
     for (std::size_t n = 1; n <= order; ++n) {
-        core::Value sum(0.0);
+        core::Value sum = core::Value::parse("0");
 
         for (std::size_t k = 0; k < n; ++k) {
             sum = sum + binomial(n - 1, k) * result[k] * value[n - k];
@@ -1476,7 +1477,7 @@ SeriesDag::DerivativeVector SeriesDag::powerConstant(
          */
         if (isInteger && !negative) {
             if (power == 0) {
-                DerivativeVector result(order + 1, core::Value(0.0));
+                DerivativeVector result(order + 1, core::Value::parse("0.0"));
 
                 result[0] = core::Value::parse("1");
 
@@ -1560,8 +1561,8 @@ SeriesDag::DerivativeVector SeriesDag::powerConstant(
      * The term containing y^(n) on the left is y^(n) u.
      */
     for (std::size_t n = 1; n <= order; ++n) {
-        core::Value rhs(0.0);
-        core::Value lhs(0.0);
+        core::Value rhs(core::Value::parse("0"));
+        core::Value lhs(core::Value::parse("0"));
 
         for (std::size_t k = 0; k < n; ++k) {
             rhs = rhs + binomial(n - 1, k) * result[k] * base[n - k];
@@ -1644,8 +1645,8 @@ SeriesDag::DerivativeVector SeriesDag::sineCosine(
     c[0] = evaluateMathFunction("cos", {argument[0]});
 
     for (std::size_t n = 1; n <= order; ++n) {
-        core::Value sinSum(0.0);
-        core::Value cosSum(0.0);
+        core::Value sinSum(numeric::Real2(0.0));
+        core::Value cosSum(numeric::Real2(0.0));
 
         for (std::size_t k = 0; k < n; ++k) {
             const auto coefficient = binomial(n - 1, k);
@@ -1679,8 +1680,8 @@ SeriesDag::DerivativeVector SeriesDag::hyperbolicSineCosine(
     c[0] = evaluateMathFunction("cosh", {argument[0]});
 
     for (std::size_t n = 1; n <= order; ++n) {
-        core::Value sinhSum(0.0);
-        core::Value coshSum(0.0);
+        core::Value sinhSum(numeric::Real2(0.0));
+        core::Value coshSum(numeric::Real2(0.0));
 
         for (std::size_t k = 0; k < n; ++k) {
             const auto coefficient = binomial(n - 1, k);
@@ -1899,7 +1900,7 @@ core::Value SeriesDag::binomial(std::size_t n, std::size_t k) {
 
     k = std::min(k, n - k);
 
-    core::Value result(1.0);
+    core::Value result(core::Value::parse("1"));
 
     for (std::size_t i = 1; i <= k; ++i) {
         result = result * core::Value::parse(std::to_string(n - k + i));

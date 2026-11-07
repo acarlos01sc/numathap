@@ -39,7 +39,7 @@ void runTaylorTest(const char* expressionText, std::size_t order,
         _exit(1);
     }
 
-    const auto actualResult = result.real().value();
+    const auto actualResult = result.real().nativeValue();
 
     if (actualResult < expectedResult - kTolerance ||
         actualResult > expectedResult + kTolerance) {

@@ -26,7 +26,9 @@ namespace numathap::backend::integrate {
  * process.
  */
 struct AdaptiveSimpsonConfig {
-    core::Value tolerance = core::Value(1e-10);
+    core::Value tolerance =
+        core::Value(numeric::Real2(1e-10));
+
     std::size_t maxDepth = 20;
 };
 

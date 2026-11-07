@@ -29,9 +29,9 @@ namespace {
 using NativeType = double;
 using numathap::core::Value;
 
-inline NativeType toDouble(const Value& value) { return value.real().value(); }
+inline NativeType toDouble(const Value& value) { return value.real().nativeValue(); }
 
-inline Value makeValue(NativeType value) { return Value(value); }
+inline Value makeValue(NativeType value) { return Value(numeric::Real2(value)); }
 
 void expectArguments(std::string_view function,
                      std::span<const Value> arguments, std::size_t expected) {
