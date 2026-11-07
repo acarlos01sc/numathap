@@ -44,6 +44,25 @@ option(NUMATHAP_INSTALL_CPP
 	ON
 )
 
+set(
+	NUMATHAP_REAL_TYPE
+	"DOUBLE"
+	CACHE
+		STRING
+		"Numeric representation used by numathap"
+)
+
+set_property(
+	CACHE NUMATHAP_REAL_TYPE
+	PROPERTY
+		STRINGS
+		DOUBLE
+		LONG_DOUBLE
+		MULTIPRECISION
+)
+
+string(TOUPPER "${NUMATHAP_REAL_TYPE}" NUMATHAP_REAL_TYPE)
+
 #----------------------------------------------------------
 # numathap library
 #----------------------------------------------------------
@@ -103,6 +122,26 @@ add_library(numathap
 	# series
 	${SOURCES_SERIES}
 )
+
+#----------------------------------------------------------
+# Numeric representation
+#----------------------------------------------------------
+
+if(NUMATHAP_REAL_TYPE STREQUAL "DOUBLE")
+
+	target_compile_definitions(numathap
+		PUBLIC NUMATHAP_REAL_TYPE_DOUBLE=1
+	)
+
+else()
+
+	message(FATAL_ERROR
+		"Unsupported numeric representation: "
+		"${NUMATHAP_REAL_TYPE}. "
+		"Currently supported: DOUBLE."
+	)
+
+endif()
 
 # Public modern name
 add_library(numathap::numathap ALIAS numathap)

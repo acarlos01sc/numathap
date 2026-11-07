@@ -19,7 +19,8 @@ Value::Value(const numeric::Real& value) noexcept : value_(value) {}
 
 Value::Value(const numeric::Complex& value) noexcept : value_(value) {}
 
-Value::Value(numeric::Real::Storage value) noexcept : value_(numeric::Real(value)) {}
+Value::Value(numeric::Real::Storage value) noexcept
+    : value_(numeric::Real(value)) {}
 
 bool Value::isReal() const noexcept {
     return std::holds_alternative<numeric::Real>(value_);
@@ -37,9 +38,7 @@ const numeric::Complex& Value::complex() const {
     return std::get<numeric::Complex>(value_);
 }
 
-const Value::Storage& Value::storage() const noexcept {
-    return value_;
-}
+const Value::Storage& Value::storage() const noexcept { return value_; }
 
 Value Value::operator+(const Value& other) const noexcept {
     return std::visit(
@@ -52,10 +51,12 @@ Value Value::operator+(const Value& other) const noexcept {
                 return Value(lhs + rhs);
             } else if constexpr (std::is_same_v<Lhs, numeric::Real> &&
                                  std::is_same_v<Rhs, numeric::Complex>) {
-                return Value(numeric::Complex(lhs) + rhs);
+                return Value(numeric::Complex(numeric::Real2(lhs.value())) +
+                             rhs);
             } else if constexpr (std::is_same_v<Lhs, numeric::Complex> &&
                                  std::is_same_v<Rhs, numeric::Real>) {
-                return Value(lhs + numeric::Complex(rhs));
+                return Value(lhs +
+                             numeric::Complex(numeric::Real2(rhs.value())));
             } else {
                 return Value(lhs + rhs);
             }
@@ -74,10 +75,12 @@ Value Value::operator-(const Value& other) const noexcept {
                 return Value(lhs - rhs);
             } else if constexpr (std::is_same_v<Lhs, numeric::Real> &&
                                  std::is_same_v<Rhs, numeric::Complex>) {
-                return Value(numeric::Complex(lhs) - rhs);
+                return Value(numeric::Complex(numeric::Real2(lhs.value())) -
+                             rhs);
             } else if constexpr (std::is_same_v<Lhs, numeric::Complex> &&
                                  std::is_same_v<Rhs, numeric::Real>) {
-                return Value(lhs - numeric::Complex(rhs));
+                return Value(lhs -
+                             numeric::Complex(numeric::Real2(rhs.value())));
             } else {
                 return Value(lhs - rhs);
             }
@@ -96,10 +99,12 @@ Value Value::operator*(const Value& other) const noexcept {
                 return Value(lhs * rhs);
             } else if constexpr (std::is_same_v<Lhs, numeric::Real> &&
                                  std::is_same_v<Rhs, numeric::Complex>) {
-                return Value(numeric::Complex(lhs) * rhs);
+                return Value(numeric::Complex(numeric::Real2(lhs.value())) *
+                             rhs);
             } else if constexpr (std::is_same_v<Lhs, numeric::Complex> &&
                                  std::is_same_v<Rhs, numeric::Real>) {
-                return Value(lhs * numeric::Complex(rhs));
+                return Value(lhs *
+                             numeric::Complex(numeric::Real2(rhs.value())));
             } else {
                 return Value(lhs * rhs);
             }
@@ -118,10 +123,12 @@ Value Value::operator/(const Value& other) const {
                 return Value(lhs / rhs);
             } else if constexpr (std::is_same_v<Lhs, numeric::Real> &&
                                  std::is_same_v<Rhs, numeric::Complex>) {
-                return Value(numeric::Complex(lhs) / rhs);
+                return Value(numeric::Complex(numeric::Real2(lhs.value())) /
+                             rhs);
             } else if constexpr (std::is_same_v<Lhs, numeric::Complex> &&
                                  std::is_same_v<Rhs, numeric::Real>) {
-                return Value(lhs / numeric::Complex(rhs));
+                return Value(lhs /
+                             numeric::Complex(numeric::Real2(rhs.value())));
             } else {
                 return Value(lhs / rhs);
             }
@@ -129,16 +136,11 @@ Value Value::operator/(const Value& other) const {
         value_, other.value_);
 }
 
-Value Value::operator+() const noexcept {
-    return *this;
-}
+Value Value::operator+() const noexcept { return *this; }
 
 Value Value::operator-() const noexcept {
-    return std::visit(
-        [](const auto& value) -> Value {
-            return Value(-value);
-        },
-        value_);
+    return std::visit([](const auto& value) -> Value { return Value(-value); },
+                      value_);
 }
 
 bool Value::operator==(const Value& other) const {
@@ -152,10 +154,10 @@ bool Value::operator==(const Value& other) const {
                 return lhs == rhs;
             } else if constexpr (std::is_same_v<Lhs, numeric::Real> &&
                                  std::is_same_v<Rhs, numeric::Complex>) {
-                return numeric::Complex(lhs) == rhs;
+                return numeric::Complex(numeric::Real2(lhs.value())) == rhs;
             } else if constexpr (std::is_same_v<Lhs, numeric::Complex> &&
                                  std::is_same_v<Rhs, numeric::Real>) {
-                return lhs == numeric::Complex(rhs);
+                return lhs == numeric::Complex(numeric::Real2(rhs.value()));
             } else {
                 return lhs == rhs;
             }
@@ -163,9 +165,7 @@ bool Value::operator==(const Value& other) const {
         value_, other.value_);
 }
 
-bool Value::operator!=(const Value& other) const {
-    return !(*this == other);
-}
+bool Value::operator!=(const Value& other) const { return !(*this == other); }
 
 bool Value::operator<(const Value& other) const {
     if (!isReal() || !other.isReal()) {
@@ -222,17 +222,19 @@ std::string Value::str() const {
 
     os << std::setprecision(
               std::numeric_limits<numeric::Real::Storage>::max_digits10)
-       << complex.real().value();
+       << complex.real().toString();
 
-    if (complex.imaginary() != numeric::Real(0.0)) {
-        if (complex.imaginary() == numeric::Real(-1.0)) {
+    const auto& imaginary = complex.imaginary();
+
+    if (imaginary != numeric::Real2(0.0)) {
+        if (imaginary == numeric::Real2(-1.0)) {
             os << "-i";
-        } else if (complex.imaginary() == numeric::Real(1.0)) {
+        } else if (imaginary == numeric::Real2(1.0)) {
             os << "+i";
-        } else if (complex.imaginary().value() < 0.0) {
-            os << complex.imaginary().value() << "i";
+        } else if (imaginary < numeric::Real2(0.0)) {
+            os << imaginary.toString() << "i";
         } else {
-            os << "+" << complex.imaginary().value() << "i";
+            os << "+" << imaginary.toString() << "i";
         }
     }
 

@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <type_traits>
 #include <vector>
 
@@ -57,54 +58,46 @@ core::Value BackendSupport::evaluateConstant(
 core::Value BackendSupport::evaluateConstant_cx(
     const std::string& expression, const core::Context& context,
     const config::MathEnvironment& environment) {
+    //
+    // 1. Numeric literal
+    //
 
-  //
-  // 1. Numeric literal
-  //
+    try {
+        std::size_t pos = 0;
 
-  try {
+        const auto value = std::stod(expression, &pos);
 
-    std::size_t pos = 0;
+        if (pos == expression.size()) {
+            return core::Value(numeric::Complex(
+                numeric::Real2(std::to_string(value)), numeric::Real2(0.0)));
+        }
 
-    const auto value = std::stod(expression, &pos);
-
-    if (pos == expression.size()) {
-
-      return core::Value(
-          numeric::Complex(numeric::Real(value), numeric::Real(0.0)));
-
+    } catch (...) {
     }
 
-  } catch (...) {
-  }
+    //
+    // 2. Mathematical constant
+    //
 
-  //
-  // 2. Mathematical constant
-  //
+    try {
+        return environment.mathAdapter().resolveConstant(expression);
 
-  try {
+    } catch (...) {
+    }
 
-    return environment.mathAdapter().resolveConstant(expression);
+    //
+    // 3. Constant expression
+    //
 
-  } catch (...) {
-  }
+    try {
+        auto prepared = math::prepare(expression, environment);
 
-  //
-  // 3. Constant expression
-  //
+        return backend::evaluate_cx(prepared, context);
 
-  try {
-
-    auto prepared = math::prepare(expression, environment);
-
-    return backend::evaluate_cx(prepared, context);
-
-  } catch (const std::exception& ex) {
-
-    throw std::invalid_argument(
-        "Complex constant expression: \"" + expression +
-        "\" failed: " + ex.what());
-  }
+    } catch (const std::exception& ex) {
+        throw std::invalid_argument("Complex constant expression: \"" +
+                                    expression + "\" failed: " + ex.what());
+    }
 }
 
 math::MathNodePtr BackendSupport::cloneNode(const math::MathNode& node) {

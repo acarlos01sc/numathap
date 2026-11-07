@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#include "numathap/numeric/Real.hpp"
+#include "numathap/numeric/Real2.hpp"
 
 namespace numathap::numeric {
 
@@ -19,7 +19,7 @@ namespace numathap::numeric {
  *     z = a + bi
  *
  * where both the real and imaginary components are represented by
- * numathap::numeric::Real.
+ * numathap::numeric::Real2.
  *
  * The class does not depend on std::complex or directly on a floating-point
  * type. This preserves the numeric abstraction provided by Real and allows
@@ -42,7 +42,7 @@ class Complex {
      *
      * @param real The real component.
      */
-    explicit Complex(const Real& real) noexcept;
+    explicit Complex(const Real2& real) noexcept;
 
     /**
      * @brief Construct a complex number from its Cartesian components.
@@ -50,7 +50,7 @@ class Complex {
      * @param real The real component.
      * @param imaginary The imaginary component.
      */
-    Complex(const Real& real, const Real& imaginary) noexcept;
+    Complex(const Real2& real, const Real2& imaginary) noexcept;
 
     /**
      * @brief Return the real component.
@@ -58,7 +58,7 @@ class Complex {
      * @return A reference to the real component.
      */
     [[nodiscard]]
-    const Real& real() const noexcept;
+    const Real2& real() const noexcept;
 
     /**
      * @brief Return the imaginary component.
@@ -66,7 +66,7 @@ class Complex {
      * @return A reference to the imaginary component.
      */
     [[nodiscard]]
-    const Real& imaginary() const noexcept;
+    const Real2& imaginary() const noexcept;
 
     /**
      * @brief Return the complex conjugate.
@@ -90,7 +90,7 @@ class Complex {
      * @return The squared modulus.
      */
     [[nodiscard]]
-    Real norm() const noexcept;
+    Real2 norm() const noexcept;
 
     /**
      * @brief Return the modulus of the complex number.
@@ -102,7 +102,7 @@ class Complex {
      * @return The non-negative modulus.
      */
     [[nodiscard]]
-    Real modulus() const;
+    Real2 modulus() const;
 
     /**
      * @brief Add another complex number.
@@ -172,10 +172,10 @@ class Complex {
 
    private:
     /// @brief Real component.
-    Real real_{};
+    Real2 real_{};
 
     /// @brief Imaginary component.
-    Real imaginary_{};
+    Real2 imaginary_{};
 };
 
 }  // namespace numathap::numeric
