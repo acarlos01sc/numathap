@@ -27,13 +27,13 @@ class Real2 {
     /**
      * @brief Constructs a Real2 initialized to zero.
      */
-    Real2() noexcept = default;
+    Real2() = default;
 
     /**
      * @brief Constructs a Real2 from an integer.
      * @param value Initial integer value.
      */
-    explicit Real2(int value) noexcept;
+    explicit Real2(int value);
 
     /**
      * @brief Constructs a Real2 from a decimal string.
@@ -49,37 +49,37 @@ class Real2 {
      * @brief Constructs a Real2 from the selected native representation.
      * @param value Initial numeric value.
      */
-    explicit Real2(detail::Real2Representation value) noexcept;
+    explicit Real2(detail::Real2Representation value);
 
     /**
      * @brief Adds another real number.
      */
     [[nodiscard]]
-    Real2 operator+(const Real2& other) const noexcept;
+    Real2 operator+(const Real2& other) const;
 
     /**
      * @brief Subtracts another real number.
      */
     [[nodiscard]]
-    Real2 operator-(const Real2& other) const noexcept;
+    Real2 operator-(const Real2& other) const;
 
     /**
      * @brief Multiplies by another real number.
      */
     [[nodiscard]]
-    Real2 operator*(const Real2& other) const noexcept;
+    Real2 operator*(const Real2& other) const;
 
     /**
      * @brief Divides by another real number.
      */
     [[nodiscard]]
-    Real2 operator/(const Real2& other) const noexcept;
+    Real2 operator/(const Real2& other) const;
 
     /**
      * @brief Returns the negated value.
      */
     [[nodiscard]]
-    Real2 operator-() const noexcept;
+    Real2 operator-() const;
 
     /**
      * @brief Returns the sqrt value.
@@ -91,43 +91,43 @@ class Real2 {
      * @brief Compares two real numbers for equality.
      */
     [[nodiscard]]
-    bool operator==(const Real2& other) const noexcept;
+    bool operator==(const Real2& other) const;
 
     /**
      * @brief Compares two real numbers for inequality.
      */
     [[nodiscard]]
-    bool operator!=(const Real2& other) const noexcept;
+    bool operator!=(const Real2& other) const;
 
     /**
      * @brief Checks whether this value is less than another.
      */
     [[nodiscard]]
-    bool operator<(const Real2& other) const noexcept;
+    bool operator<(const Real2& other) const;
 
     /**
      * @brief Checks whether this value is less than or equal to another.
      */
     [[nodiscard]]
-    bool operator<=(const Real2& other) const noexcept;
+    bool operator<=(const Real2& other) const;
 
     /**
      * @brief Checks whether this value is greater than another.
      */
     [[nodiscard]]
-    bool operator>(const Real2& other) const noexcept;
+    bool operator>(const Real2& other) const;
 
     /**
      * @brief Checks whether this value is greater than or equal to another.
      */
     [[nodiscard]]
-    bool operator>=(const Real2& other) const noexcept;
+    bool operator>=(const Real2& other) const;
 
     /**
      * @brief Returns the absolute value.
      */
     [[nodiscard]]
-    Real2 abs() const noexcept;
+    Real2 abs() const;
 
     /**
      * @brief Returns the sign of the number.
@@ -141,19 +141,19 @@ class Real2 {
      * @brief Checks whether the value is finite.
      */
     [[nodiscard]]
-    bool isFinite() const noexcept;
+    bool isFinite() const;
 
     /**
      * @brief Checks whether the value is an integer.
      */
     [[nodiscard]]
-    bool isInteger() const noexcept;
+    bool isInteger() const;
 
     /**
      * @brief Returns the machine epsilon of the selected representation.
      */
     [[nodiscard]]
-    static Real2 epsilon() noexcept;
+    static Real2 epsilon();
 
     /**
      * @brief Converts the value to its decimal string representation.
@@ -167,14 +167,14 @@ class Real2 {
      * @return The value using the numeric type selected at compile time.
      */
     [[nodiscard]]
-    detail::Real2Representation nativeValue() const noexcept;
+    detail::Real2Representation nativeValue() const;
 
    private:
     using Representation = detail::Real2Representation;
 
     struct RawTag {};
 
-    Real2(Representation value, RawTag) noexcept;
+    Real2(Representation value, RawTag);
 
     Representation value_{0};
 };

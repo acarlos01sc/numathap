@@ -13,13 +13,16 @@
 #include <string>
 
 // Conditional includes
-#if defined(NUMATHAP_REAL_TYPE_DOUBLE)
+#if defined(NUMATHAP_REAL_TYPE_DOUBLE) || \
+    defined(NUMATHAP_REAL_TYPE_LONG_DOUBLE)
+
 #include <cmath>
+
 #endif
 
 namespace numathap::numeric {
 
-Real2::Real2(int value) noexcept : value_(static_cast<Representation>(value)) {}
+Real2::Real2(int value) : value_(static_cast<Representation>(value)) {}
 
 Real2::Real2(std::string_view value) {
     if (value.empty()) {
@@ -47,63 +50,63 @@ Real2::Real2(std::string_view value) {
     value_ = parsed;
 }
 
-Real2::Real2(Representation value) noexcept : value_(value) {}
+Real2::Real2(Representation value) : value_(value) {}
 
-Real2 Real2::operator+(const Real2& other) const noexcept {
+Real2 Real2::operator+(const Real2& other) const {
     Real2 result;
     result.value_ = value_ + other.value_;
     return result;
 }
 
-Real2 Real2::operator-(const Real2& other) const noexcept {
+Real2 Real2::operator-(const Real2& other) const {
     Real2 result;
     result.value_ = value_ - other.value_;
     return result;
 }
 
-Real2 Real2::operator*(const Real2& other) const noexcept {
+Real2 Real2::operator*(const Real2& other) const {
     Real2 result;
     result.value_ = value_ * other.value_;
     return result;
 }
 
-Real2 Real2::operator/(const Real2& other) const noexcept {
+Real2 Real2::operator/(const Real2& other) const {
     Real2 result;
     result.value_ = value_ / other.value_;
     return result;
 }
 
-Real2 Real2::operator-() const noexcept {
+Real2 Real2::operator-() const {
     Real2 result;
     result.value_ = -value_;
     return result;
 }
 
-bool Real2::operator==(const Real2& other) const noexcept {
+bool Real2::operator==(const Real2& other) const {
     return value_ == other.value_;
 }
 
-bool Real2::operator!=(const Real2& other) const noexcept {
+bool Real2::operator!=(const Real2& other) const {
     return value_ != other.value_;
 }
 
-bool Real2::operator<(const Real2& other) const noexcept {
+bool Real2::operator<(const Real2& other) const {
     return value_ < other.value_;
 }
 
-bool Real2::operator<=(const Real2& other) const noexcept {
+bool Real2::operator<=(const Real2& other) const {
     return value_ <= other.value_;
 }
 
-bool Real2::operator>(const Real2& other) const noexcept {
+bool Real2::operator>(const Real2& other) const {
     return value_ > other.value_;
 }
 
-bool Real2::operator>=(const Real2& other) const noexcept {
+bool Real2::operator>=(const Real2& other) const {
     return value_ >= other.value_;
 }
 
-Real2 Real2::abs() const noexcept {
+Real2 Real2::abs() const {
     Real2 result;
 
     result.value_ = value_ < Representation{0} ? -value_ : value_;
@@ -132,33 +135,43 @@ int Real2::sign() const {
     return 0;
 }
 
-bool Real2::isFinite() const noexcept {
+bool Real2::isFinite() const {
     return value_ == value_ &&
            value_ <= std::numeric_limits<Representation>::max() &&
            value_ >= std::numeric_limits<Representation>::lowest();
 }
 
-bool Real2::isInteger() const noexcept {
+bool Real2::isInteger() const {
     if (!isFinite()) {
         return false;
     }
 
-#if defined(NUMATHAP_REAL_TYPE_DOUBLE)
+#if defined(NUMATHAP_REAL_TYPE_DOUBLE) || \
+    defined(NUMATHAP_REAL_TYPE_LONG_DOUBLE)
+
     return std::trunc(value_) == value_;
-#else
-#error "isInteger() is not implemented for this numeric representation."
+
+#elif defined(NUMATHAP_REAL_TYPE_MULTIPRECISION)
+
+#error "Multiprecision isInteger() implementation is pending."
+
 #endif
 }
 
 Real2 Real2::sqrt() const {
-#if defined(NUMATHAP_REAL_TYPE_DOUBLE)
+#if defined(NUMATHAP_REAL_TYPE_DOUBLE) || \
+    defined(NUMATHAP_REAL_TYPE_LONG_DOUBLE)
+
     return Real2(std::sqrt(value_), RawTag{});
-#else
-#error "sqrt() is not implemented for this numeric representation."
+
+#elif defined(NUMATHAP_REAL_TYPE_MULTIPRECISION)
+
+#error "Multiprecision sqrt() implementation is pending."
+
 #endif
 }
 
-Real2 Real2::epsilon() noexcept {
+Real2 Real2::epsilon() {
     Real2 result;
     result.value_ = std::numeric_limits<Representation>::epsilon();
     return result;
@@ -175,10 +188,8 @@ std::string Real2::toString() const {
     return stream.str();
 }
 
-detail::Real2Representation Real2::nativeValue() const noexcept {
-    return value_;
-}
+detail::Real2Representation Real2::nativeValue() const { return value_; }
 
-Real2::Real2(Representation value, RawTag) noexcept : value_(value) {}
+Real2::Real2(Representation value, RawTag) : value_(value) {}
 
 }  // namespace numathap::numeric
