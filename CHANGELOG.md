@@ -4,6 +4,7 @@
 
 - Fixed incorrect Taylor series expansions for inverse trigonometric functions (`asin`, `acos`, and `atan`) caused by an error in derivative computation.
 - log1p function mapped to the library
+- Migrate from Real to Real2
 
 ## Release v0.1.9
 
