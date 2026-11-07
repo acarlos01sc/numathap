@@ -61,7 +61,10 @@ set_property(
 		MULTIPRECISION
 )
 
-string(TOUPPER "${NUMATHAP_REAL_TYPE}" NUMATHAP_REAL_TYPE)
+string(TOUPPER
+	"${NUMATHAP_REAL_TYPE}"
+	NUMATHAP_REAL_TYPE_NORMALIZED
+)
 
 #----------------------------------------------------------
 # numathap library
@@ -127,18 +130,33 @@ add_library(numathap
 # Numeric representation
 #----------------------------------------------------------
 
-if(NUMATHAP_REAL_TYPE STREQUAL "DOUBLE")
+if(NUMATHAP_REAL_TYPE_NORMALIZED STREQUAL "DOUBLE")
 
 	target_compile_definitions(numathap
 		PUBLIC NUMATHAP_REAL_TYPE_DOUBLE=1
 	)
 
+elseif(NUMATHAP_REAL_TYPE_NORMALIZED
+	STREQUAL
+	"LONG_DOUBLE"
+	OR
+	NUMATHAP_REAL_TYPE_NORMALIZED
+	STREQUAL
+	"MULTIPRECISION"
+)
+
+	message(FATAL_ERROR
+		"Numeric representation '${NUMATHAP_REAL_TYPE_NORMALIZED}' "
+		"is not implemented yet. "
+		"Currently supported: DOUBLE."
+	)
+
 else()
 
 	message(FATAL_ERROR
-		"Unsupported numeric representation: "
-		"${NUMATHAP_REAL_TYPE}. "
-		"Currently supported: DOUBLE."
+		"Invalid NUMATHAP_REAL_TYPE: "
+		"'${NUMATHAP_REAL_TYPE}'. "
+		"Valid options: DOUBLE, LONG_DOUBLE, MULTIPRECISION."
 	)
 
 endif()
