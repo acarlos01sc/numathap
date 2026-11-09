@@ -18,6 +18,7 @@ jobs:
         uses: pypa/cibuildwheel@v4.1.1
         env:
           CIBW_BUILD: cp312-manylinux_x86_64
+          CIBW_BUILD_VERBOSITY: "3"
 
       - name: Test wheel installation
         run: |

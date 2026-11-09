@@ -22,13 +22,15 @@ void bindValue(py::module_& m) {
              R"pbdoc(
           Create a Value initialized to zero.
           )pbdoc")
-        .def(py::init<double>(),
+        .def(py::init([](double value) {
+                 return numathap::Value(numathap::numeric::Real2(value));
+             }),
              R"pbdoc(
-          Create a Value from a Python float.
+      Create a Value from a Python float.
 
-          Args:
-              value: The floating-point number to wrap.
-          )pbdoc")
+      Args:
+          value: The floating-point number to wrap.
+      )pbdoc")
         // Arithmetic operators
         .def(
             "__add__",
@@ -172,7 +174,9 @@ void bindValue(py::module_& m) {
           )pbdoc")
         .def(
             "real",
-            [](const numathap::Value& value) { return value.real().value(); },
+            [](const numathap::Value& value) {
+                return value.real().nativeValue();
+            },
             R"pbdoc(
     Return the real component as a Python float.
     )pbdoc");
