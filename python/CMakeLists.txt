@@ -35,12 +35,6 @@ pybind11_add_module(
     bindings/series.cpp
 )
 
-set_target_properties(_numathap
-	PROPERTIES
-		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/numathap
-		RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/numathap
-)
-
 target_link_libraries(_numathap
 	PRIVATE numathap
 )

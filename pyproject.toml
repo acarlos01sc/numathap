@@ -67,3 +67,7 @@ build-dir = "build/{wheel_tag}"
 
 NUMATHAP_BUILD_PYTHON = "ON"
 NUMATHAP_INSTALL_CPP = "OFF"
+
+[tool.cibuildwheel]
+
+build-verbosity = 1
