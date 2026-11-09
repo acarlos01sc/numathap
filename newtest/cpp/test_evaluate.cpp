@@ -27,7 +27,7 @@ void evaluateExpression() {
         context.setValue("x", "2");
 
         const auto result = numathap::evaluate(ast, context);
-        const auto value = result.real().value();
+        const auto value = result.real().nativeValue();
 
         if (value >= 8.0 - 1e-12 && value <= 8.0 + 1e-12) {
             _exit(0);
@@ -101,7 +101,7 @@ TEST(Evaluate, MultipleVariables) {
     context.setValue("z", "5");
 
     const auto result = numathap::evaluate(ast, context);
-    const auto value = result.real().value();
+    const auto value = result.real().nativeValue();
 
     EXPECT_NEAR(value, 15.0, 1e-12);
 }
@@ -133,7 +133,7 @@ TEST(Evaluate, CustomMathEnvironment) {
 
     const auto result = numathap::evaluate(ast, context);
 
-    EXPECT_NEAR(result.real().value(), 12.0, 1e-12);
+    EXPECT_NEAR(result.real().nativeValue(), 12.0, 1e-12);
 }
 
 TEST(Evaluate, DivisionAndLogarithm) {
@@ -146,5 +146,5 @@ TEST(Evaluate, DivisionAndLogarithm) {
 
     const auto result = numathap::evaluate(ast, context);
 
-    EXPECT_NEAR(result.real().value(), 5.0, 1e-12);
+    EXPECT_NEAR(result.real().nativeValue(), 5.0, 1e-12);
 }

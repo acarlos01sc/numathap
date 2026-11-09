@@ -128,3 +128,40 @@ def test_taylor_reciprocal_trigonometric_expression(order, expected):
         expected,
         abs=1e-8,
     )
+
+
+@pytest.mark.parametrize(
+    "expression, expected",
+    [
+        ("asin(x)", 0.1001674211615598),
+        ("acos(x)", 1.4706289056333368),
+        ("atan(x)", 0.09966865249116204),
+    ],
+    ids=["asin", "acos", "atan"],
+)
+@pytest.mark.parametrize(
+    "order",
+    [10, 20],
+    ids=["10_terms", "20_terms"],
+)
+def test_taylor_inverse_trigonometric_functions(expression, expected, order):
+    config = _numathap.TaylorConfig()
+    config.order = order
+    environment = _numathap.configure(config)
+
+    prepared_expression = _numathap.prepare(expression)
+    expansion = _numathap.series(
+        prepared_expression,
+        "x",
+        "0",
+        environment,
+    )
+
+    context = _numathap.Context()
+    context.set_value("x", "0.1")
+    result = _numathap.evaluate(expansion, context)
+
+    assert result.real() == pytest.approx(
+        expected,
+        abs=1e-8,
+    )

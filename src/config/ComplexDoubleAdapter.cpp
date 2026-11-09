@@ -15,6 +15,9 @@
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <iomanip>
+#include <sstream>
+#include "numathap/numeric/Real2.hpp"
 
 namespace numathap::config {
 
@@ -23,6 +26,15 @@ namespace {
 using NativeComplex = std::complex<double>;
 
 constexpr double TWO_PI = 2.0 * std::numbers::pi_v<double>;
+
+std::string toString(double value) {
+    std::ostringstream stream;
+
+    stream << std::setprecision(std::numeric_limits<double>::max_digits10)
+           << value;
+
+    return stream.str();
+}
 
 /**
  * @brief Converts a numathap Complex value to std::complex<double>.
@@ -35,16 +47,17 @@ NativeComplex toNative(const core::Value& value) {
 
     const numeric::Complex& value_complex = value.complex();
 
-    return NativeComplex(value_complex.real().value(),
-                         value_complex.imaginary().value());
+    return NativeComplex(std::stod(value_complex.real().toString()),
+                         std::stod(value_complex.imaginary().toString()));
 }
 
 /**
  * @brief Converts a std::complex<double> to a numathap Complex value.
  */
 core::Value fromNative(const NativeComplex& value) {
-    return core::Value(numeric::Complex(numeric::Real(value.real()),
-                                        numeric::Real(value.imag())));
+    return core::Value(
+        numeric::Complex(numeric::Real2(toString(value.real())),
+                         numeric::Real2(toString(value.imag()))));
 }
 
 /**
@@ -69,17 +82,17 @@ int branchIndex(std::string_view function, const core::Value& value) {
     double k = 0.0;
 
     if (value.isReal()) {
-        k = value.real().value();
+        k = value.real().nativeValue();
     } else if (value.isComplex()) {
         const auto& complex = value.complex();
 
-        if (complex.imaginary().value() != 0.0) {
+        if (complex.imaginary() != numeric::Real2(0)) {
             throw std::invalid_argument("Branch index k of function '" +
                                         std::string(function) +
                                         "' must be real.");
         }
 
-        k = complex.real().value();
+        k = std::stod(complex.real().toString());
     } else {
         throw std::invalid_argument("Branch index k of function '" +
                                     std::string(function) + "' must be real.");
@@ -288,19 +301,19 @@ core::Value ComplexDoubleAdapter::callFunction(
     if (function == "abs") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(numeric::Real(std::abs(toNative(arguments[0]))));
+        return core::Value(numeric::Real2(std::abs(toNative(arguments[0]))));
     }
 
     if (function == "arg") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(numeric::Real(std::arg(toNative(arguments[0]))));
+        return core::Value(numeric::Real2(std::arg(toNative(arguments[0]))));
     }
 
     if (function == "norm") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(numeric::Real(std::norm(toNative(arguments[0]))));
+        return core::Value(numeric::Real2(std::norm(toNative(arguments[0]))));
     }
 
     if (function == "conj") {
@@ -311,13 +324,13 @@ core::Value ComplexDoubleAdapter::callFunction(
     if (function == "real") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(numeric::Real(toNative(arguments[0]).real()));
+        return core::Value(numeric::Real2(toNative(arguments[0]).real()));
     }
 
     if (function == "imag") {
         expectArguments(function, arguments, 1);
 
-        return core::Value(numeric::Real(toNative(arguments[0]).imag()));
+        return core::Value(numeric::Real2(toNative(arguments[0]).imag()));
     }
 
     throw std::invalid_argument("Function '" + std::string(function) +
@@ -328,15 +341,15 @@ core::Value ComplexDoubleAdapter::resolveConstant(
     std::string_view constant) const {
     if (constant == "i" || constant == "j") {
         return core::Value(
-            numeric::Complex(numeric::Real(0.0), numeric::Real(1.0)));
+            numeric::Complex(numeric::Real2(0.0), numeric::Real2(1.0)));
     }
 
     if (constant == "pi") {
-        return core::Value(numeric::Real(std::numbers::pi_v<double>));
+        return core::Value(numeric::Real2(std::numbers::pi_v<double>));
     }
 
     if (constant == "e") {
-        return core::Value(numeric::Real(std::numbers::e_v<double>));
+        return core::Value(numeric::Real2(std::numbers::e_v<double>));
     }
 
     throw std::invalid_argument("Constant '" + std::string(constant) +

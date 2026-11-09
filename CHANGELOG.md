@@ -1,5 +1,12 @@
 # Changelog
 
+## Release v0.1.10
+
+- Fixed incorrect Taylor series expansions for inverse trigonometric functions (`asin`, `acos`, and `atan`) caused by an error in derivative computation.
+- log1p function mapped to the library
+- Migrate from Real to Real2
+- New compiling directives
+
 ## Release v0.1.9
 
 - Created Complex numeric type

@@ -23,9 +23,9 @@ void expectComplexNear(const Value& result, auto expectedReal,
 
     const auto& value = result.complex();
 
-    EXPECT_NEAR(value.real().value(), expectedReal, kTolerance);
-
-    EXPECT_NEAR(value.imaginary().value(), expectedImaginary, kTolerance);
+    EXPECT_NEAR(value.real().nativeValue(), expectedReal, kTolerance);
+    EXPECT_NEAR(value.imaginary().nativeValue(), expectedImaginary,
+                kTolerance);
 }
 
 Value evaluateComplexExpression(const char* expression, const char* variable,

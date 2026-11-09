@@ -29,9 +29,9 @@ namespace {
 using NativeType = double;
 using numathap::core::Value;
 
-inline NativeType toDouble(const Value& value) { return value.real().value(); }
+inline NativeType toDouble(const Value& value) { return value.real().nativeValue(); }
 
-inline Value makeValue(NativeType value) { return Value(value); }
+inline Value makeValue(NativeType value) { return Value(numeric::Real2(value)); }
 
 void expectArguments(std::string_view function,
                      std::span<const Value> arguments, std::size_t expected) {
@@ -105,6 +105,11 @@ Value CMathDoubleAdapter::callFunction(std::string_view function,
     if (function == "log") {
         expectArguments(function, arguments, 1);
         return makeValue(std::log(toDouble(arguments[0])));
+    }
+
+    if (function == "log1p") {
+        expectArguments(function, arguments, 1);
+        return makeValue(std::log1p(toDouble(arguments[0])));
     }
 
     if (function == "log2") {

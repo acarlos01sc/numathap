@@ -44,6 +44,28 @@ option(NUMATHAP_INSTALL_CPP
 	ON
 )
 
+set(
+	NUMATHAP_REAL_TYPE
+	"DOUBLE"
+	CACHE
+		STRING
+		"Numeric representation used by numathap"
+)
+
+set_property(
+	CACHE NUMATHAP_REAL_TYPE
+	PROPERTY
+		STRINGS
+		DOUBLE
+		LONG_DOUBLE
+		MULTIPRECISION
+)
+
+string(TOUPPER
+	"${NUMATHAP_REAL_TYPE}"
+	NUMATHAP_REAL_TYPE_NORMALIZED
+)
+
 #----------------------------------------------------------
 # numathap library
 #----------------------------------------------------------
@@ -103,6 +125,41 @@ add_library(numathap
 	# series
 	${SOURCES_SERIES}
 )
+
+#----------------------------------------------------------
+# Numeric representation
+#----------------------------------------------------------
+
+if(NUMATHAP_REAL_TYPE_NORMALIZED STREQUAL "DOUBLE")
+
+	target_compile_definitions(numathap
+		PUBLIC NUMATHAP_REAL_TYPE_DOUBLE=1
+	)
+
+elseif(NUMATHAP_REAL_TYPE_NORMALIZED
+	STREQUAL
+	"LONG_DOUBLE"
+	OR
+	NUMATHAP_REAL_TYPE_NORMALIZED
+	STREQUAL
+	"MULTIPRECISION"
+)
+
+	message(FATAL_ERROR
+		"Numeric representation '${NUMATHAP_REAL_TYPE_NORMALIZED}' "
+		"is not implemented yet. "
+		"Currently supported: DOUBLE."
+	)
+
+else()
+
+	message(FATAL_ERROR
+		"Invalid NUMATHAP_REAL_TYPE: "
+		"'${NUMATHAP_REAL_TYPE}'. "
+		"Valid options: DOUBLE, LONG_DOUBLE, MULTIPRECISION."
+	)
+
+endif()
 
 # Public modern name
 add_library(numathap::numathap ALIAS numathap)

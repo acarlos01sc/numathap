@@ -35,7 +35,7 @@ struct GaussKronrod15Config {
      * The estimated error is accepted when it is below this threshold
      * for integrals whose magnitude is close to zero.
      */
-    core::Value absoluteTolerance = core::Value(1e-10);
+    core::Value absoluteTolerance = core::Value(numeric::Real2(1e-10));
 
     /**
      * @brief Relative error tolerance.
@@ -43,7 +43,7 @@ struct GaussKronrod15Config {
      * Controls the required accuracy relative to the magnitude of the
      * computed integral.
      */
-    core::Value relativeTolerance = core::Value(1e-10);
+    core::Value relativeTolerance = core::Value(numeric::Real2(1e-10));
 
     /**
      * @brief Maximum number of function evaluations.
