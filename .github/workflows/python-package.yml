@@ -19,6 +19,11 @@ jobs:
         env:
           CIBW_BUILD: cp312-manylinux_x86_64
           CIBW_BUILD_VERBOSITY: "3"
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Test wheel installation
         run: |
